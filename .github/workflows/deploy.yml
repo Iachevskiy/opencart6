@@ -39,7 +39,8 @@ jobs:
       - run: chmod 600 "$HOME/.ssh/key"
 #      - run: rsync -e "ssh -p 20022 -i $HOME/.ssh/key -o StrictHostKeyChecking=no" vychevs4@test-market.ru:/
       - run: ls
-      - run: ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no vychevs4@test-market.ru 'ls'
+      - run: ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no vychevs4@test-market.ru 'ls public_html'
+      - run: cd src && rsync -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress --delete . vychevs4@test-market.ru:/public_html
 
       # Добавляем шаг для создания директории .ssh, если она еще не существует
 #      - name: Create .ssh directory

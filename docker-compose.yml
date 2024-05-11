@@ -1,26 +1,38 @@
 version: '3'
 services:
   opencart:
-    build: tools
+    build: .
     user: 1000:1000
     ports:
       - "80:80"
     volumes:
-      - ./upload:/var/www/html
+      - ./src:/var/www/html
     depends_on:
       - mysql
+    environment:
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - HTTP_SERVER=${HTTP_SERVER}
+      - DB_DRIVER=${DB_DRIVER}
+      - DB_HOSTNAME=${DB_HOSTNAME}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_PORT=${DB_PORT}
+      - DB_PREFIX=${DB_PREFIX}
     command: >
       bash -c "if [ ! -f /var/www/html/install.lock ]; then
                  wait-for-it mysql:3306 -t 60 &&
                  cp config-dist.php config.php
                  cp admin/config-dist.php admin/config.php
-                 php /var/www/html/install/cli_install.php install --username admin --password admin --email email@example.com --http_server http://localhost/ --db_driver mysqli --db_hostname mysql --db_username root --db_password opencart --db_database opencart --db_port 3306 --db_prefix oc_;
+                 php /var/www/html/install/cli_install.php install --username ${ADMIN_USERNAME} --password ${ADMIN_PASSWORD} --email ${ADMIN_EMAIL} --http_server ${HTTP_SERVER} --db_driver ${DB_DRIVER} --db_hostname ${DB_HOSTNAME} --db_username ${DB_USERNAME} --db_password ${DB_PASSWORD} --db_database ${DB_DATABASE} --db_port ${DB_PORT} --db_prefix ${DB_PREFIX} &&
                  touch /var/www/html/install.lock;
                fi &&
                apache2-foreground"
 
   mysql:
-    image: mysql:5.7
+    image: mariadb:10.5.8
     ports:
       - "3306:3306"
     environment:
@@ -36,15 +48,15 @@ services:
     ports:
       - "8080:8080"
 
-  redis:
-    image: redis:latest
-
-  memcached:
-    image: memcached:latest
-
-  postgres:
-    image: postgres:latest
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=opencart
-      - POSTGRES_DB=opencart
+#  redis:
+#    image: redis:latest
+#
+#  memcached:
+#    image: memcached:latest
+#
+#  postgres:
+#    image: postgres:latest
+#    environment:
+#      - POSTGRES_USER=postgres
+#      - POSTGRES_PASSWORD=opencart
+#      - POSTGRES_DB=opencart

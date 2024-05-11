@@ -1,3 +1,23 @@
+#name: Deploy to cPanel
+#
+#on:
+#  push:
+#    branches:
+#      - master
+#
+#jobs:
+#  deploy:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v2
+#
+#      - name: Deploy to cPanel
+#        run: |
+#          ssh vychevs4@test-market.ru 'ls'
+#        env:
+#          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
 name: Deploy to cPanel
 
 on:
@@ -12,9 +32,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # Добавляем шаг для обновления файла known_hosts
+      - name: Update known_hosts
+        run: echo "$KNOWN_HOSTS_PUBLIC_KEY" >> $HOME/.ssh/known_hosts
+        env:
+          KNOWN_HOSTS_PUBLIC_KEY: ${{ secrets.KNOWN_HOSTS_PUBLIC_KEY }}
+
       - name: Deploy to cPanel
+        # Перенаправляем вывод ошибок для команды SSH
         run: |
-          ssh vychevs4@test-market.ru 'ls'
+          ssh -o StrictHostKeyChecking=no vychevs4@test-market.ru 'ls'
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 

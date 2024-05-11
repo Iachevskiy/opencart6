@@ -32,19 +32,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # Setup key
+      - run: set -eu
+      - run: mkdir "$HOME/.ssh"
+      - run: echo "${{ secrets.SSH_PRIVATE_KEY }}" > "$HOME/.ssh/key"
+      - run: chmod 600 "$HOME/.ssh/key"
+
       # Добавляем шаг для создания директории .ssh, если она еще не существует
-      - name: Create .ssh directory
-        run: mkdir -p $HOME/.ssh
+#      - name: Create .ssh directory
+#        run: mkdir -p $HOME/.ssh
 
       # Добавляем шаг для создания файла known_hosts, если его еще нет
-      - name: Create known_hosts file
-        run: touch $HOME/.ssh/known_hosts
+#      - name: Create known_hosts file
+#        run: touch $HOME/.ssh/known_hosts
 
       # Добавляем шаг для обновления файла known_hosts
-      - name: Update known_hosts
-        run: echo "$KNOWN_HOSTS_PUBLIC_KEY" >> $HOME/.ssh/known_hosts
-        env:
-          KNOWN_HOSTS_PUBLIC_KEY: ${{ secrets.KNOWN_HOSTS_PUBLIC_KEY }}
+#      - name: Update known_hosts
+#        run: echo "$KNOWN_HOSTS_PUBLIC_KEY" >> $HOME/.ssh/known_hosts
+#        env:
+#          KNOWN_HOSTS_PUBLIC_KEY: ${{ secrets.KNOWN_HOSTS_PUBLIC_KEY }}
 
       - name: Deploy to cPanel
         # Перенаправляем вывод ошибок для команды SSH

@@ -32,6 +32,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # Добавляем шаг для создания директории .ssh, если она еще не существует
+      - name: Create .ssh directory
+        run: mkdir -p $HOME/.ssh
+
       # Добавляем шаг для создания файла known_hosts, если его еще нет
       - name: Create known_hosts file
         run: touch $HOME/.ssh/known_hosts

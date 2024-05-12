@@ -3,12 +3,10 @@ namespace Opencart\Catalog\Controller\Extension\Opencart\Module;
 /**
  * Class Account
  *
- * @package Opencart\Catalog\Controller\Extension\Opencart\Module
+ * @package
  */
 class Account extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return string
 	 */
 	public function index(): string {

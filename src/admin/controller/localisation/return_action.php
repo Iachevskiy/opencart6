@@ -6,9 +6,8 @@ namespace Opencart\Admin\Controller\Localisation;
  * @package Opencart\Admin\Controller\Localisation
  */
 class ReturnAction extends \Opencart\System\Engine\Controller {
+
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -57,8 +56,6 @@ class ReturnAction extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -68,8 +65,6 @@ class ReturnAction extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -118,6 +113,8 @@ class ReturnAction extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('localisation/return_action');
 
+		$return_action_total = $this->model_localisation_return_action->getTotalReturnActions();
+
 		$results = $this->model_localisation_return_action->getReturnActions($filter_data);
 
 		foreach ($results as $result) {
@@ -148,8 +145,6 @@ class ReturnAction extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$return_action_total = $this->model_localisation_return_action->getTotalReturnActions();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $return_action_total,
 			'page'  => $page,
@@ -166,8 +161,6 @@ class ReturnAction extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -232,8 +225,6 @@ class ReturnAction extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -246,7 +237,7 @@ class ReturnAction extends \Opencart\System\Engine\Controller {
 		}
 
 		foreach ($this->request->post['return_action'] as $language_id => $value) {
-			if (!oc_validate_length($value['name'], 3, 64)) {
+			if ((oc_strlen($value['name']) < 3) || (oc_strlen($value['name']) > 64)) {
 				$json['error']['name_' . $language_id] = $this->language->get('error_name');
 			}
 		}
@@ -268,8 +259,6 @@ class ReturnAction extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Extension\Opencart\Payment;
  */
 class Cheque extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -60,8 +58,6 @@ class Cheque extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {

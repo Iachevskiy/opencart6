@@ -3,12 +3,10 @@ namespace Opencart\Catalog\Controller\Extension\Opencart\Payment;
 /**
  * Class FreeCheckout
  *
- * @package Opencart\Catalog\Controller\Extension\Opencart\Module
+ * @package
  */
 class FreeCheckout extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return string
 	 */
 	public function index(): string {
@@ -20,8 +18,6 @@ class FreeCheckout extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Confirm
-	 *
 	 * @return void
 	 */
 	public function confirm(): void {

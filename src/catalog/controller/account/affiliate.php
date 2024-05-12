@@ -17,7 +17,7 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 
 			$this->session->data['redirect'] = $this->url->link('account/affiliate', 'language=' . $this->config->get('config_language'));
 
-			$this->response->redirect($this->url->link('account/login', 'language=' . $this->config->get('config_language'), true));
+			$this->response->redirect($this->url->link('account/login', 'language=' . $this->config->get('config_language')));
 		}
 
 		$this->document->setTitle($this->language->get('heading_title'));
@@ -44,10 +44,7 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 		];
 
 		$data['save'] = $this->url->link('account/affiliate.save', 'language=' . $this->config->get('config_language') . '&customer_token=' . $this->session->data['customer_token']);
-
-		$this->session->data['upload_token'] = oc_token(32);
-
-		$data['upload'] = $this->url->link('tool/upload', 'language=' . $this->config->get('config_language') . '&upload_token=' . $this->session->data['upload_token']);
+		$data['upload'] = $this->url->link('tool/upload', 'language=' . $this->config->get('config_language'));
 
 		$this->load->model('account/affiliate');
 
@@ -131,7 +128,7 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 		}
 
 		if (!empty($affiliate_info)) {
-			$data['affiliate_custom_field'] = $affiliate_info['custom_field'];
+			$data['affiliate_custom_field'] = json_decode($affiliate_info['custom_field'], true);
 		} else {
 			$data['affiliate_custom_field'] = [];
 		}
@@ -141,7 +138,7 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 		if (!$affiliate_info && $this->config->get('config_affiliate_id')) {
 			$this->load->model('catalog/information');
 
-			$information_info = $this->model_catalog_information->getInformation((int)$this->config->get('config_affiliate_id'));
+			$information_info = $this->model_catalog_information->getInformation($this->config->get('config_affiliate_id'));
 
 			if ($information_info) {
 				$data['text_agree'] = sprintf($this->language->get('text_agree'), $this->url->link('information/information.info', 'language=' . $this->config->get('config_language') . '&information_id=' . $this->config->get('config_affiliate_id')), $information_info['title']);
@@ -167,8 +164,6 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -244,7 +239,7 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 			if (!$affiliate_info) {
 				$this->load->model('catalog/information');
 
-				$information_info = $this->model_catalog_information->getInformation((int)$this->config->get('config_affiliate_id'));
+				$information_info = $this->model_catalog_information->getInformation($this->config->get('config_affiliate_id'));
 
 				if ($information_info && !$this->request->post['agree']) {
 					$json['error']['warning'] = sprintf($this->language->get('error_agree'), $information_info['title']);

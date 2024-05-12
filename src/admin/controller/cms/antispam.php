@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Cms;
  */
 class Antispam extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -65,8 +63,6 @@ class Antispam extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -76,8 +72,6 @@ class Antispam extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -137,6 +131,8 @@ class Antispam extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('cms/antispam');
 
+		$antispam_total = $this->model_cms_antispam->getTotalAntispams($filter_data);
+
 		$results = $this->model_cms_antispam->getAntispams($filter_data);
 
 		foreach ($results as $result) {
@@ -175,8 +171,6 @@ class Antispam extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$antispam_total = $this->model_cms_antispam->getTotalAntispams($filter_data);
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $antispam_total,
 			'page'  => $page,
@@ -193,8 +187,6 @@ class Antispam extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -263,8 +255,6 @@ class Antispam extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -276,7 +266,7 @@ class Antispam extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!oc_validate_length($this->request->post['keyword'], 1, 64)) {
+		if ((oc_strlen($this->request->post['keyword']) < 1) || (oc_strlen($this->request->post['keyword']) > 64)) {
 			$json['error']['keyword'] = $this->language->get('error_keyword');
 		}
 
@@ -297,8 +287,6 @@ class Antispam extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

@@ -7,31 +7,25 @@ namespace Opencart\Admin\Model\Marketing;
  */
 class Affiliate extends \Opencart\System\Engine\Model {
 	/**
-	 * Add Affiliate
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return void
 	 */
 	public function addAffiliate(array $data): void {
-		$this->db->query("INSERT INTO `" . DB_PREFIX . "customer_affiliate` SET `customer_id` = '" . (int)$data['customer_id'] . "', `company` = '" . $this->db->escape((string)$data['company']) . "', `website` = '" . $this->db->escape((string)$data['website']) . "', `tracking` = '" . $this->db->escape((string)$data['tracking']) . "', `commission` = '" . (float)$data['commission'] . "', `tax` = '" . $this->db->escape((string)$data['tax']) . "', `payment_method` = '" . $this->db->escape((string)$data['payment_method']) . "', `cheque` = '" . $this->db->escape((string)$data['cheque']) . "', `paypal` = '" . $this->db->escape((string)$data['paypal']) . "', `bank_name` = '" . $this->db->escape((string)$data['bank_name']) . "', `bank_branch_number` = '" . $this->db->escape((string)$data['bank_branch_number']) . "', `bank_swift_code` = '" . $this->db->escape((string)$data['bank_swift_code']) . "', `bank_account_name` = '" . $this->db->escape((string)$data['bank_account_name']) . "', `bank_account_number` = '" . $this->db->escape((string)$data['bank_account_number']) . "', `custom_field` = '" . $this->db->escape(isset($data['custom_field']) ? json_encode($data['custom_field']) : json_encode([])) . "', `status` = '" . (bool)($data['status'] ?? 0) . "', `date_added` = NOW()");
+		$this->db->query("INSERT INTO `" . DB_PREFIX . "customer_affiliate` SET `customer_id` = '" . (int)$data['customer_id'] . "', `company` = '" . $this->db->escape((string)$data['company']) . "', `website` = '" . $this->db->escape((string)$data['website']) . "', `tracking` = '" . $this->db->escape((string)$data['tracking']) . "', `commission` = '" . (float)$data['commission'] . "', `tax` = '" . $this->db->escape((string)$data['tax']) . "', `payment_method` = '" . $this->db->escape((string)$data['payment_method']) . "', `cheque` = '" . $this->db->escape((string)$data['cheque']) . "', `paypal` = '" . $this->db->escape((string)$data['paypal']) . "', `bank_name` = '" . $this->db->escape((string)$data['bank_name']) . "', `bank_branch_number` = '" . $this->db->escape((string)$data['bank_branch_number']) . "', `bank_swift_code` = '" . $this->db->escape((string)$data['bank_swift_code']) . "', `bank_account_name` = '" . $this->db->escape((string)$data['bank_account_name']) . "', `bank_account_number` = '" . $this->db->escape((string)$data['bank_account_number']) . "', `custom_field` = '" . $this->db->escape(isset($data['custom_field']) ? json_encode($data['custom_field']) : json_encode([])) . "', `status` = '" . (bool)(isset($data['status']) ? $data['status'] : 0) . "', `date_added` = NOW()");
 	}
 
 	/**
-	 * Edit Affiliate
-	 *
-	 * @param int                  $customer_id
-	 * @param array<string, mixed> $data
+	 * @param int   $customer_id
+	 * @param array $data
 	 *
 	 * @return void
 	 */
 	public function editAffiliate(int $customer_id, array $data): void {
-		$this->db->query("UPDATE `" . DB_PREFIX . "customer_affiliate` SET `company` = '" . $this->db->escape((string)$data['company']) . "', `website` = '" . $this->db->escape((string)$data['website']) . "', `tracking` = '" . $this->db->escape((string)$data['tracking']) . "', `commission` = '" . (float)$data['commission'] . "', `tax` = '" . $this->db->escape((string)$data['tax']) . "', `payment_method` = '" . $this->db->escape((string)$data['payment_method']) . "', `cheque` = '" . $this->db->escape((string)$data['cheque']) . "', `paypal` = '" . $this->db->escape((string)$data['paypal']) . "', `bank_name` = '" . $this->db->escape((string)$data['bank_name']) . "', `bank_branch_number` = '" . $this->db->escape((string)$data['bank_branch_number']) . "', `bank_swift_code` = '" . $this->db->escape((string)$data['bank_swift_code']) . "', `bank_account_name` = '" . $this->db->escape((string)$data['bank_account_name']) . "', `bank_account_number` = '" . $this->db->escape((string)$data['bank_account_number']) . "', `custom_field` = '" . $this->db->escape(isset($data['custom_field']) ? json_encode($data['custom_field']) : json_encode([])) . "', `status` = '" . (bool)($data['status'] ?? 0) . "' WHERE `customer_id` = '" . (int)$customer_id . "'");
+		$this->db->query("UPDATE `" . DB_PREFIX . "customer_affiliate` SET `company` = '" . $this->db->escape((string)$data['company']) . "', `website` = '" . $this->db->escape((string)$data['website']) . "', `tracking` = '" . $this->db->escape((string)$data['tracking']) . "', `commission` = '" . (float)$data['commission'] . "', `tax` = '" . $this->db->escape((string)$data['tax']) . "', `payment_method` = '" . $this->db->escape((string)$data['payment_method']) . "', `cheque` = '" . $this->db->escape((string)$data['cheque']) . "', `paypal` = '" . $this->db->escape((string)$data['paypal']) . "', `bank_name` = '" . $this->db->escape((string)$data['bank_name']) . "', `bank_branch_number` = '" . $this->db->escape((string)$data['bank_branch_number']) . "', `bank_swift_code` = '" . $this->db->escape((string)$data['bank_swift_code']) . "', `bank_account_name` = '" . $this->db->escape((string)$data['bank_account_name']) . "', `bank_account_number` = '" . $this->db->escape((string)$data['bank_account_number']) . "', `custom_field` = '" . $this->db->escape(isset($data['custom_field']) ? json_encode($data['custom_field']) : json_encode([])) . "', `status` = '" . (bool)(isset($data['status']) ? $data['status'] : 0) . "' WHERE `customer_id` = '" . (int)$customer_id . "'");
 	}
 
 	/**
-	 * Edit Balance
-	 *
 	 * @param int   $customer_id
 	 * @param float $amount
 	 *
@@ -42,58 +36,41 @@ class Affiliate extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete Affiliate
-	 *
 	 * @param int $customer_id
 	 *
 	 * @return void
 	 */
 	public function deleteAffiliate(int $customer_id): void {
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "customer_affiliate` WHERE `customer_id` = '" . (int)$customer_id . "'");
-
-		$this->deleteReports($customer_id);
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "customer_affiliate_report` WHERE `customer_id` = '" . (int)$customer_id . "'");
 	}
 
 	/**
-	 * Get Affiliate
-	 *
 	 * @param int $customer_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getAffiliate(int $customer_id): array {
-		$query = $this->db->query("SELECT DISTINCT *, CONCAT(`c`.`firstname`, ' ', `c`.`lastname`) AS `customer`, `ca`.`custom_field` FROM `" . DB_PREFIX . "customer_affiliate` `ca` LEFT JOIN `" . DB_PREFIX . "customer` `c` ON (`ca`.`customer_id` = `c`.`customer_id`) WHERE `ca`.`customer_id` = '" . (int)$customer_id . "'");
+		$query = $this->db->query("SELECT DISTINCT *, CONCAT(c.`firstname`, ' ', c.`lastname`) AS `customer`, ca.`custom_field` FROM `" . DB_PREFIX . "customer_affiliate` ca LEFT JOIN `" . DB_PREFIX . "customer` c ON (ca.`customer_id` = c.`customer_id`) WHERE ca.`customer_id` = '" . (int)$customer_id . "'");
 
-		if ($query->num_rows) {
-			return $query->row + ['custom_field' => json_decode($query->row['custom_field'], true)];
-		} else {
-			return [];
-		}
+		return $query->row;
 	}
 
 	/**
-	 * Get Affiliate By Tracking
-	 *
 	 * @param string $tracking
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getAffiliateByTracking(string $tracking): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "customer_affiliate` WHERE `tracking` = '" . $this->db->escape($tracking) . "'");
 
-		if ($query->num_rows) {
-			return $query->row + ['custom_field' => json_decode($query->row['custom_field'], true)];
-		} else {
-			return [];
-		}
+		return $query->row;
 	}
 
 	/**
-	 * Get Affiliates
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getAffiliates(array $data = []): array {
 		$sql = "SELECT *, CONCAT(`c`.`firstname`, ' ', `c`.`lastname`) AS `name`, `ca`.`status` FROM `" . DB_PREFIX . "customer_affiliate` `ca` LEFT JOIN `" . DB_PREFIX . "customer` `c` ON (`ca`.`customer_id` = `c`.`customer_id`)";
@@ -101,15 +78,15 @@ class Affiliate extends \Opencart\System\Engine\Model {
 		$implode = [];
 
 		if (!empty($data['filter_name'])) {
-			$implode[] = "LCASE(CONCAT(`c`.`firstname`, ' ', `c`.`lastname`)) LIKE '" . $this->db->escape(oc_strtolower($data['filter_name']) . '%') . "'";
+			$implode[] = "CONCAT(c.`firstname`, ' ', c.`lastname`) LIKE '" . $this->db->escape((string)$data['filter_name'] . '%') . "'";
 		}
 
 		if (!empty($data['filter_tracking'])) {
-			$implode[] = "LCASE(`ca`.`tracking`) = '" . $this->db->escape(oc_strtolower($data['filter_tracking'])) . "'";
+			$implode[] = "`ca`.`tracking` = '" . $this->db->escape((string)$data['filter_tracking']) . "'";
 		}
 
 		if (!empty($data['filter_payment_method'])) {
-			$implode[] = "LCASE(`ca`.`payment_method`) = '" . $this->db->escape(oc_strtolower($data['filter_payment_method'])) . "'";
+			$implode[] = "`ca`.`payment_method` = '" . $this->db->escape($data['filter_payment_method']) . "'";
 		}
 
 		if (!empty($data['filter_commission'])) {
@@ -121,11 +98,11 @@ class Affiliate extends \Opencart\System\Engine\Model {
 		}
 
 		if (!empty($data['filter_date_to'])) {
-			$implode[] = "DATE(`ca`.`date_added`) <= DATE('" . $this->db->escape((string)$data['filter_date_to']) . "')";
+			$implode[] = "DATE(`ca.``date_added`) <= DATE('" . $this->db->escape((string)$data['filter_date_to']) . "')";
 		}
 
 		if (isset($data['filter_status']) && $data['filter_status'] !== '') {
-			$implode[] = "`ca`.`status` = '" . (bool)$data['filter_status'] . "'";
+			$implode[] = "`ca`.`status` = '" . (int)$data['filter_status'] . "'";
 		}
 
 		if ($implode) {
@@ -164,39 +141,31 @@ class Affiliate extends \Opencart\System\Engine\Model {
 			$sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
 		}
 
-		$order_data = [];
-
 		$query = $this->db->query($sql);
 
-		foreach ($query->rows as $key => $result) {
-			$order_data[$key] = $result + ['custom_field' => json_decode($result['custom_field'], true)];
-		}
-
-		return $order_data;
+		return $query->rows;
 	}
 
 	/**
-	 * Get Total Affiliates
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
 	public function getTotalAffiliates(array $data = []): int {
-		$sql = "SELECT COUNT(*) AS `total` FROM `" . DB_PREFIX . "customer_affiliate` `ca` LEFT JOIN `" . DB_PREFIX . "customer` `c` ON (`ca`.`customer_id` = `c`.`customer_id`)";
+		$sql = "SELECT COUNT(*) AS `total` FROM `" . DB_PREFIX . "customer_affiliate` ca LEFT JOIN `" . DB_PREFIX . "customer` c ON (ca.`customer_id` = c.`customer_id`)";
 
 		$implode = [];
 
 		if (!empty($data['filter_name'])) {
-			$implode[] = "LCASE(CONCAT(`c`.`firstname`, ' ', `c`.`lastname`)) LIKE '" . $this->db->escape(oc_strtolower($data['filter_name']) . '%') . "'";
+			$implode[] = "CONCAT(`c`.`firstname`, ' ', `c`.`lastname`) LIKE '" . $this->db->escape((string)$data['filter_name'] . '%') . "'";
 		}
 
 		if (!empty($data['filter_tracking'])) {
-			$implode[] = "LCASE(`ca`.`tracking`) = '" . $this->db->escape(oc_strtolower($data['filter_tracking'])) . "'";
+			$implode[] = "`ca`.`tracking` = '" . $this->db->escape((string)$data['filter_tracking']) . "'";
 		}
 
 		if (!empty($data['filter_payment_method'])) {
-			$implode[] = "LCASE(`ca`.`payment_method`) = '" . $this->db->escape(oc_strtolower($data['filter_payment_method'])) . "'";
+			$implode[] = "`ca`.`payment_method` = '" . $this->db->escape($data['filter_payment_method']) . "'";
 		}
 
 		if (!empty($data['filter_commission'])) {
@@ -212,7 +181,7 @@ class Affiliate extends \Opencart\System\Engine\Model {
 		}
 
 		if (isset($data['filter_status']) && $data['filter_status'] !== '') {
-			$implode[] = "`ca`.`status` = '" . (bool)$data['filter_status'] . "'";
+			$implode[] = "`ca`.`status` = '" . (int)$data['filter_status'] . "'";
 		}
 
 		if ($implode) {
@@ -225,13 +194,11 @@ class Affiliate extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Reports
-	 *
 	 * @param int $customer_id
 	 * @param int $start
 	 * @param int $limit
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getReports(int $customer_id, int $start = 0, int $limit = 10): array {
 		if ($start < 0) {
@@ -248,19 +215,6 @@ class Affiliate extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete Reports
-	 *
-	 * @param int $customer_id
-	 *
-	 * @return void
-	 */
-	public function deleteReports(int $customer_id): void {
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "customer_affiliate_report` WHERE `customer_id` = '" . (int)$customer_id . "'");
-	}
-
-	/**
-	 * Get Total Reports
-	 *
 	 * @param int $customer_id
 	 *
 	 * @return int

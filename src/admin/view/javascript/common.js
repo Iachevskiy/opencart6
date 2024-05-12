@@ -94,6 +94,61 @@ $(document).ready(function () {
         $('.tooltip').remove();
     });
 
+    // Date
+    var oc_datetimepicker = function () {
+        $(this).daterangepicker({
+            singleDatePicker: true,
+            autoApply: true,
+            autoUpdateInput: false,
+            locale: {
+                format: 'YYYY-MM-DD'
+            }
+        }, function (start, end) {
+            $(this.element).val(start.format('YYYY-MM-DD'));
+        });
+    }
+
+    $(document).on('focus', '.date', oc_datetimepicker);
+
+    // Time
+    var oc_datetimepicker = function () {
+        $(this).daterangepicker({
+            singleDatePicker: true,
+            datePicker: false,
+            autoApply: true,
+            autoUpdateInput: false,
+            timePicker: true,
+            timePicker24Hour: true,
+            locale: {
+                format: 'HH:mm'
+            }
+        }, function (start, end) {
+            $(this.element).val(start.format('HH:mm'));
+        }).on('show.daterangepicker', function (ev, picker) {
+            picker.container.find('.calendar-table').hide();
+        });
+    }
+
+    $(document).on('focus', '.time', oc_datetimepicker);
+
+    // Date Time
+    var oc_datetimepicker = function () {
+        $(this).daterangepicker({
+            singleDatePicker: true,
+            autoApply: true,
+            autoUpdateInput: false,
+            timePicker: true,
+            timePicker24Hour: true,
+            locale: {
+                format: 'YYYY-MM-DD HH:mm'
+            }
+        }, function (start, end) {
+            $(this.element).val(start.format('YYYY-MM-DD HH:mm'));
+        });
+    }
+
+    $(document).on('focus', '.datetime', oc_datetimepicker);
+
     // Alert Fade
     var oc_alert = function () {
         window.setTimeout(function () {
@@ -253,17 +308,17 @@ $(document).on('submit', 'form', function (e) {
 });
 
 // Upload
-$(document).on('click', '[data-oc-toggle=\'src\']', function () {
+$(document).on('click', '[data-oc-toggle=\'upload\']', function () {
     var element = this;
 
     if (!$(element).prop('disabled')) {
-        $('#form-src').remove();
+        $('#form-upload').remove();
 
-        $('body').prepend('<form enctype="multipart/form-data" id="form-src" style="display: none;"><input type="file" name="file" value=""/></form>');
+        $('body').prepend('<form enctype="multipart/form-data" id="form-upload" style="display: none;"><input type="file" name="file" value=""/></form>');
 
-        $('#form-src input[name=\'file\']').trigger('click');
+        $('#form-upload input[name=\'file\']').trigger('click');
 
-        $('#form-src input[name=\'file\']').on('change', function (e) {
+        $('#form-upload input[name=\'file\']').on('change', function (e) {
             if ((this.files[0].size / 1024) > $(element).attr('data-oc-size-max')) {
                 alert($(element).attr('data-oc-size-error'));
 
@@ -276,13 +331,13 @@ $(document).on('click', '[data-oc-toggle=\'src\']', function () {
         }
 
         var timer = setInterval(function () {
-            if ($('#form-src input[name=\'file\']').val() != '') {
+            if ($('#form-upload input[name=\'file\']').val() != '') {
                 clearInterval(timer);
 
                 $.ajax({
                     url: $(element).attr('data-oc-url'),
                     type: 'post',
-                    data: new FormData($('#form-src')[0]),
+                    data: new FormData($('#form-upload')[0]),
                     dataType: 'json',
                     cache: false,
                     contentType: false,
@@ -325,7 +380,7 @@ $(document).on('click', '[data-oc-toggle=\'download\']', function (e) {
     var value = $($(element).attr('data-oc-target')).val();
 
     if (value != '') {
-        location = 'index.php?route=tool/src.download&user_token=' + getURLVar('user_token') + '&code=' + value;
+        location = 'index.php?route=tool/upload.download&user_token=' + getURLVar('user_token') + '&code=' + value;
     }
 });
 
@@ -367,7 +422,11 @@ $(document).on('click', '[data-oc-toggle=\'image\']', function (e) {
         success: function (html) {
             $('body').append(html);
 
-            $('#modal-image').modal('show');
+            var element = document.querySelector('#modal-image');
+
+            var modal = new bootstrap.Modal(element);
+
+            modal.show();
         }
     });
 });
@@ -426,9 +485,7 @@ var chain = new Chain();
             // Focus out
             $(element).on('focusout', function (e) {
                 if (!e.relatedTarget || !$(e.relatedTarget).hasClass('dropdown-item')) {
-                    this.timer = setTimeout(function (object) {
-                        object.removeClass('show');
-                    }, 50, $dropdown);
+                    $dropdown.removeClass('show');
                 }
             });
 

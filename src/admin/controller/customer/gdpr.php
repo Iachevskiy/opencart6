@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Customer;
  */
 class Gdpr extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -46,8 +44,6 @@ class Gdpr extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -57,8 +53,6 @@ class Gdpr extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	public function getList(): string {
@@ -139,6 +133,8 @@ class Gdpr extends \Opencart\System\Engine\Controller {
 		$this->load->model('customer/gdpr');
 		$this->load->model('customer/customer');
 
+		$gdpr_total = $this->model_customer_gdpr->getTotalGdprs($filter_data);
+
 		$results = $this->model_customer_gdpr->getGdprs($filter_data);
 
 		foreach ($results as $result) {
@@ -185,8 +181,6 @@ class Gdpr extends \Opencart\System\Engine\Controller {
 			$url .= '&filter_date_to=' . $this->request->get['filter_date_to'];
 		}
 
-		$gdpr_total = $this->model_customer_gdpr->getTotalGdprs($filter_data);
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $gdpr_total,
 			'page'  => $page,
@@ -223,8 +217,6 @@ class Gdpr extends \Opencart\System\Engine\Controller {
 	 *	denied     = -1
 	*/
 	/**
-	 * Approve
-	 *
 	 * @return void
 	 */
 	public function approve(): void {
@@ -232,21 +224,21 @@ class Gdpr extends \Opencart\System\Engine\Controller {
 
 		$json = [];
 
-		$gdprs = [];
-
-		if (isset($this->request->post['selected'])) {
-			$gdprs = $this->request->post['selected'];
-		}
-
-		if (isset($this->request->get['gdpr_id'])) {
-			$gdprs[] = (int)$this->request->get['gdpr_id'];
-		}
-
 		if (!$this->user->hasPermission('modify', 'customer/gdpr')) {
 			$json['error'] = $this->language->get('error_permission');
 		}
 
 		if (!$json) {
+			$gdprs = [];
+
+			if (isset($this->request->post['selected'])) {
+				$gdprs = $this->request->post['selected'];
+			}
+
+			if (isset($this->request->get['gdpr_id'])) {
+				$gdprs[] = (int)$this->request->get['gdpr_id'];
+			}
+
 			$this->load->model('customer/gdpr');
 
 			foreach ($gdprs as $gdpr_id) {
@@ -271,8 +263,6 @@ class Gdpr extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Deny
-	 *
 	 * @return void
 	 */
 	public function deny(): void {
@@ -280,21 +270,21 @@ class Gdpr extends \Opencart\System\Engine\Controller {
 
 		$json = [];
 
-		$gdprs = [];
-
-		if (isset($this->request->post['selected'])) {
-			$gdprs = $this->request->post['selected'];
-		}
-
-		if (isset($this->request->get['gdpr_id'])) {
-			$gdprs[] = (int)$this->request->get['gdpr_id'];
-		}
-
 		if (!$this->user->hasPermission('modify', 'customer/gdpr')) {
 			$json['error'] = $this->language->get('error_permission');
 		}
 
 		if (!$json) {
+			$gdprs = [];
+
+			if (isset($this->request->post['selected'])) {
+				$gdprs = $this->request->post['selected'];
+			}
+
+			if (isset($this->request->get['gdpr_id'])) {
+				$gdprs[] = (int)$this->request->get['gdpr_id'];
+			}
+
 			$this->load->model('customer/gdpr');
 
 			foreach ($gdprs as $gdpr_id) {
@@ -309,8 +299,6 @@ class Gdpr extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {
@@ -318,21 +306,21 @@ class Gdpr extends \Opencart\System\Engine\Controller {
 
 		$json = [];
 
-		$gdprs = [];
-
-		if (isset($this->request->post['selected'])) {
-			$gdprs = $this->request->post['selected'];
-		}
-
-		if (isset($this->request->get['gdpr_id'])) {
-			$gdprs[] = (int)$this->request->get['gdpr_id'];
-		}
-
 		if (!$this->user->hasPermission('modify', 'customer/gdpr')) {
 			$json['error'] = $this->language->get('error_permission');
 		}
 
 		if (!$json) {
+			$gdprs = [];
+
+			if (isset($this->request->post['selected'])) {
+				$gdprs = $this->request->post['selected'];
+			}
+
+			if (isset($this->request->get['gdpr_id'])) {
+				$gdprs[] = (int)$this->request->get['gdpr_id'];
+			}
+
 			$this->load->model('customer/gdpr');
 
 			foreach ($gdprs as $gdpr_id) {

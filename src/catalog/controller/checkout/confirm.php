@@ -29,8 +29,19 @@ class Confirm extends \Opencart\System\Engine\Controller {
 		}
 
 		// Validate cart has products and has stock.
-		if ((!$this->cart->hasProducts() && empty($this->session->data['vouchers'])) || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout')) || !$this->cart->hasMinimum()) {
+		if ((!$this->cart->hasProducts() && empty($this->session->data['vouchers'])) || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout'))) {
 			$status = false;
+		}
+
+		// Validate minimum quantity requirements.
+		$products = $this->model_checkout_cart->getProducts();
+
+		foreach ($products as $product) {
+			if (!$product['minimum']) {
+				$status = false;
+
+				break;
+			}
 		}
 
 		// Shipping
@@ -100,7 +111,7 @@ class Confirm extends \Opencart\System\Engine\Controller {
 				$order_data['payment_country'] = $this->session->data['payment_address']['country'];
 				$order_data['payment_country_id'] = $this->session->data['payment_address']['country_id'];
 				$order_data['payment_address_format'] = $this->session->data['payment_address']['address_format'];
-				$order_data['payment_custom_field'] = $this->session->data['payment_address']['custom_field'] ?? [];
+				$order_data['payment_custom_field'] = isset($this->session->data['payment_address']['custom_field']) ? $this->session->data['payment_address']['custom_field'] : [];
 			} else {
 				$order_data['payment_address_id'] = 0;
 				$order_data['payment_firstname'] = '';
@@ -135,7 +146,7 @@ class Confirm extends \Opencart\System\Engine\Controller {
 				$order_data['shipping_country'] = $this->session->data['shipping_address']['country'];
 				$order_data['shipping_country_id'] = $this->session->data['shipping_address']['country_id'];
 				$order_data['shipping_address_format'] = $this->session->data['shipping_address']['address_format'];
-				$order_data['shipping_custom_field'] = $this->session->data['shipping_address']['custom_field'] ?? [];
+				$order_data['shipping_custom_field'] = isset($this->session->data['shipping_address']['custom_field']) ? $this->session->data['shipping_address']['custom_field'] : [];
 
 				$order_data['shipping_method'] = $this->session->data['shipping_method'];
 			} else {
@@ -234,9 +245,6 @@ class Confirm extends \Opencart\System\Engine\Controller {
 			// Products
 			$order_data['products'] = [];
 
-			// Use cart products to get data for order
-			$products = $this->cart->getProducts();
-
 			foreach ($products as $product) {
 				$option_data = [];
 
@@ -320,9 +328,6 @@ class Confirm extends \Opencart\System\Engine\Controller {
 		$this->load->model('tool/upload');
 
 		$data['products'] = [];
-
-		// Use model cart products to get data for template
-		$products = $this->model_checkout_cart->getProducts();
 
 		foreach ($products as $product) {
 			if ($product['option']) {
@@ -411,8 +416,6 @@ class Confirm extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Confirm
-	 *
 	 * @return void
 	 */
 	public function confirm(): void {

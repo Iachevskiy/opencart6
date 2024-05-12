@@ -2,7 +2,6 @@
 namespace Aws\Script\Composer;
 
 use Composer\Script\Event;
-use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
 class Composer
@@ -67,7 +66,7 @@ class Composer
         $listedServices,
         $vendorPath
     ) {
-        $unsafeForDeletion = ['Kms', 'S3', 'SSO', 'SSOOIDC', 'Sts'];
+        $unsafeForDeletion = ['Kms', 'S3', 'SSO', 'Sts'];
         if (in_array('DynamoDbStreams', $listedServices)) {
             $unsafeForDeletion[] = 'DynamoDb';
         }
@@ -84,31 +83,8 @@ class Composer
                 $modelDir = $modelPath . $modelName;
 
                 if ($filesystem->exists([$clientDir, $modelDir])) {
-                    $attempts = 3;
-                    $delay = 2;
-
-                    while ($attempts) {
-                        try {
-                            $filesystem->remove([$clientDir, $modelDir]);
-                            $deleteCount++;
-                            break;
-                        } catch (IOException $e) {
-                            $attempts--;
-
-                            if (!$attempts) {
-                                throw new IOException(
-                                    "Removal failed after several attempts. Last error: " . $e->getMessage()
-                                );
-                            } else {
-                                sleep($delay);
-                                $event->getIO()->write(
-                                    "Error encountered: " . $e->getMessage() . ". Retrying..."
-                                );
-                                $delay += 2;
-                            }
-                    }
-                }
-
+                    $filesystem->remove([$clientDir, $modelDir]);;
+                    $deleteCount++;
                 }
             }
         }

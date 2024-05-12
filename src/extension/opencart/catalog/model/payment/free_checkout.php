@@ -3,27 +3,18 @@ namespace Opencart\Catalog\Model\Extension\Opencart\Payment;
 /**
  * Class FreeCheckout
  *
- * @package Opencart\Catalog\Model\Extension\Opencart\Payment
+ * @package
  */
 class FreeCheckout extends \Opencart\System\Engine\Model {
 	/**
-	 * Get Methods
+	 * @param array $address
 	 *
-	 * @param array<mixed> $address
-	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getMethods(array $address = []): array {
 		$this->load->language('extension/opencart/payment/free_checkout');
 
-		// Order Totals
-		$totals = [];
-		$taxes = $this->cart->getTaxes();
-		$total = 0;
-
-		$this->load->model('checkout/cart');
-
-		($this->model_checkout_cart->getTotals)($totals, $taxes, $total);
+		$total = $this->cart->getTotal();
 
 		if (!empty($this->session->data['vouchers'])) {
 			$amounts = array_column($this->session->data['vouchers'], 'amount');
@@ -31,9 +22,9 @@ class FreeCheckout extends \Opencart\System\Engine\Model {
 			$amounts = [];
 		}
 
-		$total += array_sum($amounts);
+		$total = $total + array_sum($amounts);
 
-		if ($this->currency->format($total, $this->config->get('config_currency'), false, false) <= 0.00) {
+		if ((float)$total <= 0.00) {
 			$status = true;
 		} elseif ($this->cart->hasSubscription()) {
 			$status = false;

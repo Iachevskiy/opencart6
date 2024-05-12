@@ -15,7 +15,7 @@ class Edit extends \Opencart\System\Engine\Controller {
 		if (!$this->customer->isLogged() || (!isset($this->request->get['customer_token']) || !isset($this->session->data['customer_token']) || ($this->request->get['customer_token'] != $this->session->data['customer_token']))) {
 			$this->session->data['redirect'] = $this->url->link('account/edit', 'language=' . $this->config->get('config_language'));
 
-			$this->response->redirect($this->url->link('account/login', 'language=' . $this->config->get('config_language'), true));
+			$this->response->redirect($this->url->link('account/login', 'language=' . $this->config->get('config_language')));
 		}
 
 		$this->document->setTitle($this->language->get('heading_title'));
@@ -44,10 +44,7 @@ class Edit extends \Opencart\System\Engine\Controller {
 		$data['config_telephone_required'] = $this->config->get('config_telephone_required');
 
 		$data['save'] = $this->url->link('account/edit.save', 'language=' . $this->config->get('config_language') . '&customer_token=' . $this->session->data['customer_token']);
-
-		$this->session->data['upload_token'] = oc_token(32);
-
-		$data['upload'] = $this->url->link('tool/upload', 'language=' . $this->config->get('config_language') . '&upload_token=' . $this->session->data['upload_token']);
+		$data['upload'] = $this->url->link('tool/upload', 'language=' . $this->config->get('config_language'));
 
 		$this->load->model('account/customer');
 
@@ -71,7 +68,11 @@ class Edit extends \Opencart\System\Engine\Controller {
 			}
 		}
 
-		$data['account_custom_field'] = $customer_info['custom_field'];
+		if (isset($customer_info)) {
+			$data['account_custom_field'] = json_decode($customer_info['custom_field'], true);
+		} else {
+			$data['account_custom_field'] = [];
+		}
 
 		$data['back'] = $this->url->link('account/account', 'language=' . $this->config->get('config_language') . '&customer_token=' . $this->session->data['customer_token']);
 
@@ -88,8 +89,6 @@ class Edit extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -117,15 +116,15 @@ class Edit extends \Opencart\System\Engine\Controller {
 				}
 			}
 
-			if (!oc_validate_length($this->request->post['firstname'], 1, 32)) {
+			if ((oc_strlen($this->request->post['firstname']) < 1) || (oc_strlen($this->request->post['firstname']) > 32)) {
 				$json['error']['firstname'] = $this->language->get('error_firstname');
 			}
 
-			if (!oc_validate_length($this->request->post['lastname'], 1, 32)) {
+			if ((oc_strlen($this->request->post['lastname']) < 1) || (oc_strlen($this->request->post['lastname']) > 32)) {
 				$json['error']['lastname'] = $this->language->get('error_lastname');
 			}
 
-			if (!oc_validate_email($this->request->post['email'])) {
+			if ((oc_strlen($this->request->post['email']) > 96) || !filter_var($this->request->post['email'], FILTER_VALIDATE_EMAIL)) {
 				$json['error']['email'] = $this->language->get('error_email');
 			}
 
@@ -135,7 +134,7 @@ class Edit extends \Opencart\System\Engine\Controller {
 				$json['error']['warning'] = $this->language->get('error_exists');
 			}
 
-			if ($this->config->get('config_telephone_required') && !oc_validate_length($this->request->post['telephone'], 3, 32)) {
+			if ($this->config->get('config_telephone_required') && (oc_strlen($this->request->post['telephone']) < 3) || (oc_strlen($this->request->post['telephone']) > 32)) {
 				$json['error']['telephone'] = $this->language->get('error_telephone');
 			}
 
@@ -169,7 +168,7 @@ class Edit extends \Opencart\System\Engine\Controller {
 				'lastname'          => $this->request->post['lastname'],
 				'email'             => $this->request->post['email'],
 				'telephone'         => $this->request->post['telephone'],
-				'custom_field'      => $this->request->post['custom_field'] ?? []
+				'custom_field'      => isset($this->request->post['custom_field']) ? $this->request->post['custom_field'] : []
 			];
 
 			unset($this->session->data['shipping_method']);

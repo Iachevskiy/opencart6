@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Sale;
  */
 class Order extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -133,7 +131,7 @@ class Order extends \Opencart\System\Engine\Controller {
 		];
 
 		$data['add'] = $this->url->link('sale/order.info', 'user_token=' . $this->session->data['user_token'] . $url);
-		$data['delete'] = $this->url->link('sale/order.delete', 'user_token=' . $this->session->data['user_token'] . $url);
+		$data['delete'] = $this->url->link('sale/order.delete', 'user_token=' . $this->session->data['user_token']);
 		$data['invoice'] = $this->url->link('sale/order.invoice', 'user_token=' . $this->session->data['user_token']);
 		$data['shipping'] = $this->url->link('sale/order.shipping', 'user_token=' . $this->session->data['user_token']);
 
@@ -181,8 +179,6 @@ class Order extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -192,8 +188,6 @@ class Order extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -341,6 +335,8 @@ class Order extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('sale/order');
 
+		$order_total = $this->model_sale_order->getTotalOrders($filter_data);
+
 		$results = $this->model_sale_order->getOrders($filter_data);
 
 		foreach ($results as $result) {
@@ -455,8 +451,6 @@ class Order extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$order_total = $this->model_sale_order->getTotalOrders($filter_data);
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $order_total,
 			'page'  => $page,
@@ -473,11 +467,8 @@ class Order extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Info
-	 *
 	 * @return void
 	 * @throws \Exception
-	 *
 	 */
 	public function info(): void {
 		$this->load->language('sale/order');
@@ -607,6 +598,14 @@ class Order extends \Opencart\System\Engine\Controller {
 			$data['customer_group_id'] = $this->config->get('config_customer_group_id');
 		}
 
+		$customer_group_info = $this->model_customer_customer_group->getCustomerGroup($data['customer_group_id']);
+
+		if ($customer_group_info) {
+			$data['customer_group'] = $customer_group_info['name'];
+		} else {
+			$data['customer_group'] = '';
+		}
+
 		if (!empty($order_info)) {
 			$data['firstname'] = $order_info['firstname'];
 		} else {
@@ -670,14 +669,6 @@ class Order extends \Opencart\System\Engine\Controller {
 		$this->load->model('tool/upload');
 
 		$products = $this->model_sale_order->getProducts($order_id);
-
-		if (!empty($order_info)) {
-			$data['currency_code'] = $order_info['currency_code'];
-			$currency_value = $order_info['currency_value'];
-		} else {
-			$data['currency_code'] = $this->config->get('config_currency');
-			$currency_value = 1;
-		}
 
 		foreach ($products as $product) {
 			$option_data = [];
@@ -748,8 +739,8 @@ class Order extends \Opencart\System\Engine\Controller {
 				'subscription'             => $subscription,
 				'subscription_description' => $description,
 				'quantity'                 => $product['quantity'],
-				'price'                    => $this->currency->format($product['price'] + ($this->config->get('config_tax') ? $product['tax'] : 0), $data['currency_code'], $currency_value),
-				'total'                    => $this->currency->format($product['total'] + ($this->config->get('config_tax') ? ($product['tax'] * $product['quantity']) : 0), $data['currency_code'], $currency_value),
+				'price'                    => $this->currency->format($product['price'] + ($this->config->get('config_tax') ? $product['tax'] : 0), $order_info['currency_code'], $order_info['currency_value']),
+				'total'                    => $this->currency->format($product['total'] + ($this->config->get('config_tax') ? ($product['tax'] * $product['quantity']) : 0), $order_info['currency_code'], $order_info['currency_value']),
 				'reward'                   => $product['reward']
 			];
 		}
@@ -762,7 +753,7 @@ class Order extends \Opencart\System\Engine\Controller {
 		foreach ($vouchers as $voucher) {
 			$data['order_vouchers'][] = [
 				'description' => $voucher['description'],
-				'amount'      => $this->currency->format($voucher['amount'], $data['currency_code'], $currency_value),
+				'amount'      => $this->currency->format($voucher['amount'], $order_info['currency_code'], $order_info['currency_value']),
 				'href'        => $this->url->link('sale/voucher.form', 'user_token=' . $this->session->data['user_token'] . '&voucher_id=' . $voucher['voucher_id'])
 			];
 		}
@@ -775,8 +766,53 @@ class Order extends \Opencart\System\Engine\Controller {
 		foreach ($totals as $total) {
 			$data['order_totals'][] = [
 				'title' => $total['title'],
-				'text'  => $this->currency->format($total['value'], $data['currency_code'], $currency_value)
+				'text'  => $this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'])
 			];
+		}
+
+		// Delete any old session
+		if (isset($this->session->data['api_session'])) {
+			$session = new \Opencart\System\Library\Session($this->config->get('session_engine'), $this->registry);
+			$session->start($this->session->data['api_session']);
+			$session->destroy();
+		}
+
+		if (!empty($order_info)) {
+			$store_id = $order_info['store_id'];
+		} else {
+			$store_id = 0;
+		}
+
+		if (!empty($order_info)) {
+			$language = $order_info['language_code'];
+		} else {
+			$language = $this->config->get('config_language');
+		}
+
+		// Create a store instance using loader class to call controllers, models, views, libraries
+		$this->load->model('setting/store');
+
+		$store = $this->model_setting_store->createStoreInstance($store_id, $language);
+
+		// 2. Store the new session ID so we're not creating new session on every page load
+		$this->session->data['api_session'] = $store->session->getId();
+
+		// 3. To use the order API it requires an API ID.
+		$store->session->data['api_id'] = (int)$this->config->get('config_api_id');
+
+		if (!empty($order_info)) {
+			// 4. Add the request vars and remove the unneeded ones
+			$store->request->get = $this->request->get;
+			$store->request->post = $this->request->post;
+
+			// 5. Load the order data
+			$store->request->get['route'] = 'api/sale/order.load';
+			$store->request->get['language'] = $language;
+
+			unset($store->request->get['user_token']);
+			unset($store->request->get['action']);
+
+			$store->load->controller($store->request->get['route']);
 		}
 
 		// Store
@@ -825,6 +861,12 @@ class Order extends \Opencart\System\Engine\Controller {
 
 		$data['currencies'] = $this->model_localisation_currency->getCurrencies();
 
+		if (!empty($order_info)) {
+			$data['currency_code'] = $order_info['currency_code'];
+		} else {
+			$data['currency_code'] = $this->config->get('config_currency');
+		}
+
 		// Coupon, Voucher, Reward
 		$data['total_coupon'] = '';
 		$data['total_voucher'] = '';
@@ -835,11 +877,11 @@ class Order extends \Opencart\System\Engine\Controller {
 
 			foreach ($order_totals as $order_total) {
 				// If coupon, voucher or reward points
-				$start = strpos($order_total['title'], '(');
+				$start = strpos($order_total['title'], '(') + 1;
 				$end = strrpos($order_total['title'], ')');
 
-				if ($start !== false && $end !== false) {
-					$data['total_' . $order_total['code']] = substr($order_total['title'], $start + 1, $end - ($start + 1));
+				if ($start && $end) {
+					$data['total_' . $order_total['code']] = substr($order_total['title'], $start, $end - $start);
 				}
 			}
 		}
@@ -1117,7 +1159,7 @@ class Order extends \Opencart\System\Engine\Controller {
 		// Additional tabs that are payment gateway specific
 		$data['tabs'] = [];
 
-		// Extension Order Tabs can be called here.
+		// Extension Order Tabs can are called here.
 		$this->load->model('setting/extension');
 
 		if (!empty($order_info['payment_method']['code'])) {
@@ -1144,7 +1186,7 @@ class Order extends \Opencart\System\Engine\Controller {
 			}
 		}
 
-		// Extension Order Tabs can be called here.
+		// Extension Order Tabs can are called here.
 		$this->load->model('setting/extension');
 
 		$extensions = $this->model_setting_extension->getExtensionsByType('fraud');
@@ -1182,57 +1224,6 @@ class Order extends \Opencart\System\Engine\Controller {
 			$data['date_modified'] = date($this->language->get('date_format_short'), time());
 		}
 
-		/*
-		// Delete any old session
-		if (isset($this->session->data['api_session'])) {
-			$session = new \Opencart\System\Library\Session($this->config->get('session_engine'), $this->registry);
-			$session->start($this->session->data['api_session']);
-			$session->destroy();
-		}
-
-		// 3. To use the order API it requires an API ID.
-		$store->session->data['api_id'] = (int)$this->config->get('config_api_id');
-		*/
-
-		if (isset($this->session->data['api_session'])) {
-			$session_id = (string)$this->session->data['api_session'];
-		} else {
-			$session_id = '';
-		}
-
-		$this->load->model('setting/store');
-
-		// 1. Create a store instance using loader class to call controllers, models, views, libraries
-		$store = $this->model_setting_store->createStoreInstance($data['store_id'], $data['language_code'], $session_id);
-
-		// Set the store ID
-		$store->config->set('config_store_id', $data['store_id']);
-
-		// 2. Store the new session ID so we are not creating new session on every page load
-		if (!$session_id) {
-			$this->session->data['api_session'] = $store->session->getId();
-		}
-
-		// 2. Remove the unneeded keys
-		$request_data = $this->request->get;
-
-		unset($request_data['call']);
-		unset($request_data['user_token']);
-
-		$store->request->get = $request_data;
-
-		// 3. Add the request GET vars
-		$store->request->get['route'] = 'api/order.load';
-		$store->request->get['language'] = $data['language_code'];
-
-		// 4. Add the request POST var
-		$store->request->post = $this->request->post;
-
-		// Call the required API controller
-		$store->load->controller($store->request->get['route']);
-
-		$output = $store->response->getOutput();
-
 		// Histories
 		$data['history'] = $this->getHistory();
 
@@ -1245,78 +1236,15 @@ class Order extends \Opencart\System\Engine\Controller {
 		$this->response->setOutput($this->load->view('sale/order_info', $data));
 	}
 
+	// Method to call the store front API and return a response.
+
 	/**
-	 * Call
-	 *
-	 * Method to call the storefront API and return a response.
-	 *
-	 * @Example
-	 *
-	 * We create a hash from the data in a similar method to how amazon does things.
-	 *
-	 * $route    = 'api/order.save';
-	 * $username = 'API username';
-	 * $key      = 'API Key';
-	 * $domain   = 'www.yourdomain.com';
-	 * $path     = '/';
-	 * $store_id = 0;
-	 * $language = 'en-gb';
-	 * $time     = time();
-	 *
-	 * // Build hash string
-	 * $string  = $route . "\n";
-	 * $string .= $username . "\n";
-	 * $string .= $domain . "\n";
-	 * $string .= $path . "\n";
-	 * $string .= $store_id . "\n";
-	 * $string .= $language . "\n";
-	 * $string .= json_encode($_POST) . "\n";
-	 * $string .= $time . "\n";
-	 *
-	 * $signature = base64_encode(hash_hmac('sha1', $string, $key, true));
-	 *
-	 * // Make remote call
-	 * $url  = '&username=' . urlencode($username);
-	 * $url .= '&store_id=' . $store_id;
-	 * $url .= '&language=' . $language;
-	 * $url .= '&time=' . $time;
-	 * $url .= '&signature=' . rawurlencode($signature);
-	 *
-	 * $curl = curl_init();
-	 *
-	 * curl_setopt($curl, CURLOPT_URL, 'https://' . $domain . $path . 'index.php?route=' . $route . $url);
-	 * curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-	 * curl_setopt($curl, CURLOPT_HEADER, false);
-	 * curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-	 * curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 30);
-	 * curl_setopt($curl, CURLOPT_TIMEOUT, 30);
-	 * curl_setopt($curl, CURLOPT_POST, 1);
-	 * curl_setopt($curl, CURLOPT_POSTFIELDS, $_POST);
-	 *
-	 * $response = curl_exec($curl);
-	 *
-	 * $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-	 *
-	 * curl_close($curl);
-	 *
-	 * if ($status == 200) {
-	 *      $response_info = json_decode($response, true);
-	 * } else {
-	 *      $response_info = [];
-	 * }
-	 *
 	 * @return void
 	 */
 	public function call(): void {
 		$this->load->language('sale/order');
 
 		$json = [];
-
-		if (isset($this->request->get['call'])) {
-			$call = (string)$this->request->get['call'];
-		} else {
-			$call = '';
-		}
 
 		if (isset($this->request->get['store_id'])) {
 			$store_id = (int)$this->request->get['store_id'];
@@ -1325,70 +1253,42 @@ class Order extends \Opencart\System\Engine\Controller {
 		}
 
 		if (isset($this->request->get['language'])) {
-			$language = (string)$this->request->get['language'];
+			$language = $this->request->get['language'];
 		} else {
-			$language = (string)$this->config->get('config_language');
+			$language = $this->config->get('config_language');
+		}
+
+		if (isset($this->request->get['action'])) {
+			$action = $this->request->get['action'];
+		} else {
+			$action = '';
+		}
+
+		if (isset($this->session->data['api_session'])) {
+			$session_id = $this->session->data['api_session'];
+		} else {
+			$session_id = '';
 		}
 
 		if (!$this->user->hasPermission('modify', 'sale/order')) {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		$this->load->model('user/api');
-
-		$api_info = $this->model_user_api->getApi((int)$this->config->get('config_api_id'));
-
-		if (!$api_info) {
-			$json['error']['warning'] = $this->language->get('error_api');
-		}
-
 		if (!$json) {
-
-			/*
-			// Delete any old session
-			if (isset($this->session->data['api_session'])) {
-				$session = new \Opencart\System\Library\Session($this->config->get('session_engine'), $this->registry);
-				$session->start($this->session->data['api_session']);
-				$session->destroy();
-			}
-
-			// 3. To use the order API it requires an API ID.
-			$store->session->data['api_id'] = (int)$this->config->get('config_api_id');
-			*/
-
-			if (isset($this->session->data['api_session'])) {
-				$session_id = (string)$this->session->data['api_session'];
-			} else {
-				$session_id = '';
-			}
-
+			// 1. Create a store instance using loader class to call controllers, models, views, libraries
 			$this->load->model('setting/store');
 
-			// 1. Create a store instance using loader class to call controllers, models, views, libraries
 			$store = $this->model_setting_store->createStoreInstance($store_id, $language, $session_id);
 
-			// Set the store ID
-			$store->config->set('config_store_id', $store_id);
-
-			// 2. Store the new session ID so we are not creating new session on every page load
-			if (!$session_id) {
-				$this->session->data['api_session'] = $store->session->getId();
-			}
-
-			// 2. Remove the unneeded keys
-			$request_data = $this->request->get;
-
-			unset($request_data['call']);
-			unset($request_data['user_token']);
-
-			$store->request->get = $request_data;
-
-			// 3. Add the request GET vars
-			$store->request->get['route'] = 'api/' . $call;
-			$store->request->get['language'] = $language;
-
-			// 4. Add the request POST var
+			// 2. Add the request vars and remove the unneeded ones
+			$store->request->get = $this->request->get;
 			$store->request->post = $this->request->post;
+
+			$store->request->get['route'] = 'api/' . $action;
+
+			// 3. Remove the unneeded keys
+			unset($store->request->get['action']);
+			unset($store->request->get['user_token']);
 
 			// Call the required API controller
 			$store->load->controller($store->request->get['route']);
@@ -1403,8 +1303,6 @@ class Order extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Invoice
-	 *
 	 * @return void
 	 */
 	public function invoice(): void {
@@ -1416,7 +1314,7 @@ class Order extends \Opencart\System\Engine\Controller {
 		$data['direction'] = $this->language->get('direction');
 		$data['lang'] = $this->language->get('code');
 
-		// Hard coding css paths so that they can be replaced via the event's system.
+		// Hard coding css so they can be replaced via the events system.
 		$data['bootstrap_css'] = 'view/stylesheet/bootstrap.css';
 		$data['icons'] = 'view/stylesheet/fonts/fontawesome/css/all.min.css';
 		$data['stylesheet'] = 'view/stylesheet/stylesheet.css';
@@ -1426,9 +1324,9 @@ class Order extends \Opencart\System\Engine\Controller {
 		$data['bootstrap_js'] = 'view/javascript/bootstrap/js/bootstrap.bundle.min.js';
 
 		$this->load->model('sale/order');
-		$this->load->model('sale/subscription');
 		$this->load->model('setting/setting');
 		$this->load->model('tool/upload');
+		$this->load->model('sale/subscription');
 
 		$data['orders'] = [];
 
@@ -1497,19 +1395,7 @@ class Order extends \Opencart\System\Engine\Controller {
 					'country'   => $order_info['payment_country']
 				];
 
-				$pattern_1 = [
-					"\r\n",
-					"\r",
-					"\n"
-				];
-
-				$pattern_2 = [
-					"/\\s\\s+/",
-					"/\r\r+/",
-					"/\n\n+/"
-				];
-
-				$payment_address = str_replace($pattern_1, '<br/>', preg_replace($pattern_2, '<br/>', trim(str_replace($find, $replace, $format))));
+				$payment_address = str_replace(["\r\n", "\r", "\n"], '<br/>', preg_replace(["/\s\s+/", "/\r\r+/", "/\n\n+/"], '<br/>', trim(str_replace($find, $replace, $format))));
 
 				// Shipping Address
 				if ($order_info['shipping_address_format']) {
@@ -1544,7 +1430,7 @@ class Order extends \Opencart\System\Engine\Controller {
 					'country'   => $order_info['shipping_country']
 				];
 
-				$shipping_address = str_replace($pattern_1, '<br/>', preg_replace($pattern_2, '<br/>', trim(str_replace($find, $replace, $format))));
+				$shipping_address = str_replace(["\r\n", "\r", "\n"], '<br/>', preg_replace(["/\s\s+/", "/\r\r+/", "/\n\n+/"], '<br/>', trim(str_replace($find, $replace, $format))));
 
 				$product_data = [];
 
@@ -1602,13 +1488,13 @@ class Order extends \Opencart\System\Engine\Controller {
 					}
 
 					$product_data[] = [
-						'name'         => $product['name'],
-						'model'        => $product['model'],
-						'option'       => $option_data,
-						'subscription' => $description,
-						'quantity'     => $product['quantity'],
-						'price'        => $this->currency->format($product['price'] + ($this->config->get('config_tax') ? $product['tax'] : 0), $order_info['currency_code'], $order_info['currency_value']),
-						'total'        => $this->currency->format($product['total'] + ($this->config->get('config_tax') ? ($product['tax'] * $product['quantity']) : 0), $order_info['currency_code'], $order_info['currency_value'])
+						'name'     		=> $product['name'],
+						'model'    		=> $product['model'],
+						'option'   		=> $option_data,
+						'subscription'	=> $description,
+						'quantity' 		=> $product['quantity'],
+						'price'    		=> $this->currency->format($product['price'] + ($this->config->get('config_tax') ? $product['tax'] : 0), $order_info['currency_code'], $order_info['currency_value']),
+						'total'    		=> $this->currency->format($product['total'] + ($this->config->get('config_tax') ? ($product['tax'] * $product['quantity']) : 0), $order_info['currency_code'], $order_info['currency_value'])
 					];
 				}
 
@@ -1661,8 +1547,6 @@ class Order extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Shipping
-	 *
 	 * @return void
 	 */
 	public function shipping(): void {
@@ -1674,12 +1558,12 @@ class Order extends \Opencart\System\Engine\Controller {
 		$data['direction'] = $this->language->get('direction');
 		$data['lang'] = $this->language->get('code');
 
-		// Hard coding CSS so they can be replaced via the event's system.
+		// Hard coding CSS so they can be replaced via the events system.
 		$data['bootstrap_css'] = 'view/stylesheet/bootstrap.css';
 		$data['icons'] = 'view/stylesheet/fonts/fontawesome/css/all.min.css';
 		$data['stylesheet'] = 'view/stylesheet/stylesheet.css';
 
-		// Hard coding scripts so they can be replaced via the event's system.
+		// Hard coding scripts so they can be replaced via the events system.
 		$data['jquery'] = 'view/javascript/jquery/jquery-3.7.1.min.js';
 		$data['bootstrap_js'] = 'view/javascript/bootstrap/js/bootstrap.bundle.min.js';
 
@@ -1757,19 +1641,7 @@ class Order extends \Opencart\System\Engine\Controller {
 					'country'   => $order_info['shipping_country']
 				];
 
-				$pattern_1 = [
-					"\r\n",
-					"\r",
-					"\n"
-				];
-
-				$pattern_2 = [
-					"/\\s\\s+/",
-					"/\r\r+/",
-					"/\n\n+/"
-				];
-
-				$shipping_address = str_replace($pattern_1, '<br/>', preg_replace($pattern_2, '<br/>', trim(str_replace($find, $replace, $format))));
+				$shipping_address = str_replace(["\r\n", "\r", "\n"], '<br/>', preg_replace(["/\s\s+/", "/\r\r+/", "/\n\n+/"], '<br/>', trim(str_replace($find, $replace, $format))));
 
 				$product_data = [];
 
@@ -1815,18 +1687,18 @@ class Order extends \Opencart\System\Engine\Controller {
 						}
 
 						$product_data[] = [
-							'name'     => $product_info['name'],
-							'model'    => $product_info['model'],
-							'option'   => $option_data,
-							'quantity' => $product['quantity'],
-							'location' => $product_info['location'],
-							'sku'      => $product_info['sku'],
-							'upc'      => $product_info['upc'],
-							'ean'      => $product_info['ean'],
-							'jan'      => $product_info['jan'],
-							'isbn'     => $product_info['isbn'],
-							'mpn'      => $product_info['mpn'],
-							'weight'   => $this->weight->format(($product_info['weight'] + (float)$option_weight) * $product['quantity'], $product_info['weight_class_id'], $this->language->get('decimal_point'), $this->language->get('thousand_point'))
+							'name'     	   => $product_info['name'],
+							'model'    	   => $product_info['model'],
+							'option'   	   => $option_data,
+							'quantity'     => $product['quantity'],
+							'location'     => $product_info['location'],
+							'sku'          => $product_info['sku'],
+							'upc'          => $product_info['upc'],
+							'ean'          => $product_info['ean'],
+							'jan'          => $product_info['jan'],
+							'isbn'         => $product_info['isbn'],
+							'mpn'          => $product_info['mpn'],
+							'weight'       => $this->weight->format(($product_info['weight'] + (float)$option_weight) * $product['quantity'], $product_info['weight_class_id'], $this->language->get('decimal_point'), $this->language->get('thousand_point'))
 						];
 					}
 				}
@@ -1854,8 +1726,6 @@ class Order extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * History
-	 *
 	 * @return void
 	 */
 	public function history(): void {
@@ -1865,8 +1735,6 @@ class Order extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get History
-	 *
 	 * @return string
 	 */
 	public function getHistory(): string {
@@ -1914,8 +1782,6 @@ class Order extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Create Invoice No
-	 *
 	 * @return void
 	 */
 	public function createInvoiceNo(): void {
@@ -1958,8 +1824,6 @@ class Order extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Add Reward
-	 *
 	 * @return void
 	 */
 	public function addReward(): void {
@@ -2008,8 +1872,6 @@ class Order extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Remove Reward
-	 *
 	 * @return void
 	 */
 	public function removeReward(): void {
@@ -2038,7 +1900,7 @@ class Order extends \Opencart\System\Engine\Controller {
 		if (!$json) {
 			$this->load->model('customer/customer');
 
-			$this->model_customer_customer->deleteRewardByOrderId($order_id);
+			$this->model_customer_customer->deleteReward($order_id);
 
 			$json['success'] = $this->language->get('text_reward_remove');
 		}
@@ -2048,8 +1910,6 @@ class Order extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Add Commission
-	 *
 	 * @return void
 	 */
 	public function addCommission(): void {
@@ -2100,8 +1960,6 @@ class Order extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Remove Commission
-	 *
 	 * @return void
 	 */
 	public function removeCommission(): void {

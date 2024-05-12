@@ -3,12 +3,10 @@ namespace Opencart\Admin\Controller\Extension\Opencart\Dashboard;
 /**
  * Class Chart
  *
- * @package Opencart\Admin\Controller\Extension\Opencart\Dashboard
+ * @package
  */
 class Chart extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -55,8 +53,6 @@ class Chart extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -81,8 +77,6 @@ class Chart extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Dashboard
-	 *
 	 * @return string
 	 */
 	public function dashboard(): string {
@@ -94,8 +88,6 @@ class Chart extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Chart
-	 *
 	 * @return void
 	 */
 	public function chart(): void {

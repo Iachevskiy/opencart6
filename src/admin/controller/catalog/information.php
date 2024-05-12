@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Catalog;
  */
 class Information extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -45,7 +43,7 @@ class Information extends \Opencart\System\Engine\Controller {
 		$data['add'] = $this->url->link('catalog/information.form', 'user_token=' . $this->session->data['user_token'] . $url);
 		$data['delete'] = $this->url->link('catalog/information.delete', 'user_token=' . $this->session->data['user_token']);
 
-		$data['list'] = $this->controller_catalog_information->getList();
+		$data['list'] = $this->getList();
 
 		$data['user_token'] = $this->session->data['user_token'];
 
@@ -57,19 +55,15 @@ class Information extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
 		$this->load->language('catalog/information');
 
-		$this->response->setOutput($this->controller_catalog_information->getList());
+		$this->response->setOutput($this->getList());
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -118,6 +112,8 @@ class Information extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('catalog/information');
 
+		$information_total = $this->model_catalog_information->getTotalInformations();
+
 		$results = $this->model_catalog_information->getInformations($filter_data);
 
 		foreach ($results as $result) {
@@ -151,8 +147,6 @@ class Information extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$information_total = $this->model_catalog_information->getTotalInformations();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $information_total,
 			'page'  => $page,
@@ -169,8 +163,6 @@ class Information extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -259,6 +251,12 @@ class Information extends \Opencart\System\Engine\Controller {
 		}
 
 		if (!empty($information_info)) {
+			$data['bottom'] = $information_info['bottom'];
+		} else {
+			$data['bottom'] = 0;
+		}
+
+		if (!empty($information_info)) {
 			$data['status'] = $information_info['status'];
 		} else {
 			$data['status'] = true;
@@ -271,9 +269,7 @@ class Information extends \Opencart\System\Engine\Controller {
 		}
 
 		if (isset($this->request->get['information_id'])) {
-			$this->load->model('design/seo_url');
-
-			$data['information_seo_url'] = $this->model_design_seo_url->getSeoUrlsByKeyValue('information_id', $this->request->get['information_id']);
+			$data['information_seo_url'] = $this->model_catalog_information->getSeoUrls($this->request->get['information_id']);
 		} else {
 			$data['information_seo_url'] = [];
 		}
@@ -298,8 +294,6 @@ class Information extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -312,11 +306,11 @@ class Information extends \Opencart\System\Engine\Controller {
 		}
 
 		foreach ($this->request->post['information_description'] as $language_id => $value) {
-			if (!oc_validate_length($value['title'], 1, 64)) {
+			if ((oc_strlen(trim($value['title'])) < 1) || (oc_strlen($value['title']) > 64)) {
 				$json['error']['title_' . $language_id] = $this->language->get('error_title');
 			}
 
-			if (!oc_validate_length($value['meta_title'], 1, 255)) {
+			if ((oc_strlen(trim($value['meta_title'])) < 1) || (oc_strlen($value['meta_title']) > 255)) {
 				$json['error']['meta_title_' . $language_id] = $this->language->get('error_meta_title');
 			}
 		}
@@ -326,11 +320,11 @@ class Information extends \Opencart\System\Engine\Controller {
 
 			foreach ($this->request->post['information_seo_url'] as $store_id => $language) {
 				foreach ($language as $language_id => $keyword) {
-					if (!oc_validate_length($keyword, 1, 64)) {
+					if ((oc_strlen(trim($keyword)) < 1) || (oc_strlen($keyword) > 64)) {
 						$json['error']['keyword_' . $store_id . '_' . $language_id] = $this->language->get('error_keyword');
 					}
 
-					if (!oc_validate_path($keyword)) {
+					if (preg_match('/[^a-zA-Z0-9\/_-]|[\p{Cyrillic}]+/u', $keyword)) {
 						$json['error']['keyword_' . $store_id . '_' . $language_id] = $this->language->get('error_keyword_character');
 					}
 
@@ -364,8 +358,6 @@ class Information extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

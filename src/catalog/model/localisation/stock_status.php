@@ -7,11 +7,9 @@ namespace Opencart\Catalog\Model\Localisation;
  */
 class StockStatus extends \Opencart\System\Engine\Model {
 	/**
-	 * Get Stock Status
-	 *
 	 * @param int $stock_status_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getStockStatus(int $stock_status_id): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "stock_status` WHERE `stock_status_id` = '" . (int)$stock_status_id . "' AND `language_id` = '" . (int)$this->config->get('config_language_id') . "'");
@@ -20,11 +18,9 @@ class StockStatus extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Stock Statuses
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getStockStatuses(array $data = []): array {
 		$sql = "SELECT * FROM `" . DB_PREFIX . "stock_status` WHERE `language_id` = '" . (int)$this->config->get('config_language_id') . "' ORDER BY `name`";
@@ -47,16 +43,14 @@ class StockStatus extends \Opencart\System\Engine\Model {
 			$sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
 		}
 
-		$key = md5($sql);
-
-		$stock_status_data = $this->cache->get('stock_status.' . $key);
+		$stock_status_data = $this->cache->get('stock_status.'. md5($sql));
 
 		if (!$stock_status_data) {
 			$query = $this->db->query($sql);
 
 			$stock_status_data = $query->rows;
 
-			$this->cache->set('stock_status.' . $key, $stock_status_data);
+			$this->cache->set('stock_status.'. md5($sql), $stock_status_data);
 		}
 
 		return $stock_status_data;

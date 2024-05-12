@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Cms;
  */
 class Topic extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -57,8 +55,6 @@ class Topic extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -68,8 +64,6 @@ class Topic extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -118,6 +112,8 @@ class Topic extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('cms/topic');
 
+		$topic_total = $this->model_cms_topic->getTotalTopics();
+
 		$results = $this->model_cms_topic->getTopics($filter_data);
 
 		foreach ($results as $result) {
@@ -151,8 +147,6 @@ class Topic extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$topic_total = $this->model_cms_topic->getTotalTopics();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $topic_total,
 			'page'  => $page,
@@ -169,8 +163,6 @@ class Topic extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -230,7 +222,7 @@ class Topic extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('tool/image');
 
-		$data['placeholder'] = $this->model_tool_image->resize('no_image.png', $this->config->get('config_image_default_width'), $this->config->get('config_image_default_height'));
+		$data['placeholder'] = $this->model_tool_image->resize('no_image.png', 100, 100);
 
 		$data['topic_description'] = [];
 
@@ -240,8 +232,8 @@ class Topic extends \Opencart\System\Engine\Controller {
 			foreach ($results as $key => $result) {
 				$data['topic_description'][$key] = $result;
 
-				if ($result['image'] && is_file(DIR_IMAGE . html_entity_decode($result['image'], ENT_QUOTES, 'UTF-8'))) {
-					$data['topic_description'][$key]['thumb'] = $this->model_tool_image->resize($result['image'], $this->config->get('config_image_default_width'), $this->config->get('config_image_default_height'));
+				if (is_file(DIR_IMAGE . html_entity_decode($result['image'], ENT_QUOTES, 'UTF-8'))) {
+					$data['topic_description'][$key]['thumb'] = $this->model_tool_image->resize(html_entity_decode($result['image'], ENT_QUOTES, 'UTF-8'), 100, 100);
 				} else {
 					$data['topic_description'][$key]['thumb'] = $data['placeholder'];
 				}
@@ -285,9 +277,7 @@ class Topic extends \Opencart\System\Engine\Controller {
 		}
 
 		if (isset($this->request->get['topic_id'])) {
-			$this->load->model('design/seo_url');
-
-			$data['topic_seo_url'] = $this->model_design_seo_url->getSeoUrlsByKeyValue('topic_id', $this->request->get['topic_id']);
+			$data['topic_seo_url'] = $this->model_cms_topic->getSeoUrls($this->request->get['topic_id']);
 		} else {
 			$data['topic_seo_url'] = [];
 		}
@@ -302,8 +292,6 @@ class Topic extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -316,11 +304,11 @@ class Topic extends \Opencart\System\Engine\Controller {
 		}
 
 		foreach ($this->request->post['topic_description'] as $language_id => $value) {
-			if (!oc_validate_length($value['name'], 1, 255)) {
+			if ((oc_strlen(trim($value['name'])) < 1) || (oc_strlen($value['name']) > 255)) {
 				$json['error']['name_' . $language_id] = $this->language->get('error_name');
 			}
 
-			if (!oc_validate_length($value['meta_title'], 1, 255)) {
+			if ((oc_strlen(trim($value['meta_title'])) < 1) || (oc_strlen($value['meta_title']) > 255)) {
 				$json['error']['meta_title_' . $language_id] = $this->language->get('error_meta_title');
 			}
 		}
@@ -330,11 +318,11 @@ class Topic extends \Opencart\System\Engine\Controller {
 
 			foreach ($this->request->post['topic_seo_url'] as $store_id => $language) {
 				foreach ($language as $language_id => $keyword) {
-					if (!oc_validate_length($keyword, 1, 64)) {
+					if ((oc_strlen(trim($keyword)) < 1) || (oc_strlen($keyword) > 64)) {
 						$json['error']['keyword_' . $store_id . '_' . $language_id] = $this->language->get('error_keyword');
 					}
 
-					if (!oc_validate_path($keyword)) {
+					if (preg_match('/[^a-zA-Z0-9\/_-]|[\p{Cyrillic}]+/u', $keyword)) {
 						$json['error']['keyword_' . $store_id . '_' . $language_id] = $this->language->get('error_keyword_character');
 					}
 
@@ -368,8 +356,6 @@ class Topic extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

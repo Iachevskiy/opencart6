@@ -3,12 +3,10 @@ namespace Opencart\Catalog\Controller\Extension\Opencart\Payment;
 /**
  * Class Cod
  *
- * @package Opencart\Catalog\Controller\Extension\Opencart\Module
+ * @package
  */
 class Cod extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return string
 	 */
 	public function index(): string {
@@ -20,8 +18,6 @@ class Cod extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Confirm
-	 *
 	 * @return void
 	 */
 	public function confirm(): void {
@@ -30,7 +26,7 @@ class Cod extends \Opencart\System\Engine\Controller {
 		$json = [];
 
 		if (!isset($this->session->data['order_id'])) {
-			$json['error'] = $this->language->get('error_order_id');
+			$json['error'] = $this->language->get('error_order');
 		}
 
 		if (!isset($this->session->data['payment_method']) || $this->session->data['payment_method']['code'] != 'cod.cod') {

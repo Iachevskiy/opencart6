@@ -8,17 +8,14 @@ namespace Opencart\Catalog\Controller\Mail;
 class Transaction extends \Opencart\System\Engine\Controller {
 	// catalog/model/account/customer/addTransaction/after
 	/**
-	 * Index
-	 *
-	 * @param string            $route
-	 * @param array<int, mixed> $args
-	 * @param mixed             $output
-	 *
-	 * @throws \Exception
+	 * @param string $route
+	 * @param array  $args
+	 * @param mixed  $output
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
-	public function index(string &$route, array &$args, &$output): void {
+	public function index(string &$route, array &$args, mixed &$output): void {
 		$this->load->language('mail/transaction');
 
 		$this->load->model('account/customer');
@@ -64,10 +61,7 @@ class Transaction extends \Opencart\System\Engine\Controller {
 			$data['text_received'] = sprintf($this->language->get('mail_text_received'), $store_name);
 
 			$data['amount'] = $this->currency->format($args[2], $this->config->get('config_currency'));
-
-			$this->load->model('account/transaction');
-
-			$data['total'] = $this->currency->format($this->model_account_transaction->getTransactionTotal($args[0]), $this->config->get('config_currency'));
+			$data['total'] = $this->currency->format($this->model_account_customer->getTransactionTotal($args[0]), $this->config->get('config_currency'));
 
 			$data['store'] = $store_name;
 			$data['store_url'] = $store_url;

@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Error;
  */
 class Permission extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {

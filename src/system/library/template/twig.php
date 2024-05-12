@@ -3,7 +3,7 @@ namespace Opencart\System\Library\Template;
 /**
  * Class Twig
  *
- * @package Opencart\System\Library\Template
+ * @package
  */
 class Twig {
 	/**
@@ -11,20 +11,23 @@ class Twig {
 	 */
 	protected string $root;
 	/**
-	 * @var \Twig\Loader\FilesystemLoader
+	 * @var object|\Twig\Loader\FilesystemLoader
 	 */
-	protected \Twig\Loader\FilesystemLoader $loader;
+	protected object $loader;
 	/**
 	 * @var string
 	 */
 	protected string $directory;
 	/**
-	 * @var array<string, string>
+	 * @var array
 	 */
 	protected array $path = [];
 
 	/**
 	 * Constructor
+	 *
+	 * @param    string $adaptor
+	 *
 	 */
 	public function __construct() {
 		// Unfortunately, we have to set the web root directory as the base since Twig confuses which template cache to use.
@@ -33,16 +36,16 @@ class Twig {
 		// We have to add the C directory as the base directory because twig can only accept the first namespace/,
 		// rather than a multiple namespace system, which took me less than a minute to write. If symphony is like
 		// this, then I have no idea why people use the framework.
-		$this->loader = new \Twig\Loader\FilesystemLoader('./', $this->root);
+		$this->loader = new \Twig\Loader\FilesystemLoader('/', $this->root);
 	}
 
 	/**
 	 * addPath
 	 *
-	 * @param string $namespace
-	 * @param string $directory
+	 * @param    string $namespace
+	 * @param    string $directory
 	 *
-	 * @return void
+	 * @return	 void
 	 */
 	public function addPath(string $namespace, string $directory = ''): void {
 		if (!$directory) {
@@ -55,11 +58,11 @@ class Twig {
 	/**
 	 * Render
 	 *
-	 * @param string               $filename
-	 * @param array<string, mixed> $data
-	 * @param string               $code
+	 * @param	string	$filename
+	 * @param	array	$data
+	 * @param	string	$code
 	 *
-	 * @return string
+	 * @return	string
 	 */
 	public function render(string $filename, array $data = [], string $code = ''): string {
 		$file = $this->directory . $filename . '.twig';
@@ -105,19 +108,15 @@ class Twig {
 			$config = [
 				'charset'     => 'utf-8',
 				'autoescape'  => false,
-				'debug'       => true,
+				'debug'       => false,
 				'auto_reload' => true,
 				'cache'       => DIR_CACHE . 'template/'
 			];
 
 			$twig = new \Twig\Environment($loader, $config);
 
-			if ($config['debug']) {
-				$twig->addExtension(new \Twig\Extension\DebugExtension());
-			}
-
 			return $twig->render($file, $data);
-		} catch (\Twig\Error\SyntaxError $e) {
+		} catch (Twig_Error_Syntax $e) {
 			throw new \Exception('Error: Could not load template ' . $filename . '!');
 		}
 	}

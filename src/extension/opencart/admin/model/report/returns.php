@@ -7,11 +7,9 @@ namespace Opencart\Admin\Model\Extension\Opencart\Report;
  */
 class Returns extends \Opencart\System\Engine\Model {
 	/**
-	 * Get Returns
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getReturns(array $data = []): array {
 		$sql = "SELECT MIN(r.`date_added`) AS date_start, MAX(r.`date_added`) AS date_end, COUNT(r.`return_id`) AS returns FROM `" . DB_PREFIX . "return` r";
@@ -37,7 +35,7 @@ class Returns extends \Opencart\System\Engine\Model {
 		}
 
 		switch ($group) {
-			case 'day':
+			case 'day';
 				$sql .= " GROUP BY YEAR(r.`date_added`), MONTH(r.`date_added`), DAY(r.`date_added`)";
 				break;
 			default:
@@ -70,9 +68,7 @@ class Returns extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Returns
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
@@ -84,7 +80,7 @@ class Returns extends \Opencart\System\Engine\Model {
 		}
 
 		switch ($group) {
-			case 'day':
+			case 'day';
 				$sql = "SELECT COUNT(DISTINCT YEAR(`date_added`), MONTH(`date_added`), DAY(`date_added`)) AS `total` FROM `" . DB_PREFIX . "return`";
 				break;
 			default:

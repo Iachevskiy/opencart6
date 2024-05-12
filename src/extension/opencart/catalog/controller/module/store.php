@@ -3,12 +3,10 @@ namespace Opencart\Catalog\Controller\Extension\Opencart\Module;
 /**
  * Class Store
  *
- * @package Opencart\Catalog\Controller\Extension\Opencart\Module
+ * @package
  */
 class Store extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return string
 	 */
 	public function index(): string {
@@ -46,8 +44,6 @@ class Store extends \Opencart\System\Engine\Controller {
 			}
 
 			return $this->load->view('extension/opencart/module/store', $data);
-		} else {
-			return '';
 		}
 	}
 }

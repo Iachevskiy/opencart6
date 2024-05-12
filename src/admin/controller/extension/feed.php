@@ -7,13 +7,6 @@ namespace Opencart\Admin\Controller\Extension;
  */
 class Feed extends \Opencart\System\Engine\Controller {
 	/**
-	 * @var array<string, string>
-	 */
-	private array $error = [];
-
-	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -21,8 +14,6 @@ class Feed extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	public function getList(): string {
@@ -30,15 +21,15 @@ class Feed extends \Opencart\System\Engine\Controller {
 
 		$available = [];
 
-		$results = glob(DIR_EXTENSION . '*/admin/controller/feed/*.php');
+		$this->load->model('setting/extension');
+
+		$results = $this->model_setting_extension->getPaths('%/admin/controller/feed/%.php');
 
 		foreach ($results as $result) {
-			$available[] = basename($result, '.php');
+			$available[] = basename($result['path'], '.php');
 		}
 
 		$installed = [];
-
-		$this->load->model('setting/extension');
 
 		$extensions = $this->model_setting_extension->getExtensionsByType('feed');
 
@@ -54,11 +45,9 @@ class Feed extends \Opencart\System\Engine\Controller {
 
 		if ($results) {
 			foreach ($results as $result) {
-				$path = substr($result, strlen(DIR_EXTENSION));
+				$extension = substr($result['path'], 0, strpos($result['path'], '/'));
 
-				$extension = substr($path, 0, strpos($path, '/'));
-
-				$code = basename($result, '.php');
+				$code = basename($result['path'], '.php');
 
 				$this->load->language('extension/' . $extension . '/feed/' . $code, $code);
 
@@ -79,8 +68,6 @@ class Feed extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Validate
-	 *
 	 * @return bool
 	 */
 	protected function validate(): bool {
@@ -92,8 +79,6 @@ class Feed extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Install
-	 *
 	 * @return void
 	 */
 	public function install(): void {
@@ -158,8 +143,6 @@ class Feed extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Uninstall
-	 *
 	 * @return void
 	 */
 	public function uninstall(): void {

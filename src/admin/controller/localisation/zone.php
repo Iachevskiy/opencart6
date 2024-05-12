@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Localisation;
  */
 class Zone extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -79,8 +77,6 @@ class Zone extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -90,8 +86,6 @@ class Zone extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -173,6 +167,8 @@ class Zone extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('localisation/zone');
 
+		$zone_total = $this->model_localisation_zone->getTotalZones($filter_data);
+
 		$results = $this->model_localisation_zone->getZones($filter_data);
 
 		foreach ($results as $result) {
@@ -232,8 +228,6 @@ class Zone extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$zone_total = $this->model_localisation_zone->getTotalZones($filter_data);
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $zone_total,
 			'page'  => $page,
@@ -250,8 +244,6 @@ class Zone extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -350,8 +342,6 @@ class Zone extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -363,7 +353,7 @@ class Zone extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!oc_validate_length($this->request->post['name'], 1, 64)) {
+		if ((oc_strlen($this->request->post['name']) < 1) || (oc_strlen($this->request->post['name']) > 64)) {
 			$json['error']['name'] = $this->language->get('error_name');
 		}
 
@@ -384,8 +374,6 @@ class Zone extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

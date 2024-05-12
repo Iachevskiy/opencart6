@@ -3,12 +3,10 @@ namespace Opencart\Admin\Model\Extension\Opencart\Module;
 /**
  * Class Bestseller
  *
- * @package Opencart\Admin\Model\Extension\Opencart\Module
+ * @package Opencart\Admin\Controller\Extension\Opencart\Module
  */
 class Bestseller extends \Opencart\System\Engine\Model {
 	/**
-	 * Install
-	 *
 	 * @return void
 	 */
 	public function install(): void {
@@ -16,12 +14,10 @@ class Bestseller extends \Opencart\System\Engine\Model {
 		  `product_id` int(11) NOT NULL,
 		  `total` int(11) NOT NULL,
 		  PRIMARY KEY (`product_id`)
-		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci");
 	}
 
 	/**
-	 * Uninstall
-	 *
 	 * @return void
 	 */
 	public function uninstall(): void {
@@ -29,8 +25,6 @@ class Bestseller extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Edit Total
-	 *
 	 * @param int $product_id
 	 * @param int $total
 	 *
@@ -41,8 +35,6 @@ class Bestseller extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @param int $product_id
 	 *
 	 * @return void
@@ -52,12 +44,10 @@ class Bestseller extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Reports
-	 *
 	 * @param int $start
 	 * @param int $limit
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getReports(int $start = 0, int $limit = 10): array {
 		if ($start < 0) {
@@ -74,8 +64,6 @@ class Bestseller extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Reports
-	 *
 	 * @return int
 	 */
 	public function getTotalReports(): int {

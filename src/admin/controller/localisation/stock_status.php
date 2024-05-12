@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Localisation;
  */
 class StockStatus extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -57,8 +55,6 @@ class StockStatus extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -68,8 +64,6 @@ class StockStatus extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -118,6 +112,8 @@ class StockStatus extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('localisation/stock_status');
 
+		$stock_status_total = $this->model_localisation_stock_status->getTotalStockStatuses();
+
 		$results = $this->model_localisation_stock_status->getStockStatuses($filter_data);
 
 		foreach ($results as $result) {
@@ -148,8 +144,6 @@ class StockStatus extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$stock_status_total = $this->model_localisation_stock_status->getTotalStockStatuses();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $stock_status_total,
 			'page'  => $page,
@@ -166,8 +160,6 @@ class StockStatus extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -232,8 +224,6 @@ class StockStatus extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -246,7 +236,7 @@ class StockStatus extends \Opencart\System\Engine\Controller {
 		}
 
 		foreach ($this->request->post['stock_status'] as $language_id => $value) {
-			if (!oc_validate_length($value['name'], 3, 32)) {
+			if ((oc_strlen($value['name']) < 3) || (oc_strlen($value['name']) > 32)) {
 				$json['error']['name_' . $language_id] = $this->language->get('error_name');
 			}
 		}
@@ -268,8 +258,6 @@ class StockStatus extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Sale;
  */
 class VoucherTheme extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -57,8 +55,6 @@ class VoucherTheme extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -68,8 +64,6 @@ class VoucherTheme extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -118,6 +112,8 @@ class VoucherTheme extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('sale/voucher_theme');
 
+		$voucher_theme_total = $this->model_sale_voucher_theme->getTotalVoucherThemes();
+
 		$results = $this->model_sale_voucher_theme->getVoucherThemes($filter_data);
 
 		foreach ($results as $result) {
@@ -136,7 +132,7 @@ class VoucherTheme extends \Opencart\System\Engine\Controller {
 			$url .= '&order=ASC';
 		}
 
-		$data['sort_name'] = $this->url->link('sale/voucher_theme.list', 'user_token=' . $this->session->data['user_token'] . '&sort=vtd.name' . $url);
+		$data['sort_name'] = $this->url->link('sale/voucher_theme.list', 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url);
 
 		$url = '';
 
@@ -147,8 +143,6 @@ class VoucherTheme extends \Opencart\System\Engine\Controller {
 		if (isset($this->request->get['order'])) {
 			$url .= '&order=' . $this->request->get['order'];
 		}
-
-		$voucher_theme_total = $this->model_sale_voucher_theme->getTotalVoucherThemes();
 
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $voucher_theme_total,
@@ -166,8 +160,6 @@ class VoucherTheme extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -236,10 +228,10 @@ class VoucherTheme extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('tool/image');
 
-		$data['placeholder'] = $this->model_tool_image->resize('no_image.png', $this->config->get('config_image_default_width'), $this->config->get('config_image_default_height'));
+		$data['placeholder'] = $this->model_tool_image->resize('no_image.png', 100, 100);
 
-		if ($data['image'] && is_file(DIR_IMAGE . html_entity_decode($data['image'], ENT_QUOTES, 'UTF-8'))) {
-			$data['thumb'] = $this->model_tool_image->resize($data['image'], $this->config->get('config_image_default_width'), $this->config->get('config_image_default_height'));
+		if (is_file(DIR_IMAGE . html_entity_decode($data['image'], ENT_QUOTES, 'UTF-8'))) {
+			$data['thumb'] = $this->model_tool_image->resize(html_entity_decode($data['image'], ENT_QUOTES, 'UTF-8'), 100, 100);
 		} else {
 			$data['thumb'] = $data['placeholder'];
 		}
@@ -254,8 +246,6 @@ class VoucherTheme extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -268,7 +258,7 @@ class VoucherTheme extends \Opencart\System\Engine\Controller {
 		}
 
 		foreach ($this->request->post['voucher_theme_description'] as $language_id => $value) {
-			if (!oc_validate_length($value['name'], 3, 32)) {
+			if ((oc_strlen($value['name']) < 3) || (oc_strlen($value['name']) > 32)) {
 				$json['error']['name_' . $language_id] = $this->language->get('error_name');
 			}
 		}
@@ -294,8 +284,6 @@ class VoucherTheme extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

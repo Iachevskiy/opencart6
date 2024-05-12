@@ -7,16 +7,14 @@ namespace Opencart\Catalog\Model\Localisation;
  */
 class Language extends \Opencart\System\Engine\Model {
 	/**
-	 * @var array<int|string, array<string, mixed>>
+	 * @var array
 	 */
 	private array $data = [];
 
 	/**
-	 * Get Language
-	 *
 	 * @param int $language_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getLanguage(int $language_id): array {
 		if (isset($this->data[$language_id])) {
@@ -45,11 +43,9 @@ class Language extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Language By Code
-	 *
 	 * @param string $code
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getLanguageByCode(string $code): array {
 		if (isset($this->data[$code])) {
@@ -78,14 +74,12 @@ class Language extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Languages
-	 *
-	 * @return array<string, array<string, mixed>>
+	 * @return array
 	 */
 	public function getLanguages(): array {
 		$sql = "SELECT * FROM `" . DB_PREFIX . "language` WHERE `status` = '1' ORDER BY `sort_order`, `name`";
 
-		$results = $this->cache->get('language.' . md5($sql));
+		$results = (array)$this->cache->get('language.' . md5($sql));
 
 		if (!$results) {
 			$query = $this->db->query($sql);

@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Marketing;
  */
 class Marketing extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -102,8 +100,6 @@ class Marketing extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -113,8 +109,6 @@ class Marketing extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -195,17 +189,19 @@ class Marketing extends \Opencart\System\Engine\Controller {
 		$data['marketings'] = [];
 
 		$filter_data = [
-			'filter_name'      => $filter_name,
-			'filter_code'      => $filter_code,
-			'filter_date_from' => $filter_date_from,
-			'filter_date_to'   => $filter_date_to,
-			'sort'             => $sort,
-			'order'            => $order,
-			'start'            => ($page - 1) * $this->config->get('config_pagination_admin'),
-			'limit'            => $this->config->get('config_pagination_admin')
+			'filter_name'       => $filter_name,
+			'filter_code'       => $filter_code,
+			'filter_date_from'  => $filter_date_from,
+			'filter_date_to'    => $filter_date_to,
+			'sort'              => $sort,
+			'order'             => $order,
+			'start'             => ($page - 1) * $this->config->get('config_pagination_admin'),
+			'limit'             => $this->config->get('config_pagination_admin')
 		];
 
 		$this->load->model('marketing/marketing');
+
+		$marketing_total = $this->model_marketing_marketing->getTotalMarketings($filter_data);
 
 		$results = $this->model_marketing_marketing->getMarketings($filter_data);
 
@@ -275,8 +271,6 @@ class Marketing extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$marketing_total = $this->model_marketing_marketing->getTotalMarketings($filter_data);
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $marketing_total,
 			'page'  => $page,
@@ -293,8 +287,6 @@ class Marketing extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -393,8 +385,6 @@ class Marketing extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -406,7 +396,7 @@ class Marketing extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!oc_validate_length($this->request->post['name'], 1, 32)) {
+		if ((oc_strlen($this->request->post['name']) < 1) || (oc_strlen($this->request->post['name']) > 32)) {
 			$json['error']['name'] = $this->language->get('error_name');
 		}
 
@@ -437,8 +427,6 @@ class Marketing extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {
@@ -471,8 +459,6 @@ class Marketing extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Report
-	 *
 	 * @return void
 	 */
 	public function report(): void {
@@ -482,8 +468,6 @@ class Marketing extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get Report
-	 *
 	 * @return string
 	 */
 	public function getReport(): string {
@@ -542,56 +526,5 @@ class Marketing extends \Opencart\System\Engine\Controller {
 		$data['results'] = sprintf($this->language->get('text_pagination'), ($report_total) ? (($page - 1) * $limit) + 1 : 0, ((($page - 1) * $limit) > ($report_total - $limit)) ? $report_total : ((($page - 1) * $limit) + $limit), $report_total, ceil($report_total / $limit));
 
 		return $this->load->view('marketing/marketing_report', $data);
-	}
-
-	/**
-	 * Autocomplete
-	 *
-	 * @return void
-	 */
-	public function autocomplete(): void {
-		$json = [];
-
-		if (isset($this->request->get['filter_name'])) {
-			$filter_name = $this->request->get['filter_name'];
-		} else {
-			$filter_name = '';
-		}
-
-		if (isset($this->request->get['filter_code'])) {
-			$filter_code = $this->request->get['filter_code'];
-		} else {
-			$filter_code = '';
-		}
-
-		$filter_data = [
-			'filter_name' => $filter_name,
-			'filter_code' => $filter_code,
-			'start'       => 0,
-			'limit'       => $this->config->get('config_autocomplete_limit')
-		];
-
-		$this->load->model('marketing/marketing');
-
-		$results = $this->model_marketing_marketing->getMarketings($filter_data);
-
-		foreach ($results as $result) {
-			$json[] = [
-				'marketing_id' => $result['marketing_id'],
-				'name'         => strip_tags(html_entity_decode($result['name'], ENT_QUOTES, 'UTF-8')),
-				'code'         => $result['code']
-			];
-		}
-
-		$sort_order = [];
-
-		foreach ($json as $key => $value) {
-			$sort_order[$key] = $value['name'];
-		}
-
-		array_multisort($sort_order, SORT_ASC, $json);
-
-		$this->response->addHeader('Content-Type: application/json');
-		$this->response->setOutput(json_encode($json));
 	}
 }

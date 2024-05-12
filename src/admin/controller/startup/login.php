@@ -7,11 +7,9 @@ namespace Opencart\Admin\Controller\Startup;
  */
 class Login extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
-	 * @return \Opencart\System\Engine\Action
+	 * @return object|\Opencart\System\Engine\Action|null
 	 */
-	public function index(): ?object {
+	public function index(): object|null {
 		if (isset($this->request->get['route'])) {
 			$route = (string)$this->request->get['route'];
 		} else {

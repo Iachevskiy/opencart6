@@ -7,8 +7,11 @@ namespace Opencart\Admin\Controller\Extension\Opencart\Total;
  */
 class Tax extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
+	 * @var array
+	 */
+	private array $error = [];
+
+	/**
 	 * @return void
 	 */
 	public function index(): void {
@@ -47,8 +50,6 @@ class Tax extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {

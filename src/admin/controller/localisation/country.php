@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Localisation;
  */
 class Country extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -79,8 +77,6 @@ class Country extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -90,8 +86,6 @@ class Country extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -173,13 +167,15 @@ class Country extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('localisation/country');
 
+		$country_total = $this->model_localisation_country->getTotalCountries($filter_data);
+
 		$results = $this->model_localisation_country->getCountries($filter_data);
 
 		foreach ($results as $result) {
 			$data['countries'][] = [
 				'country_id' => $result['country_id'],
 				'name'       => $result['name'] . (($result['country_id'] == $this->config->get('config_country_id')) ? $this->language->get('text_default') : ''),
-				'status'     => $result['status'],
+				'status'      => $result['status'],
 				'iso_code_2' => $result['iso_code_2'],
 				'iso_code_3' => $result['iso_code_3'],
 				'edit'       => $this->url->link('localisation/country.form', 'user_token=' . $this->session->data['user_token'] . '&country_id=' . $result['country_id'] . $url)
@@ -232,8 +228,6 @@ class Country extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$country_total = $this->model_localisation_country->getTotalCountries($filter_data);
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $country_total,
 			'page'  => $page,
@@ -250,8 +244,6 @@ class Country extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -348,7 +340,7 @@ class Country extends \Opencart\System\Engine\Controller {
 			$data['postcode_required'] = 0;
 		}
 
-		if (!empty($country_info)) {
+	    if (!empty($country_info)) {
 			$data['status'] = $country_info['status'];
 		} else {
 			$data['status'] = '1';
@@ -362,8 +354,6 @@ class Country extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -375,16 +365,8 @@ class Country extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!oc_validate_length($this->request->post['name'], 1, 128)) {
+		if ((oc_strlen($this->request->post['name']) < 1) || (oc_strlen($this->request->post['name']) > 128)) {
 			$json['error']['name'] = $this->language->get('error_name');
-		}
-
-		if (oc_strlen($this->request->post['iso_code_2']) != 2) {
-			$json['error']['iso_code_2'] = $this->language->get('error_iso_code_2');
-		}
-
-		if (oc_strlen($this->request->post['iso_code_3']) != 3) {
-			$json['error']['iso_code_3'] = $this->language->get('error_iso_code_3');
 		}
 
 		if (!$json) {
@@ -404,8 +386,6 @@ class Country extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {
@@ -473,8 +453,6 @@ class Country extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Country
-	 *
 	 * @return void
 	 */
 	public function country(): void {

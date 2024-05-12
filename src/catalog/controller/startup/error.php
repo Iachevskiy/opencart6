@@ -17,16 +17,14 @@ class Error extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Error
-	 *
-	 * @param int    $code
+	 * @param string $code
 	 * @param string $message
 	 * @param string $file
-	 * @param int    $line
+	 * @param string $line
 	 *
 	 * @return bool
 	 */
-	public function error(int $code, string $message, string $file, int $line): bool {
+	public function error(string $code, string $message, string $file, string $line): bool {
 		switch ($code) {
 			case E_NOTICE:
 			case E_USER_NOTICE:
@@ -55,13 +53,11 @@ class Error extends \Opencart\System\Engine\Controller {
 			header('Location: ' . $this->config->get('error_page'));
 			exit();
 		}
-
+	
 		return true;
 	}
 
 	/**
-	 * Exception
-	 *
 	 * @param \Throwable $e
 	 *
 	 * @return void
@@ -78,4 +74,4 @@ class Error extends \Opencart\System\Engine\Controller {
 			exit();
 		}
 	}
-}
+} 

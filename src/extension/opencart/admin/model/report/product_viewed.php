@@ -7,8 +7,6 @@ namespace Opencart\Admin\Model\Extension\Opencart\Report;
  */
 class ProductViewed extends \Opencart\System\Engine\Model {
 	/**
-	 * Install
-	 *
 	 * @return void
 	 */
 	public function install(): void {
@@ -16,12 +14,10 @@ class ProductViewed extends \Opencart\System\Engine\Model {
 		  `product_id` INT(11) NOT NULL,
 		  `viewed` INT(11) NOT NULL,
 		  PRIMARY KEY (`product_id`)
-		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci");
 	}
 
 	/**
-	 * Uninstall
-	 *
 	 * @return void
 	 */
 	public function uninstall(): void {
@@ -29,24 +25,20 @@ class ProductViewed extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Add Report
-	 *
 	 * @param int $product_id
 	 * @param int $viewed
 	 *
 	 * @return void
 	 */
-	public function addReport(int $product_id, int $viewed): void {
+	public function addReport(int $product_id, int $viewed) {
 		$this->db->query("INSERT INTO `" . DB_PREFIX . "product_viewed` SET `product_id` = '" . (int)$product_id . "', `viewed` = '" . (int)$viewed . "'");
 	}
 
 	/**
-	 * Get Viewed
-	 *
 	 * @param int $start
 	 * @param int $limit
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getViewed(int $start = 0, int $limit = 10): array {
 		if ($start < 0) {
@@ -63,8 +55,6 @@ class ProductViewed extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Viewed
-	 *
 	 * @return int
 	 */
 	public function getTotalViewed(): int {
@@ -74,8 +64,6 @@ class ProductViewed extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total
-	 *
 	 * @return int
 	 */
 	public function getTotal(): int {
@@ -85,8 +73,6 @@ class ProductViewed extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Clear
-	 *
 	 * @return void
 	 */
 	public function clear(): void {

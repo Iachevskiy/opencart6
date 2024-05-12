@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Extension\Opencart\Payment;
  */
 class BankTransfer extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -41,7 +39,7 @@ class BankTransfer extends \Opencart\System\Engine\Controller {
 		$data['payment_bank_transfer_bank'] = [];
 
 		$languages = $this->model_localisation_language->getLanguages();
-
+		
 		foreach ($languages as $language) {
 			$data['payment_bank_transfer_bank'][$language['language_id']] = $this->config->get('payment_bank_transfer_bank_' . $language['language_id']);
 		}
@@ -71,8 +69,6 @@ class BankTransfer extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {

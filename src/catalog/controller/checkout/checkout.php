@@ -11,8 +11,19 @@ class Checkout extends \Opencart\System\Engine\Controller {
 	 */
 	public function index(): void {
 		// Validate cart has products and has stock.
-		if ((!$this->cart->hasProducts() && empty($this->session->data['vouchers'])) || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout')) || !$this->cart->hasMinimum()) {
-			$this->response->redirect($this->url->link('checkout/cart', 'language=' . $this->config->get('config_language'), true));
+		if ((!$this->cart->hasProducts() && empty($this->session->data['vouchers'])) || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout'))) {
+			$this->response->redirect($this->url->link('checkout/cart', 'language=' . $this->config->get('config_language')));
+		}
+
+		// Validate minimum quantity requirements.
+		$products = $this->cart->getProducts();
+
+		foreach ($products as $product) {
+			if (!$product['minimum']) {
+				$this->response->redirect($this->url->link('checkout/cart', 'language=' . $this->config->get('config_language'), true));
+
+				break;
+			}
 		}
 
 		$this->load->language('checkout/checkout');
@@ -50,13 +61,13 @@ class Checkout extends \Opencart\System\Engine\Controller {
 
 		if ($this->customer->isLogged() && $this->cart->hasShipping()) {
 			$data['shipping_address'] = $this->load->controller('checkout/shipping_address');
-		} else {
+		}  else {
 			$data['shipping_address'] = '';
 		}
 
 		if ($this->cart->hasShipping()) {
 			$data['shipping_method'] = $this->load->controller('checkout/shipping_method');
-		} else {
+		}  else {
 			$data['shipping_method'] = '';
 		}
 

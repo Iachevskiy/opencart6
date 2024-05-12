@@ -56,8 +56,6 @@ class Currency extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -76,16 +74,10 @@ class Currency extends \Opencart\System\Engine\Controller {
 
 		setcookie('currency', $this->session->data['currency'], $option);
 
-		if (isset($this->request->post['redirect'])) {
-			$redirect = urldecode(html_entity_decode($this->request->post['redirect'], ENT_QUOTES, 'UTF-8'));
+		if (isset($this->request->post['redirect']) && substr($this->request->post['redirect'], 0, strlen($this->config->get('config_url'))) == $this->config->get('config_url')) {
+			$this->response->redirect(str_replace('&amp;', '&', $this->request->post['redirect']));
 		} else {
-			$redirect = '';
-		}
-
-		if ($redirect && str_starts_with($redirect, $this->config->get('config_url'))) {
-			$this->response->redirect($redirect);
-		} else {
-			$this->response->redirect($this->url->link($this->config->get('action_default'), 'language=' . $this->config->get('config_language')));
+			$this->response->redirect($this->url->link($this->config->get('action_default')));
 		}
 	}
 }

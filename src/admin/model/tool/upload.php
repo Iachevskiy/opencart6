@@ -7,8 +7,6 @@ namespace Opencart\Admin\Model\Tool;
  */
 class Upload extends \Opencart\System\Engine\Model {
 	/**
-	 * Add Upload
-	 *
 	 * @param string $name
 	 * @param string $filename
 	 *
@@ -23,8 +21,6 @@ class Upload extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete Upload
-	 *
 	 * @param int $upload_id
 	 *
 	 * @return void
@@ -34,11 +30,9 @@ class Upload extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Upload
-	 *
 	 * @param int $upload_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getUpload(int $upload_id): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "upload` WHERE `upload_id` = '" . (int)$upload_id . "'");
@@ -47,11 +41,9 @@ class Upload extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Upload By Code
-	 *
 	 * @param string $code
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getUploadByCode(string $code): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "upload` WHERE `code` = '" . $this->db->escape($code) . "'");
@@ -60,11 +52,9 @@ class Upload extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Uploads
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getUploads(array $data = []): array {
 		$sql = "SELECT * FROM `" . DB_PREFIX . "upload`";
@@ -72,11 +62,11 @@ class Upload extends \Opencart\System\Engine\Model {
 		$implode = [];
 
 		if (!empty($data['filter_name'])) {
-			$implode[] = "LCASE(`name`) LIKE '" . $this->db->escape(oc_strtolower($data['filter_name']) . '%') . "'";
+			$implode[] = "`name` LIKE '" . $this->db->escape((string)$data['filter_name'] . '%') . "'";
 		}
 
 		if (!empty($data['filter_code'])) {
-			$implode[] = "LCASE(`code`) LIKE '" . $this->db->escape(oc_strtolower($data['filter_code']) . '%') . "'";
+			$implode[] = "`code` LIKE '" . $this->db->escape((string)$data['filter_code'] . '%') . "'";
 		}
 
 		if (!empty($data['filter_date_from'])) {
@@ -127,9 +117,7 @@ class Upload extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Uploads
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
@@ -139,11 +127,11 @@ class Upload extends \Opencart\System\Engine\Model {
 		$implode = [];
 
 		if (!empty($data['filter_name'])) {
-			$implode[] = "LCASE(`name`) LIKE '" . $this->db->escape(oc_strtolower($data['filter_name']) . '%') . "'";
+			$implode[] = "`name` LIKE '" . $this->db->escape((string)$data['filter_name'] . '%') . "'";
 		}
 
 		if (!empty($data['filter_code'])) {
-			$implode[] = "LCASE(`code`) LIKE '" . $this->db->escape(oc_strtolower($data['filter_code']) . '%') . "'";
+			$implode[] = "`code` LIKE '" . $this->db->escape((string)$data['filter_code'] . '%') . "'";
 		}
 
 		if (!empty($data['filter_date_from'])) {

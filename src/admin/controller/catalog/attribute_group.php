@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Catalog;
  */
 class AttributeGroup extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -21,6 +19,7 @@ class AttributeGroup extends \Opencart\System\Engine\Controller {
 		if (isset($this->request->get['sort'])) {
 			$url .= '&sort=' . $this->request->get['sort'];
 		}
+
 		if (isset($this->request->get['order'])) {
 			$url .= '&order=' . $this->request->get['order'];
 		}
@@ -44,7 +43,7 @@ class AttributeGroup extends \Opencart\System\Engine\Controller {
 		$data['add'] = $this->url->link('catalog/attribute_group.form', 'user_token=' . $this->session->data['user_token'] . $url);
 		$data['delete'] = $this->url->link('catalog/attribute_group.delete', 'user_token=' . $this->session->data['user_token']);
 
-		$data['list'] = $this->controller_catalog_attribute_group->getList();
+		$data['list'] = $this->getList();
 
 		$data['user_token'] = $this->session->data['user_token'];
 
@@ -56,19 +55,15 @@ class AttributeGroup extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
 		$this->load->language('catalog/attribute_group');
 
-		$this->response->setOutput($this->controller_catalog_attribute_group->getList());
+		$this->response->setOutput($this->getList());
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -117,6 +112,8 @@ class AttributeGroup extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('catalog/attribute_group');
 
+		$attribute_group_total = $this->model_catalog_attribute_group->getTotalAttributeGroups();
+
 		$results = $this->model_catalog_attribute_group->getAttributeGroups($filter_data);
 
 		foreach ($results as $result) {
@@ -149,8 +146,6 @@ class AttributeGroup extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$attribute_group_total = $this->model_catalog_attribute_group->getTotalAttributeGroups();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $attribute_group_total,
 			'page'  => $page,
@@ -167,8 +162,6 @@ class AttributeGroup extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -245,8 +238,6 @@ class AttributeGroup extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -259,7 +250,7 @@ class AttributeGroup extends \Opencart\System\Engine\Controller {
 		}
 
 		foreach ($this->request->post['attribute_group_description'] as $language_id => $value) {
-			if (!oc_validate_length($value['name'], 1, 64)) {
+			if ((oc_strlen(trim($value['name'])) < 1) || (oc_strlen($value['name']) > 64)) {
 				$json['error']['name_' . $language_id] = $this->language->get('error_name');
 			}
 		}
@@ -285,8 +276,6 @@ class AttributeGroup extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

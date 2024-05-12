@@ -7,11 +7,9 @@ namespace Opencart\Catalog\Model\Catalog;
  */
 class SubscriptionPlan extends \Opencart\System\Engine\Model {
 	/**
-	 * Get Subscription Plan
-	 *
 	 * @param int $subscription_plan_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getSubscriptionPlan(int $subscription_plan_id): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "subscription_plan` `sp` LEFT JOIN `" . DB_PREFIX . "subscription_plan_description` `spd` ON (`sp`.`subscription_plan_id` = `spd`.`subscription_plan_id`) WHERE `sp`.`subscription_plan_id` = '" . (int)$subscription_plan_id . "' AND `spd`.`language_id` = '" . (int)$this->config->get('config_language_id') . "'");
@@ -20,17 +18,15 @@ class SubscriptionPlan extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Subscription Plans
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getSubscriptionPlans(array $data = []): array {
 		$sql = "SELECT * FROM `" . DB_PREFIX . "subscription_plan` `sp` LEFT JOIN `" . DB_PREFIX . "subscription_plan_description` `spd` ON (`sp`.`subscription_plan_id` = `spd`.`subscription_plan_id`) WHERE `spd`.`language_id` = '" . (int)$this->config->get('config_language_id') . "'";
 
 		if (!empty($data['filter_name'])) {
-			$sql .= " AND spd.`name` LIKE '" . $this->db->escape($data['filter_name'] . '%') . "'";
+			$sql .= " AND spd.`name` LIKE '" . $this->db->escape((string)$data['filter_name'] . '%') . "'";
 		}
 
 		$sort_data = [
@@ -68,8 +64,6 @@ class SubscriptionPlan extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Subscription Plans
-	 *
 	 * @return int
 	 */
 	public function getTotalSubscriptionPlans(): int {

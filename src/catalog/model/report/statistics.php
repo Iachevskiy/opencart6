@@ -7,9 +7,7 @@ namespace Opencart\Catalog\Model\Report;
  */
 class Statistics extends \Opencart\System\Engine\Model {
 	/**
-	 * Get Statistics
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getStatistics(): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "statistics`");
@@ -18,8 +16,6 @@ class Statistics extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Value
-	 *
 	 * @param string $code
 	 *
 	 * @return float
@@ -35,8 +31,6 @@ class Statistics extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Add Value
-	 *
 	 * @param string $code
 	 * @param float  $value
 	 *
@@ -47,8 +41,6 @@ class Statistics extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Remove Value
-	 *
 	 * @param string $code
 	 * @param float  $value
 	 *
@@ -59,8 +51,6 @@ class Statistics extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Edit Value
-	 *
 	 * @param string $code
 	 * @param float  $value
 	 *
@@ -68,5 +58,5 @@ class Statistics extends \Opencart\System\Engine\Model {
 	 */
 	public function editValue(string $code, float $value): void {
 		$this->db->query("UPDATE `" . DB_PREFIX . "statistics` SET `value` = '" . (float)$value . "' WHERE `code` = '" . $this->db->escape($code) . "'");
-	}
+	}	
 }

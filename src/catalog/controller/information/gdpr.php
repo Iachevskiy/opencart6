@@ -7,12 +7,12 @@ namespace Opencart\Catalog\Controller\Information;
  */
 class Gdpr extends \Opencart\System\Engine\Controller {
 	/**
-	 * @return \Opencart\System\Engine\Action|null
+	 * @return object|\Opencart\System\Engine\Action|null
 	 */
-	public function index(): ?\Opencart\System\Engine\Action {
+	public function index(): object|null {
 		$this->load->model('catalog/information');
 
-		$information_info = $this->model_catalog_information->getInformation((int)$this->config->get('config_gdpr_id'));
+		$information_info = $this->model_catalog_information->getInformation($this->config->get('config_gdpr_id'));
 
 		if ($information_info) {
 			$this->load->language('information/gdpr');
@@ -82,8 +82,6 @@ class Gdpr extends \Opencart\System\Engine\Controller {
 	 *	denied     = -1
 	*/
 	/**
-	 * Action
-	 *
 	 * @return void
 	 */
 	public function action(): void {
@@ -146,11 +144,9 @@ class Gdpr extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Success
-	 *
-	 * @return \Opencart\System\Engine\Action|null
+	 * @return object|\Opencart\System\Engine\Action|null
 	 */
-	public function success(): ?\Opencart\System\Engine\Action {
+	public function success(): object|null {
 		if (isset($this->request->get['code'])) {
 			$code = (string)$this->request->get['code'];
 		} else {

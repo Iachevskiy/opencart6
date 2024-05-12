@@ -3,12 +3,10 @@ namespace Opencart\Catalog\Controller\Extension\Opencart\Payment;
 /**
  * Class BankTransfer
  *
- * @package Opencart\Catalog\Controller\Extension\Opencart\Module
+ * @package
  */
 class BankTransfer extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return string
 	 */
 	public function index(): string {
@@ -22,8 +20,6 @@ class BankTransfer extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Confirm
-	 *
 	 * @return void
 	 */
 	public function confirm(): void {

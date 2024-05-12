@@ -46,10 +46,10 @@ class ColumnLeft extends \Opencart\System\Engine\Controller {
 			$layout_id = $this->model_catalog_information->getLayoutId((int)$this->request->get['information_id']);
 		}
 
-		if ($route == 'cms/blog.info' && isset($this->request->get['article_id'])) {
-			$this->load->model('cms/article');
+		if ($route == 'cms/blog.info' && isset($this->request->get['blog_id'])) {
+			$this->load->model('cms/blog');
 
-			$layout_id = $this->model_cms_article->getLayoutId((int)$this->request->get['article_id']);
+			$layout_id = $this->model_cms_blog->getLayoutId((int)$this->request->get['blog_id']);
 		}
 
 		if (!$layout_id) {
@@ -70,7 +70,7 @@ class ColumnLeft extends \Opencart\System\Engine\Controller {
 			$part = explode('.', $module['code']);
 
 			if (isset($part[1]) && $this->config->get('module_' . $part[1] . '_status')) {
-				$module_data = $this->load->controller('extension/' . $part[0] . '/module/' . $part[1]);
+				$module_data = $this->load->controller('extension/' .  $part[0] . '/module/' . $part[1]);
 
 				if ($module_data) {
 					$data['modules'][] = $module_data;
@@ -78,10 +78,10 @@ class ColumnLeft extends \Opencart\System\Engine\Controller {
 			}
 
 			if (isset($part[2])) {
-				$setting_info = $this->model_setting_module->getModule((int)$part[2]);
+				$setting_info = $this->model_setting_module->getModule($part[2]);
 
 				if ($setting_info && $setting_info['status']) {
-					$output = $this->load->controller('extension/' . $part[0] . '/module/' . $part[1], $setting_info);
+					$output = $this->load->controller('extension/' .  $part[0] . '/module/' . $part[1], $setting_info);
 
 					if ($output) {
 						$data['modules'][] = $output;

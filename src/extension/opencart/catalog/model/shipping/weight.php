@@ -3,32 +3,28 @@ namespace Opencart\Catalog\Model\Extension\Opencart\Shipping;
 /**
  * Class Weight
  *
- * @package Opencart\Catalog\Model\Extension\Opencart\Shipping
+ * @package
  */
 class Weight extends \Opencart\System\Engine\Model {
 	/**
-	 * Get Quote
+	 * @param array $address
 	 *
-	 * @param array<string, mixed> $address
-	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getQuote(array $address): array {
 		$this->load->language('extension/opencart/shipping/weight');
 
 		$quote_data = [];
 
-		$this->load->model('localisation/geo_zone');
-
-		$results = $this->model_localisation_geo_zone->getGeoZones();
+		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "geo_zone` ORDER BY `name`");
 
 		$weight = $this->cart->getWeight();
 
-		foreach ($results as $result) {
+		foreach ($query->rows as $result) {
 			if ($this->config->get('shipping_weight_' . $result['geo_zone_id'] . '_status')) {
-				$results = $this->model_localisation_geo_zone->getGeoZone($result['geo_zone_id'], $address['country_id'], $address['zone_id']);
+				$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone_to_geo_zone` WHERE `geo_zone_id` = '" . (int)$result['geo_zone_id'] . "' AND `country_id` = '" . (int)$address['country_id'] . "' AND (`zone_id` = '" . (int)$address['zone_id'] . "' OR `zone_id` = '0')");
 
-				if ($results) {
+				if ($query->num_rows) {
 					$status = true;
 				} else {
 					$status = false;
@@ -49,6 +45,7 @@ class Weight extends \Opencart\System\Engine\Model {
 						if (isset($data[1])) {
 							$cost = $data[1];
 						}
+
 						break;
 					}
 				}
@@ -59,7 +56,7 @@ class Weight extends \Opencart\System\Engine\Model {
 						'name'         => $result['name'] . '  (' . $this->language->get('text_weight') . ' ' . $this->weight->format($weight, $this->config->get('config_weight_class_id')) . ')',
 						'cost'         => $cost,
 						'tax_class_id' => $this->config->get('shipping_weight_tax_class_id'),
-						'text'         => $this->currency->format($this->tax->calculate((float)$cost, $this->config->get('shipping_weight_tax_class_id'), $this->config->get('config_tax')), $this->session->data['currency'])
+						'text'         => $this->currency->format($this->tax->calculate($cost, $this->config->get('shipping_weight_tax_class_id'), $this->config->get('config_tax')), $this->session->data['currency'])
 					];
 				}
 			}

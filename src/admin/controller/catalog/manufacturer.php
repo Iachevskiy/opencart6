@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Catalog;
  */
 class Manufacturer extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -45,7 +43,7 @@ class Manufacturer extends \Opencart\System\Engine\Controller {
 		$data['add'] = $this->url->link('catalog/manufacturer.form', 'user_token=' . $this->session->data['user_token'] . $url);
 		$data['delete'] = $this->url->link('catalog/manufacturer.delete', 'user_token=' . $this->session->data['user_token']);
 
-		$data['list'] = $this->controller_catalog_manufacturer->getList();
+		$data['list'] = $this->getList();
 
 		$data['user_token'] = $this->session->data['user_token'];
 
@@ -57,19 +55,15 @@ class Manufacturer extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
 		$this->load->language('catalog/manufacturer');
 
-		$this->response->setOutput($this->controller_catalog_manufacturer->getList());
+		$this->response->setOutput($this->getList());
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -118,6 +112,8 @@ class Manufacturer extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('catalog/manufacturer');
 
+		$manufacturer_total = $this->model_catalog_manufacturer->getTotalManufacturers();
+
 		$results = $this->model_catalog_manufacturer->getManufacturers($filter_data);
 
 		foreach ($results as $result) {
@@ -150,8 +146,6 @@ class Manufacturer extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$manufacturer_total = $this->model_catalog_manufacturer->getTotalManufacturers();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $manufacturer_total,
 			'page'  => $page,
@@ -168,8 +162,6 @@ class Manufacturer extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -258,10 +250,10 @@ class Manufacturer extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('tool/image');
 
-		$data['placeholder'] = $this->model_tool_image->resize('no_image.png', $this->config->get('config_image_default_width'), $this->config->get('config_image_default_height'));
+		$data['placeholder'] = $this->model_tool_image->resize('no_image.png', 100, 100);
 
-		if ($data['image'] && is_file(DIR_IMAGE . html_entity_decode($data['image'], ENT_QUOTES, 'UTF-8'))) {
-			$data['thumb'] = $this->model_tool_image->resize($data['image'], $this->config->get('config_image_default_width'), $this->config->get('config_image_default_height'));
+		if (is_file(DIR_IMAGE . html_entity_decode($data['image'], ENT_QUOTES, 'UTF-8'))) {
+			$data['thumb'] = $this->model_tool_image->resize(html_entity_decode($data['image'], ENT_QUOTES, 'UTF-8'), 100, 100);
 		} else {
 			$data['thumb'] = $data['placeholder'];
 		}
@@ -277,9 +269,7 @@ class Manufacturer extends \Opencart\System\Engine\Controller {
 		$data['languages'] = $this->model_localisation_language->getLanguages();
 
 		if (isset($this->request->get['manufacturer_id'])) {
-			$this->load->model('design/seo_url');
-
-			$data['manufacturer_seo_url'] = $this->model_design_seo_url->getSeoUrlsByKeyValue('manufacturer_id', $this->request->get['manufacturer_id']);
+			$data['manufacturer_seo_url'] = $this->model_catalog_manufacturer->getSeoUrls($this->request->get['manufacturer_id']);
 		} else {
 			$data['manufacturer_seo_url'] = [];
 		}
@@ -315,7 +305,7 @@ class Manufacturer extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!oc_validate_length($this->request->post['name'], 1, 64)) {
+		if ((oc_strlen($this->request->post['name']) < 1) || (oc_strlen($this->request->post['name']) > 64)) {
 			$json['error']['name'] = $this->language->get('error_name');
 		}
 
@@ -324,11 +314,11 @@ class Manufacturer extends \Opencart\System\Engine\Controller {
 
 			foreach ($this->request->post['manufacturer_seo_url'] as $store_id => $language) {
 				foreach ($language as $language_id => $keyword) {
-					if (!oc_validate_length($keyword, 1, 64)) {
+					if ((oc_strlen(trim($keyword)) < 1) || (oc_strlen($keyword) > 64)) {
 						$json['error']['keyword_' . $store_id . '_' . $language_id] = $this->language->get('error_keyword');
 					}
 
-					if (!oc_validate_path($keyword)) {
+					if (preg_match('/[^a-zA-Z0-9\/_-]|[\p{Cyrillic}]+/u', $keyword)) {
 						$json['error']['keyword_' . $store_id . '_' . $language_id] = $this->language->get('error_keyword_character');
 					}
 
@@ -362,8 +352,6 @@ class Manufacturer extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {
@@ -406,8 +394,6 @@ class Manufacturer extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Autocomplete
-	 *
 	 * @return void
 	 */
 	public function autocomplete(): void {
@@ -419,7 +405,7 @@ class Manufacturer extends \Opencart\System\Engine\Controller {
 			$filter_data = [
 				'filter_name' => $this->request->get['filter_name'],
 				'start'       => 0,
-				'limit'       => $this->config->get('config_autocomplete_limit')
+				'limit'       => 5
 			];
 
 			$results = $this->model_catalog_manufacturer->getManufacturers($filter_data);

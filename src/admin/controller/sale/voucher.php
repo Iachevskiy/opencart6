@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Sale;
  */
 class Voucher extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -57,8 +55,6 @@ class Voucher extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -68,8 +64,6 @@ class Voucher extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -118,15 +112,17 @@ class Voucher extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('sale/voucher');
 
+		$voucher_total = $this->model_sale_voucher->getTotalVouchers();
+
 		$results = $this->model_sale_voucher->getVouchers($filter_data);
 
 		foreach ($results as $result) {
-			if ($result['order_id']) {
+			if ($result['order_id']) {	
 				$order_href = $this->url->link('sale/order.info', 'user_token=' . $this->session->data['user_token'] . '&order_id=' . $result['order_id'] . $url);
 			} else {
 				$order_href = '';
 			}
-
+			
 			$data['vouchers'][] = [
 				'voucher_id' => $result['voucher_id'],
 				'code'       => $result['code'],
@@ -167,8 +163,6 @@ class Voucher extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$voucher_total = $this->model_sale_voucher->getTotalVouchers();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $voucher_total,
 			'page'  => $page,
@@ -185,8 +179,6 @@ class Voucher extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -307,8 +299,6 @@ class Voucher extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -320,7 +310,7 @@ class Voucher extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!oc_validate_length($this->request->post['code'], 3, 10)) {
+		if ((oc_strlen($this->request->post['code']) < 3) || (oc_strlen($this->request->post['code']) > 10)) {
 			$json['error']['code'] = $this->language->get('error_code');
 		}
 
@@ -331,12 +321,12 @@ class Voucher extends \Opencart\System\Engine\Controller {
 		if ($voucher_info) {
 			if (!isset($this->request->post['voucher_id'])) {
 				$json['error']['warning'] = $this->language->get('error_exists');
-			} elseif ($voucher_info['voucher_id'] != (int)$this->request->post['voucher_id']) {
+			} elseif ($voucher_info['voucher_id'] != (int)$this->request->post['voucher_id'])  {
 				$json['error']['warning'] = $this->language->get('error_exists');
 			}
 		}
 
-		if (!oc_validate_length($this->request->post['to_name'], 1, 64)) {
+		if ((oc_strlen($this->request->post['to_name']) < 1) || (oc_strlen($this->request->post['to_name']) > 64)) {
 			$json['error']['to_name'] = $this->language->get('error_to_name');
 		}
 
@@ -344,7 +334,7 @@ class Voucher extends \Opencart\System\Engine\Controller {
 			$json['error']['to_email'] = $this->language->get('error_email');
 		}
 
-		if (!oc_validate_length($this->request->post['from_name'], 1, 64)) {
+		if ((oc_strlen($this->request->post['from_name']) < 1) || (oc_strlen($this->request->post['from_name']) > 64)) {
 			$json['error']['from_name'] = $this->language->get('error_from_name');
 		}
 
@@ -371,8 +361,6 @@ class Voucher extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {
@@ -417,8 +405,6 @@ class Voucher extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * History
-	 *
 	 * @return void
 	 */
 	public function history(): void {
@@ -428,8 +414,6 @@ class Voucher extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get History
-	 *
 	 * @return string
 	 */
 	public function getHistory(): string {
@@ -477,8 +461,6 @@ class Voucher extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Send
-	 *
 	 * @return void
 	 */
 	public function send(): void {

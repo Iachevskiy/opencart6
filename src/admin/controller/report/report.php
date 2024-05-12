@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Report;
  */
 class Report extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -48,10 +46,10 @@ class Report extends \Opencart\System\Engine\Controller {
 				$this->load->language('extension/' . $result['extension'] . '/report/' . $result['code'], $result['code']);
 
 				$data['reports'][] = [
-					'text'       => $this->language->get($result['code'] . '_heading_title'),
-					'code'       => $result['code'],
+					'text' => $this->language->get($result['code'] . '_heading_title'),
+					'code' => $result['code'],
 					'sort_order' => $this->config->get('report_' . $result['code'] . '_sort_order'),
-					'href'       => $this->url->link('extension/' . $result['extension'] . '/report/' . $result['code'] . '.report', 'user_token=' . $this->session->data['user_token'])
+					'href' => $this->url->link('extension/' . $result['extension'] . '/report/' . $result['code'] . '.report', 'user_token=' . $this->session->data['user_token'])
 				];
 			}
 		}

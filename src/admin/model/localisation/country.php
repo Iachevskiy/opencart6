@@ -7,14 +7,12 @@ namespace Opencart\Admin\Model\Localisation;
  */
 class Country extends \Opencart\System\Engine\Model {
 	/**
-	 * Add Country
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
 	public function addCountry(array $data): int {
-		$this->db->query("INSERT INTO `" . DB_PREFIX . "country` SET `name` = '" . $this->db->escape((string)$data['name']) . "', `iso_code_2` = '" . $this->db->escape((string)$data['iso_code_2']) . "', `iso_code_3` = '" . $this->db->escape((string)$data['iso_code_3']) . "', `address_format_id` = '" . (int)$data['address_format_id'] . "', `postcode_required` = '" . (int)$data['postcode_required'] . "', `status` = '" . (bool)($data['status'] ?? 0) . "'");
+		$this->db->query("INSERT INTO `" . DB_PREFIX . "country` SET `name` = '" . $this->db->escape((string)$data['name']) . "', `iso_code_2` = '" . $this->db->escape((string)$data['iso_code_2']) . "', `iso_code_3` = '" . $this->db->escape((string)$data['iso_code_3']) . "', `address_format_id` = '" . (int)$data['address_format_id'] . "', `postcode_required` = '" . (int)$data['postcode_required'] . "', `status` = '" . (bool)(isset($data['status']) ? $data['status'] : 0) . "'");
 
 		$this->cache->delete('country');
 
@@ -22,22 +20,18 @@ class Country extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Edit Country
-	 *
-	 * @param int                  $country_id
-	 * @param array<string, mixed> $data
+	 * @param int   $country_id
+	 * @param array $data
 	 *
 	 * @return void
 	 */
 	public function editCountry(int $country_id, array $data): void {
-		$this->db->query("UPDATE `" . DB_PREFIX . "country` SET `name` = '" . $this->db->escape((string)$data['name']) . "', `iso_code_2` = '" . $this->db->escape((string)$data['iso_code_2']) . "', `iso_code_3` = '" . $this->db->escape((string)$data['iso_code_3']) . "', `address_format_id` = '" . (int)$data['address_format_id'] . "', `postcode_required` = '" . (int)$data['postcode_required'] . "', `status` = '" . (bool)($data['status'] ?? 0) . "' WHERE `country_id` = '" . (int)$country_id . "'");
+		$this->db->query("UPDATE `" . DB_PREFIX . "country` SET `name` = '" . $this->db->escape((string)$data['name']) . "', `iso_code_2` = '" . $this->db->escape((string)$data['iso_code_2']) . "', `iso_code_3` = '" . $this->db->escape((string)$data['iso_code_3']) . "', `address_format_id` = '" . (int)$data['address_format_id'] . "', `postcode_required` = '" . (int)$data['postcode_required'] . "', `status` = '" . (bool)(isset($data['status']) ? $data['status'] : 0) . "' WHERE `country_id` = '" . (int)$country_id . "'");
 
 		$this->cache->delete('country');
 	}
 
 	/**
-	 * Delete Country
-	 *
 	 * @param int $country_id
 	 *
 	 * @return void
@@ -49,11 +43,9 @@ class Country extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Country
-	 *
 	 * @param int $country_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getCountry(int $country_id): array {
 		$query = $this->db->query("SELECT DISTINCT * FROM `" . DB_PREFIX . "country` WHERE `country_id` = '" . (int)$country_id . "'");
@@ -62,37 +54,31 @@ class Country extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Country By Iso Code 2
+	 * @param $iso_code_2
 	 *
-	 * @param string $iso_code_2
-	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
-	public function getCountryByIsoCode2(string $iso_code_2): array {
-		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "country` WHERE `iso_code_2` = '" . $this->db->escape($iso_code_2) . "' AND `status` = '1'");
+	public function getCountryByIsoCode2($iso_code_2): array {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "country WHERE `iso_code_2` = '" . $this->db->escape($iso_code_2) . "' AND `status` = '1'");
 
 		return $query->row;
 	}
 
 	/**
-	 * Get Country By Iso Code 3
+	 * @param $iso_code_3
 	 *
-	 * @param string $iso_code_3
-	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
-	public function getCountryByIsoCode3(string $iso_code_3): array {
-		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "country` WHERE `iso_code_3` = '" . $this->db->escape($iso_code_3) . "' AND `status` = '1'");
+	public function getCountryByIsoCode3($iso_code_3): array {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "country WHERE `iso_code_3` = '" . $this->db->escape($iso_code_3) . "' AND `status` = '1'");
 
 		return $query->row;
 	}
 
 	/**
-	 * Get Countries
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getCountries(array $data = []): array {
 		$sql = "SELECT * FROM `" . DB_PREFIX . "country`";
@@ -100,15 +86,15 @@ class Country extends \Opencart\System\Engine\Model {
 		$implode = [];
 
 		if (!empty($data['filter_name'])) {
-			$implode[] = "LCASE(`name`) LIKE '" . $this->db->escape(oc_strtolower($data['filter_name']) . '%') . "'";
+			$implode[] = "`name` LIKE '" . $this->db->escape((string)$data['filter_name'] . '%') . "'";
 		}
 
 		if (!empty($data['filter_iso_code_2'])) {
-			$implode[] = "LCASE(`iso_code_2`) LIKE '" . $this->db->escape(oc_strtolower($data['filter_iso_code_2']) . '%') . "'";
+			$implode[] = "`iso_code_2` LIKE '" . $this->db->escape((string)$data['filter_iso_code_2'] . '%') . "'";
 		}
 
 		if (!empty($data['filter_iso_code_3'])) {
-			$implode[] = "LCASE(`iso_code_3`) LIKE '" . $this->db->escape(oc_strtolower($data['filter_iso_code_3']) . '%') . "'";
+			$implode[] = "`iso_code_3` LIKE '" . $this->db->escape((string)$data['filter_iso_code_3'] . '%') . "'";
 		}
 
 		if ($implode) {
@@ -145,25 +131,21 @@ class Country extends \Opencart\System\Engine\Model {
 			$sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
 		}
 
-		$key = md5($sql);
-
-		$country_data = $this->cache->get('country.' . $key);
+		$country_data = $this->cache->get('country.' . md5($sql));
 
 		if (!$country_data) {
 			$query = $this->db->query($sql);
 
 			$country_data = $query->rows;
 
-			$this->cache->set('country.' . $key, $country_data);
+			$this->cache->set('country.' . md5($sql), $country_data);
 		}
 
 		return $country_data;
 	}
 
 	/**
-	 * Get Total Countries
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
@@ -173,15 +155,15 @@ class Country extends \Opencart\System\Engine\Model {
 		$implode = [];
 
 		if (!empty($data['filter_name'])) {
-			$implode[] = "LCASE(`name`) LIKE '" . $this->db->escape(oc_strtolower($data['filter_name']) . '%') . "'";
+			$implode[] = "`name` LIKE '" . $this->db->escape((string)$data['filter_name'] . '%') . "'";
 		}
 
 		if (!empty($data['filter_iso_code_2'])) {
-			$implode[] = "LCASE(`iso_code_2`) LIKE '" . $this->db->escape(oc_strtolower($data['filter_iso_code_2']) . '%') . "'";
+			$implode[] = "`iso_code_2` LIKE '" . $this->db->escape((string)$data['filter_iso_code_2'] . '%') . "'";
 		}
 
 		if (!empty($data['filter_iso_code_3'])) {
-			$implode[] = "LCASE(`iso_code_3`) LIKE '" . $this->db->escape(oc_strtolower($data['filter_iso_code_3']) . '%') . "'";
+			$implode[] = "`iso_code_3` LIKE '" . $this->db->escape((string)$data['filter_iso_code_3'] . '%') . "'";
 		}
 
 		if ($implode) {
@@ -194,8 +176,6 @@ class Country extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Countries By Address Format ID
-	 *
 	 * @param int $address_format_id
 	 *
 	 * @return int

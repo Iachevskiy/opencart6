@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Catalog;
  */
 class Download extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -47,7 +45,7 @@ class Download extends \Opencart\System\Engine\Controller {
 
 		$data['user_token'] = $this->session->data['user_token'];
 
-		$data['list'] = $this->controller_catalog_download->getList();
+		$data['list'] = $this->getList();
 
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
@@ -57,19 +55,15 @@ class Download extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
 		$this->load->language('catalog/download');
 
-		$this->response->setOutput($this->controller_catalog_download->getList());
+		$this->response->setOutput($this->getList());
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -118,6 +112,8 @@ class Download extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('catalog/download');
 
+		$download_total = $this->model_catalog_download->getTotalDownloads();
+
 		$results = $this->model_catalog_download->getDownloads($filter_data);
 
 		foreach ($results as $result) {
@@ -150,8 +146,6 @@ class Download extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$download_total = $this->model_catalog_download->getTotalDownloads();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $download_total,
 			'page'  => $page,
@@ -168,8 +162,6 @@ class Download extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -260,8 +252,6 @@ class Download extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -274,12 +264,12 @@ class Download extends \Opencart\System\Engine\Controller {
 		}
 
 		foreach ($this->request->post['download_description'] as $language_id => $value) {
-			if (!oc_validate_length($value['name'], 3, 64)) {
+			if ((oc_strlen(trim($value['name'])) < 3) || (oc_strlen($value['name']) > 64)) {
 				$json['error']['name_' . $language_id] = $this->language->get('error_name');
 			}
 		}
 
-		if (!oc_validate_length($this->request->post['filename'], 3, 128)) {
+		if ((oc_strlen($this->request->post['filename']) < 3) || (oc_strlen($this->request->post['filename']) > 128)) {
 			$json['error']['filename'] = $this->language->get('error_filename');
 		}
 
@@ -291,15 +281,15 @@ class Download extends \Opencart\System\Engine\Controller {
 			$json['error']['filename'] = $this->language->get('error_exists');
 		}
 
-		if (!oc_validate_filename($this->request->post['filename'])) {
+		if (preg_match('/[^a-zA-Z0-9\/._-]|[\p{Cyrillic}]+/u', $this->request->post['filename'])) {
 			$json['error']['filename'] = $this->language->get('error_filename_character');
 		}
 
-		if (!oc_validate_length($this->request->post['mask'], 3, 128)) {
+		if ((oc_strlen($this->request->post['mask']) < 3) || (oc_strlen($this->request->post['mask']) > 128)) {
 			$json['error']['mask'] = $this->language->get('error_mask');
 		}
 
-		if (!oc_validate_filename($this->request->post['mask'])) {
+		if (preg_match('/[^a-zA-Z0-9\/._-]|[\p{Cyrillic}]+/u', $this->request->post['mask'])) {
 			$json['error']['mask'] = $this->language->get('error_mask_character');
 		}
 
@@ -324,8 +314,6 @@ class Download extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {
@@ -346,7 +334,7 @@ class Download extends \Opencart\System\Engine\Controller {
 		$this->load->model('catalog/product');
 
 		foreach ($selected as $download_id) {
-			$product_total = $this->model_catalog_product->getTotalDownloadsByDownloadId($download_id);
+			$product_total = $this->model_catalog_product->getTotalProductsByDownloadId($download_id);
 
 			if ($product_total) {
 				$json['error'] = sprintf($this->language->get('error_product'), $product_total);
@@ -368,8 +356,6 @@ class Download extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Report
-	 *
 	 * @return void
 	 */
 	public function report(): void {
@@ -379,8 +365,6 @@ class Download extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get Report
-	 *
 	 * @return string
 	 */
 	private function getReport(): string {
@@ -442,8 +426,6 @@ class Download extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Upload
-	 *
 	 * @return void
 	 */
 	public function upload(): void {
@@ -465,7 +447,7 @@ class Download extends \Opencart\System\Engine\Controller {
 			$filename = basename(html_entity_decode($this->request->files['file']['name'], ENT_QUOTES, 'UTF-8'));
 
 			// Validate the filename length
-			if (!oc_validate_length($filename, 3, 128)) {
+			if ((oc_strlen($filename) < 3) || (oc_strlen($filename) > 128)) {
 				$json['error'] = $this->language->get('error_filename');
 			}
 
@@ -521,8 +503,6 @@ class Download extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Download
-	 *
 	 * @return void
 	 */
 	public function download(): void {
@@ -547,7 +527,7 @@ class Download extends \Opencart\System\Engine\Controller {
 				header('Pragma: public');
 				header('Content-Length: ' . filesize($file));
 
-				readfile($file);
+				readfile($file, 'rb');
 				exit;
 			} else {
 				exit($this->language->get('error_headers_sent'));
@@ -578,8 +558,6 @@ class Download extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Autocomplete
-	 *
 	 * @return void
 	 */
 	public function autocomplete(): void {
@@ -591,7 +569,7 @@ class Download extends \Opencart\System\Engine\Controller {
 			$filter_data = [
 				'filter_name' => $this->request->get['filter_name'],
 				'start'       => 0,
-				'limit'       => $this->config->get('config_autocomplete_limit')
+				'limit'       => 5
 			];
 
 			$results = $this->model_catalog_download->getDownloads($filter_data);

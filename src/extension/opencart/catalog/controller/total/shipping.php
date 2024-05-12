@@ -3,12 +3,10 @@ namespace Opencart\Catalog\Controller\Extension\Opencart\Total;
 /**
  * Class Shipping
  *
- * @package Opencart\Catalog\Controller\Extension\Opencart\Total
+ * @package
  */
 class Shipping extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return string
 	 */
 	public function index(): string {
@@ -44,8 +42,6 @@ class Shipping extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Quote
-	 *
 	 * @return void
 	 */
 	public function quote(): void {
@@ -77,11 +73,11 @@ class Shipping extends \Opencart\System\Engine\Controller {
 
 		$country_info = $this->model_localisation_country->getCountry((int)$this->request->post['country_id']);
 
-		if ($country_info && $country_info['postcode_required'] && !oc_validate_length($this->request->post['postcode'], 2, 10)) {
+		if ($country_info && $country_info['postcode_required'] && (oc_strlen($this->request->post['postcode']) < 2 || oc_strlen($this->request->post['postcode']) > 10)) {
 			$json['error']['postcode'] = $this->language->get('error_postcode');
 		}
 
-		if (!$country_info || $this->request->post['country_id'] == '') {
+		if ($this->request->post['country_id'] == '') {
 			$json['error']['country'] = $this->language->get('error_country');
 		}
 
@@ -144,8 +140,6 @@ class Shipping extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {

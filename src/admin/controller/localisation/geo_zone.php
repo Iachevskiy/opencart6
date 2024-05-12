@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Localisation;
  */
 class GeoZone extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -57,8 +55,6 @@ class GeoZone extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -68,8 +64,6 @@ class GeoZone extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -118,6 +112,8 @@ class GeoZone extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('localisation/geo_zone');
 
+		$geo_zone_total = $this->model_localisation_geo_zone->getTotalGeoZones();
+
 		$results = $this->model_localisation_geo_zone->getGeoZones($filter_data);
 
 		foreach ($results as $result) {
@@ -150,8 +146,6 @@ class GeoZone extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$geo_zone_total = $this->model_localisation_geo_zone->getTotalGeoZones();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $geo_zone_total,
 			'page'  => $page,
@@ -168,8 +162,6 @@ class GeoZone extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -237,7 +229,7 @@ class GeoZone extends \Opencart\System\Engine\Controller {
 		$data['countries'] = $this->model_localisation_country->getCountries();
 
 		if (!empty($geo_zone_info)) {
-			$data['zone_to_geo_zones'] = $this->model_localisation_geo_zone->getZones($this->request->get['geo_zone_id']);
+			$data['zone_to_geo_zones'] = $this->model_localisation_geo_zone->getZoneToGeoZones($this->request->get['geo_zone_id']);
 		} else {
 			$data['zone_to_geo_zones'] = [];
 		}
@@ -252,8 +244,6 @@ class GeoZone extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -265,11 +255,11 @@ class GeoZone extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!oc_validate_length($this->request->post['name'], 3, 32)) {
+		if ((oc_strlen($this->request->post['name']) < 3) || (oc_strlen($this->request->post['name']) > 32)) {
 			$json['error']['name'] = $this->language->get('error_name');
 		}
 
-		if (!oc_validate_length($this->request->post['description'], 3, 255)) {
+		if ((oc_strlen($this->request->post['description']) < 3) || (oc_strlen($this->request->post['description']) > 255)) {
 			$json['error']['description'] = $this->language->get('error_description');
 		}
 
@@ -290,8 +280,6 @@ class GeoZone extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

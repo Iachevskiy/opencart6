@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Common;
  */
 class Authorize extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -93,11 +91,9 @@ class Authorize extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Send
-	 *
 	 * @return void
 	 */
-	public function send(): void {
+	public function send() {
 		$this->load->language('common/authorize');
 
 		$json = [];
@@ -109,8 +105,6 @@ class Authorize extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Validate
-	 *
 	 * @return void
 	 */
 	public function validate(): void {
@@ -143,18 +137,12 @@ class Authorize extends \Opencart\System\Engine\Controller {
 		}
 
 		if (!$json) {
-			$this->model_user_user->editAuthorizeStatus($authorize_info['user_authorize_id'], true);
+			$this->model_user_user->editAuthorizeStatus($authorize_info['user_authorize_id'], 1);
 			$this->model_user_user->editAuthorizeTotal($authorize_info['user_authorize_id'], 0);
 
-			if (isset($this->request->post['redirect'])) {
-				$redirect = urldecode(html_entity_decode($this->request->post['redirect'], ENT_QUOTES, 'UTF-8'));
-			} else {
-				$redirect = '';
-			}
-
 			// Register the cookie for security.
-			if ($redirect && str_starts_with($redirect, HTTP_SERVER)) {
-				$json['redirect'] = $redirect . '&user_token=' . $this->session->data['user_token'];
+			if (isset($this->request->post['redirect']) && (strpos($this->request->post['redirect'], HTTP_SERVER) === 0)) {
+				$json['redirect'] = str_replace('&amp;', '&', $this->request->post['redirect'] . '&user_token=' . $this->session->data['user_token']);
 			} else {
 				$json['redirect'] = $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true);
 			}
@@ -165,11 +153,9 @@ class Authorize extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Unlock
-	 *
 	 * @return void
 	 */
-	public function unlock(): void {
+	public function unlock() {
 		$this->load->language('common/authorize');
 
 		if (isset($this->request->cookie['authorize'])) {
@@ -196,11 +182,9 @@ class Authorize extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Confirm
-	 *
 	 * @return void
 	 */
-	public function confirm(): void {
+	public function confirm() {
 		$this->load->language('common/authorize');
 
 		$json = [];
@@ -217,11 +201,9 @@ class Authorize extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Reset
-	 *
 	 * @return void
 	 */
-	public function reset(): void {
+	public function reset() {
 		$this->load->language('common/authorize');
 
 		if (isset($this->request->get['email'])) {
@@ -241,7 +223,7 @@ class Authorize extends \Opencart\System\Engine\Controller {
 		$user_info = $this->model_user_user->getUserByEmail($email);
 
 		if ($user_info && $user_info['code'] && $code && $user_info['code'] === $code) {
-			$this->model_user_user->editAuthorizeTotalByUserId($user_info['user_id'], 0);
+			$this->model_user_user->resetAuthorizes($user_info['user_id']);
 
 			$this->model_user_user->editCode($email, '');
 

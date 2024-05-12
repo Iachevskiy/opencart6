@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Catalog;
  */
 class Option extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -45,7 +43,7 @@ class Option extends \Opencart\System\Engine\Controller {
 		$data['add'] = $this->url->link('catalog/option.form', 'user_token=' . $this->session->data['user_token'] . $url);
 		$data['delete'] = $this->url->link('catalog/option.delete', 'user_token=' . $this->session->data['user_token']);
 
-		$data['list'] = $this->controller_catalog_option->getList();
+		$data['list'] = $this->getList();
 
 		$data['user_token'] = $this->session->data['user_token'];
 
@@ -57,19 +55,15 @@ class Option extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
 		$this->load->language('catalog/option');
 
-		$this->response->setOutput($this->controller_catalog_option->getList());
+		$this->response->setOutput($this->getList());
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -118,6 +112,8 @@ class Option extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('catalog/option');
 
+		$option_total = $this->model_catalog_option->getTotalOptions();
+
 		$results = $this->model_catalog_option->getOptions($filter_data);
 
 		foreach ($results as $result) {
@@ -150,8 +146,6 @@ class Option extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$option_total = $this->model_catalog_option->getTotalOptions();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $option_total,
 			'page'  => $page,
@@ -168,8 +162,6 @@ class Option extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -253,7 +245,7 @@ class Option extends \Opencart\System\Engine\Controller {
 		$data['option_values'] = [];
 
 		foreach ($option_values as $option_value) {
-			if ($option_value['image'] && is_file(DIR_IMAGE . html_entity_decode($option_value['image'], ENT_QUOTES, 'UTF-8'))) {
+			if (is_file(DIR_IMAGE . html_entity_decode($option_value['image'], ENT_QUOTES, 'UTF-8'))) {
 				$image = $option_value['image'];
 				$thumb = $option_value['image'];
 			} else {
@@ -265,12 +257,12 @@ class Option extends \Opencart\System\Engine\Controller {
 				'option_value_id'          => $option_value['option_value_id'],
 				'option_value_description' => $option_value['option_value_description'],
 				'image'                    => $image,
-				'thumb'                    => $this->model_tool_image->resize($thumb, $this->config->get('config_image_default_width'), $this->config->get('config_image_default_height')),
+				'thumb'                    => $this->model_tool_image->resize(html_entity_decode($thumb, ENT_QUOTES, 'UTF-8'), 100, 100),
 				'sort_order'               => $option_value['sort_order']
 			];
 		}
 
-		$data['placeholder'] = $this->model_tool_image->resize('no_image.png', $this->config->get('config_image_default_width'), $this->config->get('config_image_default_height'));
+		$data['placeholder'] = $this->model_tool_image->resize('no_image.png', 100, 100);
 
 		$data['user_token'] = $this->session->data['user_token'];
 
@@ -282,8 +274,6 @@ class Option extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -296,7 +286,7 @@ class Option extends \Opencart\System\Engine\Controller {
 		}
 
 		foreach ($this->request->post['option_description'] as $language_id => $value) {
-			if (!oc_validate_length($value['name'], 1, 128)) {
+			if ((oc_strlen(trim($value['name'])) < 1) || (oc_strlen($value['name']) > 128)) {
 				$json['error']['name_' . $language_id] = $this->language->get('error_name');
 			}
 		}
@@ -330,7 +320,7 @@ class Option extends \Opencart\System\Engine\Controller {
 		if (isset($this->request->post['option_value'])) {
 			foreach ($this->request->post['option_value'] as $option_value_id => $option_value) {
 				foreach ($option_value['option_value_description'] as $language_id => $option_value_description) {
-					if (!oc_validate_length($option_value_description['name'], 1, 128)) {
+					if ((oc_strlen(trim($option_value_description['name'])) < 1) || (oc_strlen($option_value_description['name']) > 128)) {
 						$json['error']['option_value_' . $option_value_id . '_' . $language_id] = $this->language->get('error_option_value');
 					}
 				}
@@ -358,8 +348,6 @@ class Option extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {
@@ -380,7 +368,7 @@ class Option extends \Opencart\System\Engine\Controller {
 		$this->load->model('catalog/product');
 
 		foreach ($selected as $option_id) {
-			$product_total = $this->model_catalog_product->getTotalOptionsByOptionId($option_id);
+			$product_total = $this->model_catalog_product->getTotalProductsByOptionId($option_id);
 
 			if ($product_total) {
 				$json['error'] = sprintf($this->language->get('error_product'), $product_total);
@@ -402,8 +390,6 @@ class Option extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Autocomplete
-	 *
 	 * @return void
 	 */
 	public function autocomplete(): void {
@@ -413,12 +399,13 @@ class Option extends \Opencart\System\Engine\Controller {
 			$this->load->language('catalog/option');
 
 			$this->load->model('catalog/option');
+
 			$this->load->model('tool/image');
 
 			$filter_data = [
 				'filter_name' => $this->request->get['filter_name'],
 				'start'       => 0,
-				'limit'       => $this->config->get('config_autocomplete_limit')
+				'limit'       => 5
 			];
 
 			$options = $this->model_catalog_option->getOptions($filter_data);
@@ -430,16 +417,16 @@ class Option extends \Opencart\System\Engine\Controller {
 					$option_values = $this->model_catalog_option->getValues($option['option_id']);
 
 					foreach ($option_values as $option_value) {
-						if ($option_value['image'] && is_file(DIR_IMAGE . html_entity_decode($option_value['image'], ENT_QUOTES, 'UTF-8'))) {
-							$image = $option_value['image'];
+						if (is_file(DIR_IMAGE . html_entity_decode($option_value['image'], ENT_QUOTES, 'UTF-8'))) {
+							$image = $this->model_tool_image->resize(html_entity_decode($option_value['image'], ENT_QUOTES, 'UTF-8'), 50, 50);
 						} else {
-							$image = 'no_image.png';
+							$image = $this->model_tool_image->resize('no_image.png', 50, 50);
 						}
 
 						$option_value_data[] = [
 							'option_value_id' => $option_value['option_value_id'],
 							'name'            => strip_tags(html_entity_decode($option_value['name'], ENT_QUOTES, 'UTF-8')),
-							'image'           => $this->model_tool_image->resize($image, 50, 50)
+							'image'           => $image
 						];
 					}
 

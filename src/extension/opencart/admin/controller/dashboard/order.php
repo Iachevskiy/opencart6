@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Extension\Opencart\Dashboard;
  */
 class Order extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -34,12 +32,13 @@ class Order extends \Opencart\System\Engine\Controller {
 		];
 
 		$data['save'] = $this->url->link('extension/opencart/dashboard/order.save', 'user_token=' . $this->session->data['user_token']);
+
 		$data['back'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=dashboard');
 
 		$data['dashboard_order_width'] = $this->config->get('dashboard_order_width');
 
 		$data['columns'] = [];
-
+		
 		for ($i = 3; $i <= 12; $i++) {
 			$data['columns'][] = $i;
 		}
@@ -55,8 +54,6 @@ class Order extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -81,8 +78,6 @@ class Order extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Dashboard
-	 *
 	 * @return string
 	 */
 	public function dashboard(): string {

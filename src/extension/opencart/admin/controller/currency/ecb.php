@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Extension\Opencart\Currency;
  */
 class ECB extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -46,8 +44,6 @@ class ECB extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -72,8 +68,6 @@ class ECB extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Currency
-	 *
 	 * @param string $default
 	 *
 	 * @return void
@@ -101,13 +95,14 @@ class ECB extends \Opencart\System\Engine\Controller {
 
 				$cube = $dom->getElementsByTagName('Cube')->item(0);
 
-				// Compile all the rates into an array
 				$currencies = [];
 
 				$currencies['EUR'] = 1.0000;
 
 				foreach ($cube->getElementsByTagName('Cube') as $currency) {
-					$currencies[$currency->getAttribute('currency')] = $currency->getAttribute('rate');
+					if ($currency->getAttribute('currency')) {
+						$currencies[$currency->getAttribute('currency')] = $currency->getAttribute('rate');
+					}
 				}
 
 				if (isset($currencies[$default])) {
@@ -116,21 +111,18 @@ class ECB extends \Opencart\System\Engine\Controller {
 					$value = $currencies['EUR'];
 				}
 
-				if (count($currencies) > 1) {
+				if ($currencies) {
 					$this->load->model('localisation/currency');
 
 					$results = $this->model_localisation_currency->getCurrencies();
 
 					foreach ($results as $result) {
 						if (isset($currencies[$result['code']])) {
-							$from = $currencies['EUR'];
-							$to = $currencies[$result['code']];
-
-							$this->model_localisation_currency->editValueByCode($result['code'], 1 / ($value * ($from / $to)));
+							$this->model_localisation_currency->editValueByCode($result['code'], 1 / ($value * ($value / $currencies[$result['code']])));
 						}
 					}
 
-					$this->model_localisation_currency->editValueByCode($default, 1.00000);
+					$this->model_localisation_currency->editValueByCode($default, '1.00000');
 				}
 			}
 		}

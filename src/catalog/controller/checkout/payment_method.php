@@ -28,7 +28,7 @@ class PaymentMethod extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('catalog/information');
 
-		$information_info = $this->model_catalog_information->getInformation((int)$this->config->get('config_checkout_id'));
+		$information_info = $this->model_catalog_information->getInformation($this->config->get('config_checkout_id'));
 
 		if ($information_info) {
 			$data['text_agree'] = sprintf($this->language->get('text_agree'), $this->url->link('information/information.info', 'language=' . $this->config->get('config_language') . '&information_id=' . $this->config->get('config_checkout_id')), $information_info['title']);
@@ -42,8 +42,6 @@ class PaymentMethod extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get Methods
-	 *
 	 * @return void
 	 */
 	public function getMethods(): void {
@@ -52,8 +50,19 @@ class PaymentMethod extends \Opencart\System\Engine\Controller {
 		$json = [];
 
 		// Validate cart has products and has stock.
-		if ((!$this->cart->hasProducts() && empty($this->session->data['vouchers'])) || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout')) || !$this->cart->hasMinimum()) {
+		if ((!$this->cart->hasProducts() && empty($this->session->data['vouchers'])) || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout'))) {
 			$json['redirect'] = $this->url->link('checkout/cart', 'language=' . $this->config->get('config_language'), true);
+		}
+
+		// Validate minimum quantity requirements.
+		$products = $this->cart->getProducts();
+
+		foreach ($products as $product) {
+			if (!$product['minimum']) {
+				$json['redirect'] = $this->url->link('checkout/cart', 'language=' . $this->config->get('config_language'), true);
+
+				break;
+			}
 		}
 
 		if (!$json) {
@@ -106,8 +115,6 @@ class PaymentMethod extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -116,8 +123,19 @@ class PaymentMethod extends \Opencart\System\Engine\Controller {
 		$json = [];
 
 		// Validate cart has products and has stock.
-		if ((!$this->cart->hasProducts() && empty($this->session->data['vouchers'])) || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout')) || !$this->cart->hasMinimum()) {
+		if ((!$this->cart->hasProducts() && empty($this->session->data['vouchers'])) || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout'))) {
 			$json['redirect'] = $this->url->link('checkout/cart', 'language=' . $this->config->get('config_language'), true);
+		}
+
+		// Validate minimum quantity requirements.
+		$products = $this->cart->getProducts();
+
+		foreach ($products as $product) {
+			if (!$product['minimum']) {
+				$json['redirect'] = $this->url->link('checkout/cart', 'language=' . $this->config->get('config_language'), true);
+
+				break;
+			}
 		}
 
 		if (!$json) {
@@ -162,8 +180,6 @@ class PaymentMethod extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Comment
-	 *
 	 * @return void
 	 */
 	public function comment(): void {
@@ -177,18 +193,16 @@ class PaymentMethod extends \Opencart\System\Engine\Controller {
 			$order_id = 0;
 		}
 
-		$order_info = $this->model_checkout_order->getOrder($order_id);
-
-		if (!$order_info) {
-			$json['error'] = $this->language->get('error_order');
-		}
-
 		if (!$json) {
 			$this->session->data['comment'] = $this->request->post['comment'];
 
 			$this->load->model('checkout/order');
 
-			$this->model_checkout_order->editComment($order_id, $this->request->post['comment']);
+			$order_info = $this->model_checkout_order->getOrder($order_id);
+
+			if ($order_info) {
+				$this->model_checkout_order->editComment($order_id, $this->request->post['comment']);
+			}
 
 			$json['success'] = $this->language->get('text_comment');
 		}
@@ -198,8 +212,6 @@ class PaymentMethod extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Agree
-	 *
 	 * @return void
 	 */
 	public function agree(): void {

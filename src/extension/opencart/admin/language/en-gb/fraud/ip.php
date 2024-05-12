@@ -1,10 +1,9 @@
 <?php
 // Heading
-$_['heading_title']      = 'IP';
+$_['heading_title']      = 'Anti-Fraud IP';
 
 // Text
 $_['text_extension']     = 'Extensions';
-$_['text_fraud']         = 'Anti-Fraud';
 $_['text_success']       = 'Success: You have modified Anti-Fraud IP!';
 $_['text_edit']          = 'Edit Anti-Fraud IP';
 $_['text_ip_add']        = 'Add IP Address';

@@ -44,7 +44,7 @@ $_['text_months_ago']               = '%s months ago';
 $_['text_year_ago']                 = '%s year ago';
 $_['text_years_ago']                = '%s years ago';
 
-// Buttons
+// Button
 $_['button_add']                    = 'Add New';
 $_['button_delete']                 = 'Delete';
 $_['button_save']                   = 'Save';
@@ -126,7 +126,7 @@ $_['button_calculate']              = 'Calculate Payments';
 $_['button_csv']                    = 'Download CSV';
 $_['button_complete']               = 'Complete Payments';
 
-// Tabs
+// Tab
 $_['tab_address']                   = 'Addresses';
 $_['tab_additional']                = 'Additional';
 $_['tab_attribute']                 = 'Attribute';
@@ -175,7 +175,7 @@ $_['error_format_kb']				= 'Warning: The uploaded file exceeds the max file size
 $_['error_format_mb']				= 'Warning: The uploaded file exceeds the max file size: %s megabytes!';
 $_['error_format_gb']				= 'Warning: The uploaded file exceeds the max file size: %s gigabytes!';
 
-// When doing translations only include the matching language code
+/* When doing translations only include the matching language code */
 
 // CKEditor
 //$_['ckeditor']                    = 'af';

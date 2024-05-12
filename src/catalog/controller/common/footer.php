@@ -12,27 +12,19 @@ class Footer extends \Opencart\System\Engine\Controller {
 	public function index(): string {
 		$this->load->language('common/footer');
 
-		$this->load->model('cms/article');
-
-		$article_total = $this->model_cms_article->getTotalArticles();
-
-		if ($article_total) {
-			$data['blog'] = $this->url->link('cms/blog', 'language=' . $this->config->get('config_language'));
-		} else {
-			$data['blog'] = '';
-		}
-
-		$data['informations'] = [];
+		$data['blog'] = $this->url->link('cms/blog', 'language=' . $this->config->get('config_language'));
 
 		$this->load->model('catalog/information');
 
-		$results = $this->model_catalog_information->getInformations();
+		$data['informations'] = [];
 
-		foreach ($results as $result) {
-			$data['informations'][] = [
-				'title' => $result['title'],
-				'href'  => $this->url->link('information/information', 'language=' . $this->config->get('config_language') . '&information_id=' . $result['information_id'])
-			];
+		foreach ($this->model_catalog_information->getInformations() as $result) {
+			if ($result['bottom']) {
+				$data['informations'][] = [
+					'title' => $result['title'],
+					'href'  => $this->url->link('information/information', 'language=' . $this->config->get('config_language') . '&information_id=' . $result['information_id'])
+				];
+			}
 		}
 
 		$data['contact'] = $this->url->link('information/contact', 'language=' . $this->config->get('config_language'));

@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Localisation;
  */
 class AddressFormat extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -49,8 +47,6 @@ class AddressFormat extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -60,8 +56,6 @@ class AddressFormat extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -88,6 +82,8 @@ class AddressFormat extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('localisation/address_format');
 
+		$address_format_total = $this->model_localisation_address_format->getTotalAddressFormats($filter_data);
+
 		$results = $this->model_localisation_address_format->getAddressFormats($filter_data);
 
 		foreach ($results as $result) {
@@ -98,8 +94,6 @@ class AddressFormat extends \Opencart\System\Engine\Controller {
 				'edit'              => $this->url->link('localisation/address_format.form', 'user_token=' . $this->session->data['user_token'] . '&address_format_id=' . $result['address_format_id'] . $url)
 			];
 		}
-
-		$address_format_total = $this->model_localisation_address_format->getTotalAddressFormats($filter_data);
 
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $address_format_total,
@@ -114,8 +108,6 @@ class AddressFormat extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -178,8 +170,6 @@ class AddressFormat extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -191,7 +181,7 @@ class AddressFormat extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!oc_validate_length($this->request->post['name'], 1, 128)) {
+		if ((oc_strlen($this->request->post['name']) < 1) || (oc_strlen($this->request->post['name']) > 128)) {
 			$json['error']['name'] = $this->language->get('error_name');
 		}
 
@@ -212,8 +202,6 @@ class AddressFormat extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

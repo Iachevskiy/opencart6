@@ -7,8 +7,6 @@ namespace Opencart\Catalog\Model\Localisation;
  */
 class Currency extends \Opencart\System\Engine\Model {
 	/**
-	 * Edit Value By Code
-	 *
 	 * @param string $code
 	 * @param float  $value
 	 *
@@ -21,24 +19,20 @@ class Currency extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Currency
-	 *
 	 * @param int $currency_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getCurrency(int $currency_id): array {
-		$query = $this->db->query("SELECT DISTINCT * FROM `" . DB_PREFIX . "currency` WHERE `currency_id` = '" . (int)$currency_id . "'");
+		$query = $this->db->query("SELECT DISTINCT * FROM `" . DB_PREFIX . "currency` WHERE `currency_id` = '" . $this->db->escape($currency_id) . "'");
 
 		return $query->row;
 	}
 
 	/**
-	 * Get Currency By Code
-	 *
 	 * @param string $currency
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getCurrencyByCode(string $currency): array {
 		$query = $this->db->query("SELECT DISTINCT * FROM `" . DB_PREFIX . "currency` WHERE `code` = '" . $this->db->escape($currency) . "' AND `status` = '1'");
@@ -47,9 +41,7 @@ class Currency extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Currencies
-	 *
-	 * @return array<string, array<string, mixed>>
+	 * @return array
 	 */
 	public function getCurrencies(): array {
 		$sql = "SELECT * FROM `" . DB_PREFIX . "currency` WHERE `status` = '1' ORDER BY `title` ASC";

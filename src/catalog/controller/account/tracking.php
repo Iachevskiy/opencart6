@@ -13,11 +13,11 @@ class Tracking extends \Opencart\System\Engine\Controller {
 		if (!$this->customer->isLogged() || (!isset($this->request->get['customer_token']) || !isset($this->session->data['customer_token']) || ($this->request->get['customer_token'] != $this->session->data['customer_token']))) {
 			$this->session->data['redirect'] = $this->url->link('account/tracking', 'language=' . $this->config->get('config_language'));
 
-			$this->response->redirect($this->url->link('account/login', 'language=' . $this->config->get('config_language'), true));
+			$this->response->redirect($this->url->link('account/login', 'language=' . $this->config->get('config_language')));
 		}
 
 		if (!$this->config->get('config_affiliate_status')) {
-			$this->response->redirect($this->url->link('account/account', 'language=' . $this->config->get('config_language') . '&customer_token=' . $this->session->data['customer_token'], true));
+			$this->response->redirect($this->url->link('account/account', 'language=' . $this->config->get('config_language') . '&customer_token=' . $this->session->data['customer_token']));
 		}
 
 		$this->load->model('account/affiliate');
@@ -25,7 +25,7 @@ class Tracking extends \Opencart\System\Engine\Controller {
 		$affiliate_info = $this->model_account_affiliate->getAffiliate($this->customer->getId());
 
 		if (!$affiliate_info) {
-			$this->response->redirect($this->url->link('account/account', 'language=' . $this->config->get('config_language') . '&customer_token=' . $this->session->data['customer_token'], true));
+			$this->response->redirect($this->url->link('account/account', 'language=' . $this->config->get('config_language') . '&customer_token=' . $this->session->data['customer_token']));
 		}
 
 		$this->load->language('account/tracking');
@@ -70,8 +70,6 @@ class Tracking extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Autocomplete
-	 *
 	 * @return void
 	 */
 	public function autocomplete(): void {

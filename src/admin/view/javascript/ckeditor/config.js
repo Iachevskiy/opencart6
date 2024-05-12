@@ -22,16 +22,14 @@ CKEDITOR.editorConfig = function( config ) {
 	config.codemirror_theme = 'monokai';
 	config.toolbar = 'Custom';
 	config.allowedContent = true;
-	config.startupOutlineBlocks = false;
+	config.startupOutlineBlocks = true;
 	config.disableNativeSpellChecker = false;
 	config.browserContextMenuOnCtrl = true;
 	config.resize_enabled = true;
 	config.resize_dir = 'vertical';
-	config.versionCheck = false;
 
 	config.toolbar_Custom = [
 		['Source'],
-		['ShowBlocks'],
 		['Maximize'],
 		['Bold','Italic','Underline','Strike','-','Subscript','Superscript'],
 		['NumberedList','BulletedList','-','Outdent','Indent'],

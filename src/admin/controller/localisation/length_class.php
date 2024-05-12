@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Localisation;
  */
 class LengthClass extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -57,8 +55,6 @@ class LengthClass extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -68,8 +64,6 @@ class LengthClass extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -118,6 +112,8 @@ class LengthClass extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('localisation/length_class');
 
+		$length_class_total = $this->model_localisation_length_class->getTotalLengthClasses();
+
 		$results = $this->model_localisation_length_class->getLengthClasses($filter_data);
 
 		foreach ($results as $result) {
@@ -151,8 +147,6 @@ class LengthClass extends \Opencart\System\Engine\Controller {
 		if (isset($this->request->get['order'])) {
 			$url .= '&order=' . $this->request->get['order'];
 		}
-
-		$length_class_total = $this->model_localisation_length_class->getTotalLengthClasses();
 
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $length_class_total,
@@ -244,8 +238,6 @@ class LengthClass extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -258,7 +250,7 @@ class LengthClass extends \Opencart\System\Engine\Controller {
 		}
 
 		foreach ($this->request->post['length_class_description'] as $language_id => $value) {
-			if (!oc_validate_length($value['title'], 3, 32)) {
+			if ((oc_strlen($value['title']) < 3) || (oc_strlen($value['title']) > 32)) {
 				$json['error']['title_' . $language_id] = $this->language->get('error_title');
 			}
 
@@ -284,8 +276,6 @@ class LengthClass extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

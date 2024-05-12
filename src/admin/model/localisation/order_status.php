@@ -1,28 +1,24 @@
 <?php
 namespace Opencart\Admin\Model\Localisation;
 /**
- * Class Order Status
+ * Class OrderStatus
  *
  * @package Opencart\Admin\Model\Localisation
  */
 class OrderStatus extends \Opencart\System\Engine\Model {
 	/**
-	 * Add Order Status
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return ?int
+	 * @return int
 	 */
-	public function addOrderStatus(array $data): ?int {
-		$order_status_id = 0;
-
-		foreach ($data['order_status'] as $language_id => $order_status) {
-			if (!$order_status_id) {
-				$this->db->query("INSERT INTO `" . DB_PREFIX . "order_status` SET `language_id` = '" . (int)$language_id . "', `name` = '" . $this->db->escape($order_status['name']) . "'");
+	public function addOrderStatus(array $data): int {
+		foreach ($data['order_status'] as $language_id => $value) {
+			if (isset($order_status_id)) {
+				$this->db->query("INSERT INTO `" . DB_PREFIX . "order_status` SET `order_status_id` = '" . (int)$order_status_id . "', `language_id` = '" . (int)$language_id . "', `name` = '" . $this->db->escape($value['name']) . "'");
+			} else {
+				$this->db->query("INSERT INTO `" . DB_PREFIX . "order_status` SET `language_id` = '" . (int)$language_id . "', `name` = '" . $this->db->escape($value['name']) . "'");
 
 				$order_status_id = $this->db->getLastId();
-			} else {
-				$this->model_localisation_order_status->addDescription($order_status_id, $language_id, $order_status);
 			}
 		}
 
@@ -32,26 +28,22 @@ class OrderStatus extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Edit Order Status
-	 *
-	 * @param int                  $order_status_id
-	 * @param array<string, mixed> $data
+	 * @param int   $order_status_id
+	 * @param array $data
 	 *
 	 * @return void
 	 */
 	public function editOrderStatus(int $order_status_id, array $data): void {
-		$this->deleteOrderStatus($order_status_id);
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "order_status` WHERE `order_status_id` = '" . (int)$order_status_id . "'");
 
 		foreach ($data['order_status'] as $language_id => $value) {
-			$this->model_localisation_order_status->addDescription($order_status_id, $language_id, $value);
+			$this->db->query("INSERT INTO `" . DB_PREFIX . "order_status` SET `order_status_id` = '" . (int)$order_status_id . "', `language_id` = '" . (int)$language_id . "', `name` = '" . $this->db->escape($value['name']) . "'");
 		}
 
 		$this->cache->delete('order_status');
 	}
 
 	/**
-	 * Delete Order Status
-	 *
 	 * @param int $order_status_id
 	 *
 	 * @return void
@@ -63,24 +55,9 @@ class OrderStatus extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete Order Statuses By Language ID
-	 *
-	 * @param int $language_id
-	 *
-	 * @return void
-	 */
-	public function deleteOrderStatusesByLanguageId(int $language_id): void {
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "order_status` WHERE `language_id` = '" . (int)$language_id . "'");
-
-		$this->cache->delete('order_status');
-	}
-
-	/**
-	 * Get Order Status
-	 *
 	 * @param int $order_status_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getOrderStatus(int $order_status_id): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "order_status` WHERE `order_status_id` = '" . (int)$order_status_id . "' AND `language_id` = '" . (int)$this->config->get('config_language_id') . "'");
@@ -89,11 +66,9 @@ class OrderStatus extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Order Statuses
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getOrderStatuses(array $data = []): array {
 		$sql = "SELECT * FROM `" . DB_PREFIX . "order_status` WHERE `language_id` = '" . (int)$this->config->get('config_language_id') . "' ORDER BY `name`";
@@ -116,40 +91,23 @@ class OrderStatus extends \Opencart\System\Engine\Model {
 			$sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
 		}
 
-		$key = md5($sql);
-
-		$order_status_data = $this->cache->get('order_status.' . $key);
+		$order_status_data = $this->cache->get('order_status.' . md5($sql));
 
 		if (!$order_status_data) {
 			$query = $this->db->query($sql);
 
 			$order_status_data = $query->rows;
 
-			$this->cache->set('order_status.' . $key, $order_status_data);
+			$this->cache->set('order_status.' . md5($sql), $order_status_data);
 		}
 
 		return $order_status_data;
 	}
 
 	/**
-	 * Add Description
-	 *
-	 * @param int                  $order_status_id
-	 * @param int                  $language_id
-	 * @param array<string, mixed> $data
-	 *
-	 * @return void
-	 */
-	public function addDescription(int $order_status_id, int $language_id, array $data): void {
-		$this->db->query("INSERT INTO `" . DB_PREFIX . "order_status` SET `order_status_id` = '" . (int)$order_status_id . "', `language_id` = '" . (int)$language_id . "', `name` = '" . $this->db->escape($data['name']) . "'");
-	}
-
-	/**
-	 * Get Descriptions
-	 *
 	 * @param int $order_status_id
 	 *
-	 * @return array<int, array<string, string>>
+	 * @return array
 	 */
 	public function getDescriptions(int $order_status_id): array {
 		$order_status_data = [];
@@ -164,21 +122,6 @@ class OrderStatus extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Descriptions By Language ID
-	 *
-	 * @param int $language_id
-	 *
-	 * @return array<int, array<string, mixed>>
-	 */
-	public function getDescriptionsByLanguageId(int $language_id): array {
-		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "order_status` WHERE `language_id` = '" . (int)$language_id . "'");
-
-		return $query->rows;
-	}
-
-	/**
-	 * Get Total Order Statuses
-	 *
 	 * @return int
 	 */
 	public function getTotalOrderStatuses(): int {

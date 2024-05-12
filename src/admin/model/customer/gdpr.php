@@ -7,8 +7,6 @@ namespace Opencart\Admin\Model\Customer;
  */
 class Gdpr extends \Opencart\System\Engine\Model {
 	/**
-	 * Edit Status
-	 *
 	 * @param int $gdpr_id
 	 * @param int $status
 	 *
@@ -19,8 +17,6 @@ class Gdpr extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete Gdpr
-	 *
 	 * @param int $gdpr_id
 	 *
 	 * @return void
@@ -30,22 +26,9 @@ class Gdpr extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete Gdpr(s) By Store ID
+	 * @param array $data
 	 *
-	 * @param int $store_id
-	 *
-	 * @return void
-	 */
-	public function deleteGdprsByStoreId(int $store_id): void {
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "gdpr` WHERE `store_id` = '" . (int)$store_id . "'");
-	}
-
-	/**
-	 * Get Gdpr(s)
-	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getGdprs(array $data = []): array {
 		$sql = "SELECT * FROM `" . DB_PREFIX . "gdpr`";
@@ -53,15 +36,15 @@ class Gdpr extends \Opencart\System\Engine\Model {
 		$implode = [];
 
 		if (!empty($data['filter_email'])) {
-			$implode[] = "LCASE(`email`) LIKE '" . $this->db->escape(oc_strtolower($data['filter_email'])) . "'";
+			$implode[] = "`email` LIKE '" . $this->db->escape((string)$data['filter_email']) . "'";
 		}
 
 		if (!empty($data['filter_action'])) {
-			$implode[] = "`action` = '" . $this->db->escape($data['filter_action']) . "'";
+			$implode[] = "`action` = '" . $this->db->escape((string)$data['filter_action']) . "'";
 		}
 
 		if (isset($data['filter_status']) && $data['filter_status'] !== '') {
-			$implode[] = "`status` = '" . (bool)$data['filter_status'] . "'";
+			$implode[] = "`status` = '" . (int)$data['filter_status'] . "'";
 		}
 
 		if (!empty($data['filter_date_from'])) {
@@ -96,11 +79,9 @@ class Gdpr extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Gdpr
-	 *
 	 * @param int $gdpr_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getGdpr(int $gdpr_id): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "gdpr` WHERE `gdpr_id` = '" . (int)$gdpr_id . "'");
@@ -109,9 +90,7 @@ class Gdpr extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Gdpr(s)
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
@@ -121,15 +100,15 @@ class Gdpr extends \Opencart\System\Engine\Model {
 		$implode = [];
 
 		if (!empty($data['filter_email'])) {
-			$implode[] = "LCASE(`email`) LIKE '" . $this->db->escape(oc_strtolower($data['filter_email'])) . "'";
+			$implode[] = "`email` LIKE '" . $this->db->escape((string)$data['filter_email']) . "'";
 		}
 
 		if (!empty($data['filter_action'])) {
-			$implode[] = "`action` = '" . $this->db->escape($data['filter_action']) . "'";
+			$implode[] = "`action` = '" . $this->db->escape((string)$data['filter_action']) . "'";
 		}
 
 		if (isset($data['filter_status']) && $data['filter_status'] !== '') {
-			$implode[] = "`status` = '" . (bool)$data['filter_status'] . "'";
+			$implode[] = "`status` = '" . (int)$data['filter_status'] . "'";
 		}
 
 		if (!empty($data['filter_date_from'])) {
@@ -150,9 +129,7 @@ class Gdpr extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Expires
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getExpires(): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "gdpr` WHERE `status` = '2' AND DATE(`date_added`) <= DATE('" . $this->db->escape(date('Y-m-d', strtotime('+' . (int)$this->config->get('config_gdpr_limit') . ' days'))) . "') ORDER BY `date_added` DESC");

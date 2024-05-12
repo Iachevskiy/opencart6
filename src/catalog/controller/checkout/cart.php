@@ -29,8 +29,6 @@ class Cart extends \Opencart\System\Engine\Controller {
 		if ($this->cart->hasProducts() || !empty($this->session->data['vouchers'])) {
 			if (!$this->cart->hasStock() && (!$this->config->get('config_stock_checkout') || $this->config->get('config_stock_warning'))) {
 				$data['error_warning'] = $this->language->get('error_stock');
-			} elseif (!$this->cart->hasMinimum()) {
-				$data['error_warning'] = $this->language->get('error_minimum');
 			} elseif (isset($this->session->data['error'])) {
 				$data['error_warning'] = $this->session->data['error'];
 
@@ -68,7 +66,7 @@ class Cart extends \Opencart\System\Engine\Controller {
 			$extensions = $this->model_setting_extension->getExtensionsByType('total');
 
 			foreach ($extensions as $extension) {
-				$result = $this->load->controller('extension/' . $extension['extension'] . '/total/' . $extension['code']);
+				 $result = $this->load->controller('extension/' . $extension['extension'] . '/total/' . $extension['code']);
 
 				if (!$result instanceof \Exception) {
 					$data['modules'][] = $result;
@@ -105,8 +103,6 @@ class Cart extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -116,11 +112,10 @@ class Cart extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	public function getList(): string {
+		$data['list'] = $this->url->link(' ', 'language=' . $this->config->get('config_language'));
 		$data['product_edit'] = $this->url->link('checkout/cart.edit', 'language=' . $this->config->get('config_language'));
 		$data['product_remove'] = $this->url->link('checkout/cart.remove', 'language=' . $this->config->get('config_language'));
 		$data['voucher_remove'] = $this->url->link('checkout/voucher.remove', 'language=' . $this->config->get('config_language'));
@@ -142,6 +137,10 @@ class Cart extends \Opencart\System\Engine\Controller {
 		$products = $this->model_checkout_cart->getProducts();
 
 		foreach ($products as $product) {
+			if (!$product['minimum']) {
+				$data['error_warning'] = sprintf($this->language->get('error_minimum'), $product['name'], $product['minimum']);
+			}
+
 			if ($product['option']) {
 				foreach ($product['option'] as $key => $option) {
 					$product['option'][$key]['value'] = (oc_strlen($option['value']) > 20 ? oc_substr($option['value'], 0, 20) . '..' : $option['value']);
@@ -182,12 +181,11 @@ class Cart extends \Opencart\System\Engine\Controller {
 				'subscription' => $description,
 				'quantity'     => $product['quantity'],
 				'stock'        => $product['stock'] ? true : !(!$this->config->get('config_stock_checkout') || $this->config->get('config_stock_warning')),
-				'minimum'      => $product['minimum'] ? $product['minimum'] : sprintf($this->language->get('error_minimum'), $product['name'], $product['minimum']),
+				'minimum'      => $product['minimum'],
 				'reward'       => $product['reward'],
 				'price'        => $price_status ? $this->currency->format($this->tax->calculate($product['price'], $product['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency']) : '',
 				'total'        => $price_status ? $this->currency->format($this->tax->calculate($product['total'], $product['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency']) : '',
-				'href'         => $this->url->link('product/product', 'language=' . $this->config->get('config_language') . '&product_id=' . $product['product_id']),
-				'remove'       => $this->url->link('checkout/cart.remove', 'language=' . $this->config->get('config_language') . '&key=' . $product['cart_id'])
+				'href'         => $this->url->link('product/product', 'language=' . $this->config->get('config_language') . '&product_id=' . $product['product_id'])
 			];
 		}
 
@@ -200,8 +198,7 @@ class Cart extends \Opencart\System\Engine\Controller {
 			$data['vouchers'][] = [
 				'key'         => $key,
 				'description' => $voucher['description'],
-				'amount'      => $this->currency->format($voucher['amount'], $this->session->data['currency']),
-				'remove'      => $this->url->link('checkout/voucher.remove', 'language=' . $this->config->get('config_language') . '&key=' . $key)
+				'amount'      => $this->currency->format($voucher['amount'], $this->session->data['currency'])
 			];
 		}
 
@@ -227,8 +224,6 @@ class Cart extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Add
-	 *
 	 * @return void
 	 */
 	public function add(): void {
@@ -330,8 +325,6 @@ class Cart extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Edit
-	 *
 	 * @return void
 	 */
 	public function edit(): void {
@@ -351,28 +344,32 @@ class Cart extends \Opencart\System\Engine\Controller {
 			$quantity = 1;
 		}
 
-		// Handles single item update
-		$this->cart->update($key, $quantity);
-
-		if ($this->cart->hasProducts() || !empty($this->session->data['vouchers'])) {
-			$json['success'] = $this->language->get('text_edit');
-		} else {
-			$json['redirect'] = $this->url->link('checkout/cart', 'language=' . $this->config->get('config_language'), true);
+		if (!$this->cart->has($key)) {
+			$json['error'] = $this->language->get('error_product');
 		}
 
-		unset($this->session->data['shipping_method']);
-		unset($this->session->data['shipping_methods']);
-		unset($this->session->data['payment_method']);
-		unset($this->session->data['payment_methods']);
-		unset($this->session->data['reward']);
+		if (!$json) {
+			// Handles single item update
+			$this->cart->update($key, $quantity);
+
+			if ($this->cart->hasProducts() || !empty($this->session->data['vouchers'])) {
+				$json['success'] = $this->language->get('text_edit');
+			} else {
+				$json['redirect'] = $this->url->link('checkout/cart', 'language=' . $this->config->get('config_language'), true);
+			}
+
+			unset($this->session->data['shipping_method']);
+			unset($this->session->data['shipping_methods']);
+			unset($this->session->data['payment_method']);
+			unset($this->session->data['payment_methods']);
+			unset($this->session->data['reward']);
+		}
 
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
 	}
 
 	/**
-	 * Remove
-	 *
 	 * @return void
 	 */
 	public function remove(): void {
@@ -380,26 +377,32 @@ class Cart extends \Opencart\System\Engine\Controller {
 
 		$json = [];
 
-		if (isset($this->request->get['key'])) {
-			$key = (int)$this->request->get['key'];
+		if (isset($this->request->post['key'])) {
+			$key = (int)$this->request->post['key'];
 		} else {
 			$key = 0;
 		}
 
-		// Remove
-		$this->cart->remove($key);
-
-		if ($this->cart->hasProducts() || !empty($this->session->data['vouchers'])) {
-			$json['success'] = $this->language->get('text_remove');
-		} else {
-			$json['redirect'] = $this->url->link('checkout/cart', 'language=' . $this->config->get('config_language'), true);
+		if (!$this->cart->has($key)) {
+			$json['error'] = $this->language->get('error_product');
 		}
 
-		unset($this->session->data['shipping_method']);
-		unset($this->session->data['shipping_methods']);
-		unset($this->session->data['payment_method']);
-		unset($this->session->data['payment_methods']);
-		unset($this->session->data['reward']);
+		// Remove
+		if (!$json) {
+			$this->cart->remove($key);
+
+			if ($this->cart->hasProducts() || !empty($this->session->data['vouchers'])) {
+				$json['success'] = $this->language->get('text_remove');
+			} else {
+				$json['redirect'] = $this->url->link('checkout/cart', 'language=' . $this->config->get('config_language'), true);
+			}
+
+			unset($this->session->data['shipping_method']);
+			unset($this->session->data['shipping_methods']);
+			unset($this->session->data['payment_method']);
+			unset($this->session->data['payment_methods']);
+			unset($this->session->data['reward']);
+		}
 
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));

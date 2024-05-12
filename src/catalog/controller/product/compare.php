@@ -12,6 +12,11 @@ class Compare extends \Opencart\System\Engine\Controller {
 	public function index(): void {
 		$this->load->language('product/compare');
 
+		$this->load->model('catalog/product');
+		$this->load->model('catalog/manufacturer');
+		$this->load->model('localisation/stock_status');
+		$this->load->model('tool/image');
+
 		if (!isset($this->session->data['compare'])) {
 			$this->session->data['compare'] = [];
 		}
@@ -25,7 +30,7 @@ class Compare extends \Opencart\System\Engine\Controller {
 				$this->session->data['success'] = $this->language->get('text_remove');
 			}
 
-			$this->response->redirect($this->url->link('product/compare', 'language=' . $this->config->get('config_language'), true));
+			$this->response->redirect($this->url->link('product/compare', 'language=' . $this->config->get('config_language')));
 		}
 
 		$this->document->setTitle($this->language->get('heading_title'));
@@ -42,7 +47,7 @@ class Compare extends \Opencart\System\Engine\Controller {
 			'href' => $this->url->link('product/compare', 'language=' . $this->config->get('config_language'))
 		];
 
-		$data['cart_add'] = $this->url->link('checkout/cart.add', 'language=' . $this->config->get('config_language'));
+		$data['add_to_cart'] = $this->url->link('checkout/cart.add', 'language=' . $this->config->get('config_language'));
 		$data['cart'] = $this->url->link('common/cart.info', 'language=' . $this->config->get('config_language'));
 
 		if (isset($this->session->data['success'])) {
@@ -57,25 +62,14 @@ class Compare extends \Opencart\System\Engine\Controller {
 
 		$data['attribute_groups'] = [];
 
-		$this->load->model('catalog/product');
-		$this->load->model('catalog/manufacturer');
-		$this->load->model('localisation/stock_status');
-		$this->load->model('tool/image');
-
 		foreach ($this->session->data['compare'] as $key => $product_id) {
 			$product_info = $this->model_catalog_product->getProduct($product_id);
 
 			if ($product_info) {
-				$description = trim(strip_tags(html_entity_decode($product_info['description'], ENT_QUOTES, 'UTF-8')));
-
-				if (oc_strlen($description) > $this->config->get('config_product_description_length')) {
-					$description = oc_substr($description, 0, $this->config->get('config_product_description_length')) . '..';
-				}
-
-				if ($product_info['image'] && is_file(DIR_IMAGE . html_entity_decode($product_info['image'], ENT_QUOTES, 'UTF-8'))) {
-					$image = $this->model_tool_image->resize($product_info['image'], $this->config->get('config_image_compare_width'), $this->config->get('config_image_compare_height'));
+				if (is_file(DIR_IMAGE . html_entity_decode($product_info['image'], ENT_QUOTES, 'UTF-8'))) {
+					$image = $this->model_tool_image->resize(html_entity_decode($product_info['image'], ENT_QUOTES, 'UTF-8'), $this->config->get('config_image_compare_width'), $this->config->get('config_image_compare_height'));
 				} else {
-					$image = '';
+					$image = false;
 				}
 
 				if ($this->customer->isLogged() || !$this->config->get('config_customer_price')) {
@@ -99,19 +93,17 @@ class Compare extends \Opencart\System\Engine\Controller {
 				}
 
 				if ($product_info['quantity'] <= 0) {
-					$stock_status_id = $product_info['stock_status_id'];
-				} elseif (!$this->config->get('config_stock_display')) {
-					$stock_status_id = (int)$this->config->get('stock_status_id');
-				} else {
-					$stock_status_id = 0;
-				}
+					$stock_status_info = $this->model_localisation_stock_status->getStockStatus($product_info['stock_status_id']);
 
-				$stock_status_info = $this->model_localisation_stock_status->getStockStatus($stock_status_id);
-
-				if ($stock_status_info) {
-					$availability = $stock_status_info['name'];
-				} else {
+					if ($stock_status_info) {
+						$availability = $stock_status_info['name'];
+					} else {
+						$availability = '';
+					}
+				} elseif ($this->config->get('config_stock_display')) {
 					$availability = $product_info['quantity'];
+				} else {
+					$availability = $this->language->get('text_instock');
 				}
 
 				$attribute_data = [];
@@ -127,10 +119,10 @@ class Compare extends \Opencart\System\Engine\Controller {
 				$data['products'][$product_id] = [
 					'product_id'   => $product_info['product_id'],
 					'name'         => $product_info['name'],
-					'description'  => $description,
 					'thumb'        => $image,
 					'price'        => $price,
 					'special'      => $special,
+					'description'  => oc_substr(strip_tags(html_entity_decode($product_info['description'], ENT_QUOTES, 'UTF-8')), 0, 200) . '..',
 					'model'        => $product_info['model'],
 					'manufacturer' => $manufacturer,
 					'availability' => $availability,
@@ -171,8 +163,6 @@ class Compare extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Add
-	 *
 	 * @return void
 	 */
 	public function add(): void {

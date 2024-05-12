@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Marketing;
  */
 class Contact extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -49,11 +47,8 @@ class Contact extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Send
-	 *
-	 * @throws \Exception
-	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	public function send(): void {
 		$this->load->language('marketing/contact');
@@ -76,7 +71,6 @@ class Contact extends \Opencart\System\Engine\Controller {
 			$this->load->model('setting/store');
 			$this->load->model('setting/setting');
 			$this->load->model('customer/customer');
-			$this->load->model('marketing/affiliate');
 			$this->load->model('sale/order');
 
 			$store_info = $this->model_setting_store->getStore($this->request->post['store_id']);
@@ -89,7 +83,7 @@ class Contact extends \Opencart\System\Engine\Controller {
 
 			$setting = $this->model_setting_setting->getSetting('config', $this->request->post['store_id']);
 
-			$store_email = $setting['config_email'] ?? $this->config->get('config_email');
+			$store_email = isset($setting['config_email']) ? $setting['config_email'] : $this->config->get('config_email');
 
 			if (isset($this->request->get['page'])) {
 				$page = (int)$this->request->get['page'];
@@ -165,13 +159,14 @@ class Contact extends \Opencart\System\Engine\Controller {
 					break;
 				case 'affiliate_all':
 					$affiliate_data = [
-						'start' => ($page - 1) * $limit,
-						'limit' => $limit
+						'filter_affiliate' => 1,
+						'start'            => ($page - 1) * $limit,
+						'limit'            => $limit
 					];
 
-					$email_total = $this->model_marketing_affiliate->getTotalAffiliates($affiliate_data);
+					$email_total = $this->model_customer_customer->getTotalCustomers($affiliate_data);
 
-					$results = $this->model_marketing_affiliate->getAffiliates($affiliate_data);
+					$results = $this->model_customer_customer->getCustomers($affiliate_data);
 
 					foreach ($results as $result) {
 						$emails[] = $result['email'];
@@ -182,7 +177,7 @@ class Contact extends \Opencart\System\Engine\Controller {
 						$affiliates = array_slice($this->request->post['affiliate'], ($page - 1) * $limit, $limit);
 
 						foreach ($affiliates as $affiliate_id) {
-							$affiliate_info = $this->model_marketing_affiliate->getAffiliate($affiliate_id);
+							$affiliate_info = $this->model_customer_customer->getCustomer($affiliate_id);
 
 							if ($affiliate_info) {
 								$emails[] = $affiliate_info['email'];
@@ -207,10 +202,10 @@ class Contact extends \Opencart\System\Engine\Controller {
 
 			if ($emails) {
 				$start = ($page - 1) * $limit;
-				$end = $start > ($email_total - $limit) ? $email_total : ($start + $limit);
+				$end = $start + $limit;
 
 				if ($end < $email_total) {
-					$json['text'] = sprintf($this->language->get('text_sent'), $start ?: 1, $end, $email_total);
+					$json['text'] = sprintf($this->language->get('text_sent'), $start ? $start : 1, $email_total);
 
 					$json['next'] = $this->url->link('marketing/contact.send', 'user_token=' . $this->session->data['user_token'] . '&page=' . ($page + 1), true);
 				} else {
@@ -229,12 +224,12 @@ class Contact extends \Opencart\System\Engine\Controller {
 
 				if ($this->config->get('config_mail_engine')) {
 					$mail_option = [
-						'parameter'     => $this->config->get('config_mail_parameter'),
+						'parameter' => $this->config->get('config_mail_parameter'),
 						'smtp_hostname' => $this->config->get('config_mail_smtp_hostname'),
 						'smtp_username' => $this->config->get('config_mail_smtp_username'),
 						'smtp_password' => html_entity_decode($this->config->get('config_mail_smtp_password'), ENT_QUOTES, 'UTF-8'),
-						'smtp_port'     => $this->config->get('config_mail_smtp_port'),
-						'smtp_timeout'  => $this->config->get('config_mail_smtp_timeout')
+						'smtp_port' => $this->config->get('config_mail_smtp_port'),
+						'smtp_timeout' => $this->config->get('config_mail_smtp_timeout')
 					];
 
 					$mail = new \Opencart\System\Library\Mail($this->config->get('config_mail_engine'), $mail_option);

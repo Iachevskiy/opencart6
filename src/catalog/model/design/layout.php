@@ -7,8 +7,6 @@ namespace Opencart\Catalog\Model\Design;
  */
 class Layout extends \Opencart\System\Engine\Model {
 	/**
-	 * Get Layout
-	 *
 	 * @param string $route
 	 *
 	 * @return int
@@ -24,16 +22,14 @@ class Layout extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Modules
-	 *
 	 * @param int    $layout_id
 	 * @param string $position
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getModules(int $layout_id, string $position): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "layout_module` WHERE `layout_id` = '" . (int)$layout_id . "' AND `position` = '" . $this->db->escape($position) . "' ORDER BY `sort_order`");
-
+		
 		return $query->rows;
 	}
 }

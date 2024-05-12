@@ -7,9 +7,7 @@ namespace Opencart\Admin\Model\Sale;
  */
 class Voucher extends \Opencart\System\Engine\Model {
 	/**
-	 * Add Voucher
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
@@ -20,10 +18,8 @@ class Voucher extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Edit Voucher
-	 *
-	 * @param int                  $voucher_id
-	 * @param array<string, mixed> $data
+	 * @param int   $voucher_id
+	 * @param array $data
 	 *
 	 * @return void
 	 */
@@ -32,24 +28,19 @@ class Voucher extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete Voucher
-	 *
 	 * @param int $voucher_id
 	 *
 	 * @return void
 	 */
 	public function deleteVoucher(int $voucher_id): void {
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "voucher` WHERE `voucher_id` = '" . (int)$voucher_id . "'");
-
-		$this->deleteHistories($voucher_id);
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "voucher_history` WHERE `voucher_id` = '" . (int)$voucher_id . "'");
 	}
 
 	/**
-	 * Get Voucher
-	 *
 	 * @param int $voucher_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getVoucher(int $voucher_id): array {
 		$query = $this->db->query("SELECT DISTINCT * FROM `" . DB_PREFIX . "voucher` WHERE `voucher_id` = '" . (int)$voucher_id . "'");
@@ -58,11 +49,9 @@ class Voucher extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Voucher By Code
-	 *
 	 * @param string $code
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getVoucherByCode(string $code): array {
 		$query = $this->db->query("SELECT DISTINCT * FROM `" . DB_PREFIX . "voucher` WHERE `code` = '" . $this->db->escape($code) . "'");
@@ -71,14 +60,12 @@ class Voucher extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Vouchers
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getVouchers(array $data = []): array {
-		$sql = "SELECT `v`.`voucher_id`, `v`.`order_id`, `v`.`code`, `v`.`from_name`, `v`.`from_email`, `v`.`to_name`, `v`.`to_email`, (SELECT `vtd`.`name` FROM `" . DB_PREFIX . "voucher_theme_description` `vtd` WHERE `vtd`.`voucher_theme_id` = `v`.`voucher_theme_id` AND `vtd`.`language_id` = '" . (int)$this->config->get('config_language_id') . "') AS `theme`, `v`.`amount`, `v`.`status`, `v`.`date_added` FROM `" . DB_PREFIX . "voucher` `v`";
+		$sql = "SELECT v.`voucher_id`, v.`order_id`, v.`code`, v.`from_name`, v.`from_email`, v.`to_name`, v.`to_email`, (SELECT vtd.`name` FROM `" . DB_PREFIX . "voucher_theme_description` vtd WHERE vtd.`voucher_theme_id` = v.`voucher_theme_id` AND vtd.`language_id` = '" . (int)$this->config->get('config_language_id') . "') AS theme, v.`amount`, v.`status`, v.`date_added` FROM `" . DB_PREFIX . "voucher` v";
 
 		$sort_data = [
 			'v.code',
@@ -93,7 +80,7 @@ class Voucher extends \Opencart\System\Engine\Model {
 		if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
 			$sql .= " ORDER BY " . $data['sort'];
 		} else {
-			$sql .= " ORDER BY `v`.`date_added`";
+			$sql .= " ORDER BY v.`date_added`";
 		}
 
 		if (isset($data['order']) && ($data['order'] == 'DESC')) {
@@ -120,8 +107,6 @@ class Voucher extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Vouchers
-	 *
 	 * @return int
 	 */
 	public function getTotalVouchers(): int {
@@ -131,8 +116,6 @@ class Voucher extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Vouchers By Voucher Theme ID
-	 *
 	 * @param int $voucher_theme_id
 	 *
 	 * @return int
@@ -144,35 +127,11 @@ class Voucher extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete Voucher Histories
-	 *
-	 * @param int $voucher_id
-	 *
-	 * @return void
-	 */
-	public function deleteHistories(int $voucher_id): void {
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "voucher_history` WHERE `voucher_id` = '" . (int)$voucher_id . "'");
-	}
-
-	/**
-	 * Delete Voucher Histories By Order ID
-	 *
-	 * @param int $order_id
-	 *
-	 * @return void
-	 */
-	public function deleteHistoriesByOrderId(int $order_id): void {
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "voucher_history` WHERE `order_id` = '" . (int)$order_id . "'");
-	}
-
-	/**
-	 * Get Histories
-	 *
 	 * @param int $voucher_id
 	 * @param int $start
 	 * @param int $limit
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getHistories(int $voucher_id, int $start = 0, int $limit = 10): array {
 		if ($start < 0) {
@@ -183,14 +142,12 @@ class Voucher extends \Opencart\System\Engine\Model {
 			$limit = 10;
 		}
 
-		$query = $this->db->query("SELECT `vh`.`order_id`, CONCAT(`o`.`firstname`, ' ', `o`.`lastname`) AS `customer`, `vh`.`amount`, `vh`.`date_added` FROM `" . DB_PREFIX . "voucher_history` `vh` LEFT JOIN `" . DB_PREFIX . "order` `o` ON (`vh`.`order_id` = `o`.`order_id`) WHERE `vh`.`voucher_id` = '" . (int)$voucher_id . "' ORDER BY `vh`.`date_added` ASC LIMIT " . (int)$start . "," . (int)$limit);
+		$query = $this->db->query("SELECT vh.`order_id`, CONCAT(o.`firstname`, ' ', o.`lastname`) AS customer, vh.`amount`, vh.`date_added` FROM `" . DB_PREFIX . "voucher_history` vh LEFT JOIN `" . DB_PREFIX . "order` o ON (vh.`order_id` = o.`order_id`) WHERE vh.`voucher_id` = '" . (int)$voucher_id . "' ORDER BY vh.`date_added` ASC LIMIT " . (int)$start . "," . (int)$limit);
 
 		return $query->rows;
 	}
 
 	/**
-	 * Get Total Histories
-	 *
 	 * @param int $voucher_id
 	 *
 	 * @return int

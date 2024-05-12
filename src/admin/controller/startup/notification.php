@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Common;
  */
 class Notification extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -25,23 +23,20 @@ class Notification extends \Opencart\System\Engine\Controller {
 
 			$response = curl_exec($curl);
 
-			$status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
 			curl_close($curl);
 
-			if ($status == 200) {
+			if ($response) {
 				$notification = json_decode($response, true);
 			} else {
-				$notification = [];
+				$notification = '';
 			}
 
 			if (isset($notification['notification'])) {
-				$this->load->model('tool/notification');
 				foreach ($notification['notifications'] as $result) {
-					$notification_info = $this->model_tool_notification->addNotification($result['notification_id']);
+					$notification_info = $this->model_notification->addNotification($result['notification_id']);
 
 					if (!$notification_info) {
-						$this->model_tool_notification->addNotification($result);
+						$this->model_notification->addNotification($result);
 					}
 				}
 			}
@@ -55,7 +50,7 @@ class Notification extends \Opencart\System\Engine\Controller {
 				'SameSite' => $this->config->get('config_session_samesite')
 			];
 
-			setcookie('notification', '1', $option);
+			setcookie('notification', true, $option);
 		}
 	}
 }

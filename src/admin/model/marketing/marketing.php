@@ -7,9 +7,7 @@ namespace Opencart\Admin\Model\Marketing;
  */
 class Marketing extends \Opencart\System\Engine\Model {
 	/**
-	 * Add Marketing
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
@@ -20,10 +18,8 @@ class Marketing extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Edit Marketing
-	 *
-	 * @param int                  $marketing_id
-	 * @param array<string, mixed> $data
+	 * @param int   $marketing_id
+	 * @param array $data
 	 *
 	 * @return void
 	 */
@@ -32,24 +28,18 @@ class Marketing extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete Marketing
-	 *
 	 * @param int $marketing_id
 	 *
 	 * @return void
 	 */
 	public function deleteMarketing(int $marketing_id): void {
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "marketing` WHERE `marketing_id` = '" . (int)$marketing_id . "'");
-
-		$this->deleteReports($marketing_id);
 	}
 
 	/**
-	 * Get Marketing
-	 *
 	 * @param int $marketing_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getMarketing(int $marketing_id): array {
 		$query = $this->db->query("SELECT DISTINCT * FROM `" . DB_PREFIX . "marketing` WHERE `marketing_id` = '" . (int)$marketing_id . "'");
@@ -58,11 +48,9 @@ class Marketing extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Marketing By Code
-	 *
 	 * @param string $code
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getMarketingByCode(string $code): array {
 		$query = $this->db->query("SELECT DISTINCT * FROM `" . DB_PREFIX . "marketing` WHERE `code` = '" . $this->db->escape($code) . "'");
@@ -71,39 +59,37 @@ class Marketing extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Marketing(s)
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getMarketings(array $data = []): array {
 		$implode = [];
 
-		$order_statuses = (array)$this->config->get('config_complete_status');
+		$order_statuses = $this->config->get('config_complete_status');
 
 		foreach ($order_statuses as $order_status_id) {
-			$implode[] = "`o`.`order_status_id` = '" . (int)$order_status_id . "'";
+			$implode[] = "o.`order_status_id` = '" . (int)$order_status_id . "'";
 		}
 
-		$sql = "SELECT *, (SELECT COUNT(*) FROM `" . DB_PREFIX . "order` `o` WHERE (" . implode(" OR ", $implode) . ") AND `o`.`marketing_id` = `m`.`marketing_id`) AS `orders` FROM `" . DB_PREFIX . "marketing` `m`";
+		$sql = "SELECT *, (SELECT COUNT(*) FROM `" . DB_PREFIX . "order` o WHERE (" . implode(" OR ", $implode) . ") AND o.`marketing_id` = m.`marketing_id`) AS `orders` FROM `" . DB_PREFIX . "marketing` m";
 
 		$implode = [];
 
 		if (!empty($data['filter_name'])) {
-			$implode[] = "LCASE(`m`.`name`) LIKE '" . $this->db->escape(oc_strtolower($data['filter_name']) . '%') . "'";
+			$implode[] = "m.`name` LIKE '" . $this->db->escape((string)$data['filter_name'] . '%') . "'";
 		}
 
 		if (!empty($data['filter_code'])) {
-			$implode[] = "LCASE(`m`.`code`) = '" . $this->db->escape(oc_strtolower($data['filter_code'])) . "'";
+			$implode[] = "m.`code` = '" . $this->db->escape((string)$data['filter_code']) . "'";
 		}
 
 		if (!empty($data['filter_date_from'])) {
-			$implode[] = "DATE(`m`.`date_added`) >= DATE('" . $this->db->escape((string)$data['filter_date_from']) . "')";
+			$implode[] = "DATE(m.`date_added`) >= DATE('" . $this->db->escape((string)$data['filter_date_from']) . "')";
 		}
 
 		if (!empty($data['filter_date_to'])) {
-			$implode[] = "DATE(`m`.`date_added`) <= DATE('" . $this->db->escape((string)$data['filter_date_to']) . "')";
+			$implode[] = "DATE(m.`date_added`) <= DATE('" . $this->db->escape((string)$data['filter_date_to']) . "')";
 		}
 
 		if ($implode) {
@@ -119,7 +105,7 @@ class Marketing extends \Opencart\System\Engine\Model {
 		if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
 			$sql .= " ORDER BY " . $data['sort'];
 		} else {
-			$sql .= " ORDER BY `m`.`name`";
+			$sql .= " ORDER BY m.`name`";
 		}
 
 		if (isset($data['order']) && ($data['order'] == 'DESC')) {
@@ -146,9 +132,7 @@ class Marketing extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Marketing(s)
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
@@ -158,11 +142,11 @@ class Marketing extends \Opencart\System\Engine\Model {
 		$implode = [];
 
 		if (!empty($data['filter_name'])) {
-			$implode[] = "LCASE(`name`) LIKE '" . $this->db->escape(oc_strtolower($data['filter_name'])) . "'";
+			$implode[] = "`name` LIKE '" . $this->db->escape((string)$data['filter_name']) . "'";
 		}
 
 		if (!empty($data['filter_code'])) {
-			$implode[] = "LCASE(`code`) = '" . $this->db->escape(oc_strtolower($data['filter_code'])) . "'";
+			$implode[] = "`code` = '" . $this->db->escape((string)$data['filter_code']) . "'";
 		}
 
 		if (!empty($data['filter_date_from'])) {
@@ -183,24 +167,11 @@ class Marketing extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete Marketing Reports
-	 *
-	 * @param int $marketing_id
-	 *
-	 * @return void
-	 */
-	public function deleteReports(int $marketing_id): void {
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "marketing_report` WHERE `marketing_id` = '" . (int)$marketing_id . "'");
-	}
-
-	/**
-	 * Get Reports
-	 *
 	 * @param int $marketing_id
 	 * @param int $start
 	 * @param int $limit
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getReports(int $marketing_id, int $start = 0, int $limit = 10): array {
 		if ($start < 0) {
@@ -217,8 +188,6 @@ class Marketing extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Reports
-	 *
 	 * @param int $marketing_id
 	 *
 	 * @return int

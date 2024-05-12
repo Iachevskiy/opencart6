@@ -7,14 +7,12 @@ namespace Opencart\Admin\Model\Sale;
  */
 class Order extends \Opencart\System\Engine\Model {
 	/**
-	 * Get Order
-	 *
 	 * @param int $order_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getOrder(int $order_id): array {
-		$order_query = $this->db->query("SELECT *, (SELECT `os`.`name` FROM `" . DB_PREFIX . "order_status` `os` WHERE `os`.`order_status_id` = `o`.`order_status_id` AND `os`.`language_id` = '" . (int)$this->config->get('config_language_id') . "') AS `order_status` FROM `" . DB_PREFIX . "order` `o` WHERE `o`.`order_id` = '" . (int)$order_id . "'");
+		$order_query = $this->db->query("SELECT *, (SELECT `os`.`name` FROM `" . DB_PREFIX . "order_status` os WHERE `os`.`order_status_id` = `o`.`order_status_id` AND `os`.`language_id` = '" . (int)$this->config->get('config_language_id') . "') AS `order_status` FROM `" . DB_PREFIX . "order` `o` WHERE `o`.`order_id` = '" . (int)$order_id . "'");
 
 		if ($order_query->num_rows) {
 			$country_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "country` WHERE `country_id` = '" . (int)$order_query->row['payment_country_id'] . "'");
@@ -157,64 +155,61 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Orders
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getOrders(array $data = []): array {
-		$sql = "SELECT `o`.`order_id`, CONCAT(`o`.`firstname`, ' ', `o`.`lastname`) AS customer, (SELECT `os`.`name` FROM `" . DB_PREFIX . "order_status` `os` WHERE `os`.`order_status_id` = `o`.`order_status_id` AND `os`.`language_id` = '" . (int)$this->config->get('config_language_id') . "') AS order_status, `o`.`store_name`, `o`.`custom_field`, `o`.`payment_method`, `o`.`payment_custom_field`, `o`.`shipping_method`, `o`.`shipping_custom_field`, `o`.`total`, `o`.`currency_code`, `o`.`currency_value`, `o`.`date_added`, `o`.`date_modified` FROM `" . DB_PREFIX . "order` `o`";
+		$sql = "SELECT o.`order_id`, CONCAT(o.`firstname`, ' ', o.`lastname`) AS customer, (SELECT os.`name` FROM `" . DB_PREFIX . "order_status` os WHERE os.`order_status_id` = o.`order_status_id` AND os.`language_id` = '" . (int)$this->config->get('config_language_id') . "') AS order_status, o.`store_name`, o.`shipping_method`, o.`total`, o.`currency_code`, o.`currency_value`, o.`date_added`, o.`date_modified` FROM `" . DB_PREFIX . "order` o";
 
 		if (!empty($data['filter_order_status'])) {
 			$implode = [];
 
 			$order_statuses = explode(',', $data['filter_order_status']);
-			$order_statuses = array_filter($order_statuses);
 
 			foreach ($order_statuses as $order_status_id) {
-				$implode[] = "`o`.`order_status_id` = '" . (int)$order_status_id . "'";
+				$implode[] = "o.`order_status_id` = '" . (int)$order_status_id . "'";
 			}
 
 			if ($implode) {
 				$sql .= " WHERE (" . implode(" OR ", $implode) . ")";
 			}
 		} elseif (isset($data['filter_order_status_id']) && $data['filter_order_status_id'] !== '') {
-			$sql .= " WHERE `o`.`order_status_id` = '" . (int)$data['filter_order_status_id'] . "'";
+			$sql .= " WHERE o.`order_status_id` = '" . (int)$data['filter_order_status_id'] . "'";
 		} else {
-			$sql .= " WHERE `o`.`order_status_id` > '0'";
+			$sql .= " WHERE o.`order_status_id` > '0'";
 		}
 
 		if (!empty($data['filter_order_id'])) {
-			$sql .= " AND `o`.`order_id` = '" . (int)$data['filter_order_id'] . "'";
+			$sql .= " AND o.`order_id` = '" . (int)$data['filter_order_id'] . "'";
 		}
 
 		if (isset($data['filter_store_id']) && $data['filter_store_id'] !== '') {
-			$sql .= " AND `o`.`store_id` = '" . (int)$data['filter_store_id'] . "'";
+			$sql .= " AND o.`store_id` = '" . (int)$data['filter_store_id'] . "'";
 		}
 
 		if (!empty($data['filter_customer_id'])) {
-			$sql .= " AND `o`.`customer_id` = '" . (int)$data['filter_customer_id'] . "'";
+			$sql .= " AND o.`customer_id` = '" . (int)$data['filter_customer_id'] . "'";
 		}
 
 		if (!empty($data['filter_customer'])) {
-			$sql .= " AND LCASE(CONCAT(`o`.`firstname`, ' ', `o`.`lastname`)) LIKE '" . $this->db->escape('%' . oc_strtolower($data['filter_customer']) . '%') . "'";
+			$sql .= " AND CONCAT(o.`firstname`, ' ', o.`lastname`) LIKE '" . $this->db->escape('%' . (string)$data['filter_customer'] . '%') . "'";
 		}
 
 		if (!empty($data['filter_email'])) {
-			$sql .= " AND LCASE(`o`.`email`) LIKE '" . $this->db->escape('%' . (string)$data['filter_email'] . '%') . "'";
+			$sql .= " AND o.`email` LIKE '" . $this->db->escape('%' . (string)$data['filter_email'] . '%') . "'";
 		}
 
 		if (!empty($data['filter_date_from'])) {
-			$sql .= " AND DATE(`o`.`date_added`) >= DATE('" . $this->db->escape((string)$data['filter_date_from']) . "')";
+			$sql .= " AND DATE(o.`date_added`) >= DATE('" . $this->db->escape((string)$data['filter_date_from']) . "')";
 		}
 
 		if (!empty($data['filter_date_to'])) {
-			$sql .= " AND DATE(`o`.`date_added`) <= DATE('" . $this->db->escape((string)$data['filter_date_to']) . "')";
+			$sql .= " AND DATE(o.`date_added`) <= DATE('" . $this->db->escape((string)$data['filter_date_to']) . "')";
 		}
 
 		if (!empty($data['filter_total'])) {
-			$sql .= " AND `o`.`total` = '" . (float)$data['filter_total'] . "'";
+			$sql .= " AND o.`total` = '" . (float)$data['filter_total'] . "'";
 		}
 
 		$sort_data = [
@@ -230,7 +225,7 @@ class Order extends \Opencart\System\Engine\Model {
 		if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
 			$sql .= " ORDER BY " . $data['sort'];
 		} else {
-			$sql .= " ORDER BY `o`.`order_id`";
+			$sql .= " ORDER BY o.`order_id`";
 		}
 
 		if (isset($data['order']) && ($data['order'] == 'DESC')) {
@@ -251,29 +246,15 @@ class Order extends \Opencart\System\Engine\Model {
 			$sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
 		}
 
-		$order_data = [];
-
 		$query = $this->db->query($sql);
 
-		foreach ($query->rows as $key => $result) {
-			$order_data[$key] = $result;
-
-			$order_data[$key]['custom_field'] = json_decode($result['custom_field'], true);
-			$order_data[$key]['payment_custom_field'] = json_decode($result['payment_custom_field'], true);
-			$order_data[$key]['payment_method'] = json_decode($result['payment_method'], true);
-			$order_data[$key]['shipping_custom_field'] = json_decode($result['shipping_custom_field'], true);
-			$order_data[$key]['shipping_method'] = json_decode($result['shipping_method'], true);
-		}
-
-		return $order_data;
+		return $query->rows;
 	}
 
 	/**
-	 * Get Orders By Subscription ID
-	 *
 	 * @param int $subscription_id
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getOrdersBySubscriptionId(int $subscription_id): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "order` WHERE `subscription_id` = '" . (int)$subscription_id . "'");
@@ -282,8 +263,6 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Orders By Subscription ID
-	 *
 	 * @param int $subscription_id
 	 *
 	 * @return int
@@ -295,11 +274,9 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Products
-	 *
 	 * @param int $order_id
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getProducts(int $order_id): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "order_product` WHERE `order_id` = '" . (int)$order_id . "' ORDER BY order_product_id ASC");
@@ -308,25 +285,41 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Products By Product ID
-	 *
 	 * @param int $product_id
 	 *
 	 * @return int
 	 */
 	public function getTotalProductsByProductId(int $product_id): int {
-		$query = $this->db->query("SELECT SUM(`op`.`quantity`) AS `total` FROM `" . DB_PREFIX . "order_product` `op` LEFT JOIN `" . DB_PREFIX . "order` `o` ON (`op`.`order_id` = `o`.`order_id`) WHERE `op`.`product_id` = '" . (int)$product_id . "' AND `order_status_id` > '0'");
+		$sql = "SELECT SUM(op.quantity) AS `total` FROM `" . DB_PREFIX . "order_product` `op` LEFT JOIN `" . DB_PREFIX . "order` `o` ON (`op`.`order_id` = `o`.`order_id`) WHERE `op`.`product_id` = '" . (int)$product_id . "'";
+
+		if (!empty($data['filter_order_status'])) {
+			$implode = [];
+
+			$order_statuses = explode(',', $data['filter_order_status']);
+
+			foreach ($order_statuses as $order_status_id) {
+				$implode[] = "`order_status_id` = '" . (int)$order_status_id . "'";
+			}
+
+			if ($implode) {
+				$sql .= " AND (" . implode(" OR ", $implode) . ")";
+			}
+		} elseif (isset($data['filter_order_status_id']) && $data['filter_order_status_id'] !== '') {
+			$sql .= " AND `order_status_id` = '" . (int)$data['filter_order_status_id'] . "'";
+		} else {
+			$sql .= " AND `order_status_id` > '0'";
+		}
+
+		$query = $this->db->query($sql);
 
 		return (int)$query->row['total'];
 	}
 
 	/**
-	 * Get Options
-	 *
 	 * @param int $order_id
 	 * @param int $order_product_id
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getOptions(int $order_id, int $order_product_id): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "order_option` WHERE `order_id` = '" . (int)$order_id . "' AND `order_product_id` = '" . (int)$order_product_id . "'");
@@ -335,12 +328,10 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Subscription
-	 *
 	 * @param int $order_id
 	 * @param int $order_product_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getSubscription(int $order_id, int $order_product_id): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "order_subscription` WHERE `order_id` = '" . (int)$order_id . "' AND `order_product_id` = '" . (int)$order_product_id . "'");
@@ -349,11 +340,9 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Vouchers
-	 *
 	 * @param int $order_id
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getVouchers(int $order_id): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "order_voucher` WHERE `order_id` = '" . (int)$order_id . "'");
@@ -362,11 +351,9 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Voucher By Voucher ID
-	 *
 	 * @param int $voucher_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getVoucherByVoucherId(int $voucher_id): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "order_voucher` WHERE `voucher_id` = '" . (int)$voucher_id . "'");
@@ -375,11 +362,9 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Totals
-	 *
 	 * @param int $order_id
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getTotals(int $order_id): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "order_total` WHERE `order_id` = '" . (int)$order_id . "' ORDER BY `sort_order`");
@@ -388,9 +373,7 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Orders
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
@@ -401,7 +384,6 @@ class Order extends \Opencart\System\Engine\Model {
 			$implode = [];
 
 			$order_statuses = explode(',', $data['filter_order_status']);
-			$order_statuses = array_filter($order_statuses);
 
 			foreach ($order_statuses as $order_status_id) {
 				$implode[] = "`order_status_id` = '" . (int)$order_status_id . "'";
@@ -429,11 +411,11 @@ class Order extends \Opencart\System\Engine\Model {
 		}
 
 		if (!empty($data['filter_customer'])) {
-			$sql .= " AND LCASE(CONCAT(`firstname`, ' ', `lastname`)) LIKE '" . $this->db->escape('%' . oc_strtolower($data['filter_customer']) . '%') . "'";
+			$sql .= " AND CONCAT(`firstname`, ' ', `lastname`) LIKE '" . $this->db->escape('%' . (string)$data['filter_customer'] . '%') . "'";
 		}
 
 		if (!empty($data['filter_email'])) {
-			$sql .= " AND LCASE(`email`) LIKE '" . $this->db->escape('%' . oc_strtolower($data['filter_email']) . '%') . "'";
+			$sql .= " AND `email` LIKE '" . $this->db->escape('%' . (string)$data['filter_email'] . '%') . "'";
 		}
 
 		if (!empty($data['filter_date_from'])) {
@@ -454,8 +436,6 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Orders By Store ID
-	 *
 	 * @param int $store_id
 	 *
 	 * @return int
@@ -467,8 +447,6 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Orders By Order Status ID
-	 *
 	 * @param int $order_status_id
 	 *
 	 * @return int
@@ -480,14 +458,12 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Orders By Processing Status
-	 *
 	 * @return int
 	 */
 	public function getTotalOrdersByProcessingStatus(): int {
 		$implode = [];
 
-		$order_statuses = (array)$this->config->get('config_processing_status');
+		$order_statuses = $this->config->get('config_processing_status');
 
 		foreach ($order_statuses as $order_status_id) {
 			$implode[] = "`order_status_id` = '" . (int)$order_status_id . "'";
@@ -503,14 +479,12 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Orders By Complete Status
-	 *
 	 * @return int
 	 */
 	public function getTotalOrdersByCompleteStatus(): int {
 		$implode = [];
 
-		$order_statuses = (array)$this->config->get('config_complete_status');
+		$order_statuses = $this->config->get('config_complete_status');
 
 		foreach ($order_statuses as $order_status_id) {
 			$implode[] = "`order_status_id` = '" . (int)$order_status_id . "'";
@@ -526,8 +500,6 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Orders By Language ID
-	 *
 	 * @param int $language_id
 	 *
 	 * @return int
@@ -539,8 +511,6 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Orders By Currency ID
-	 *
 	 * @param int $currency_id
 	 *
 	 * @return int
@@ -552,9 +522,7 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Sales
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return float
 	 */
@@ -565,7 +533,6 @@ class Order extends \Opencart\System\Engine\Model {
 			$implode = [];
 
 			$order_statuses = explode(',', $data['filter_order_status']);
-			$order_statuses = array_filter($order_statuses);
 
 			foreach ($order_statuses as $order_status_id) {
 				$implode[] = "`order_status_id` = '" . (int)$order_status_id . "'";
@@ -593,11 +560,11 @@ class Order extends \Opencart\System\Engine\Model {
 		}
 
 		if (!empty($data['filter_customer'])) {
-			$sql .= " AND LCASE(CONCAT(`firstname`, ' ', `lastname`)) LIKE '" . $this->db->escape('%' . oc_strtolower($data['filter_customer']) . '%') . "'";
+			$sql .= " AND CONCAT(`firstname`, ' ', `lastname`) LIKE '" . $this->db->escape('%' . (string)$data['filter_customer'] . '%') . "'";
 		}
 
 		if (!empty($data['filter_email'])) {
-			$sql .= " AND LCASE(`email`) LIKE '" . $this->db->escape('%' . oc_strtolower($data['filter_email']) . '%') . "'";
+			$sql .= " AND `email` LIKE '" . $this->db->escape('%' . (string)$data['filter_email'] . '%') . "'";
 		}
 
 		if (!empty($data['filter_date_added'])) {
@@ -618,8 +585,6 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Create Invoice No
-	 *
 	 * @param int $order_id
 	 *
 	 * @return string
@@ -628,7 +593,7 @@ class Order extends \Opencart\System\Engine\Model {
 		$order_info = $this->getOrder($order_id);
 
 		if ($order_info && !$order_info['invoice_no']) {
-			$query = $this->db->query("SELECT MAX(`invoice_no`) AS `invoice_no` FROM `" . DB_PREFIX . "order` WHERE `invoice_prefix` = '" . $this->db->escape($order_info['invoice_prefix']) . "'");
+			$query = $this->db->query("SELECT MAX(`invoice_no`) AS invoice_no FROM `" . DB_PREFIX . "order` WHERE `invoice_prefix` = '" . $this->db->escape($order_info['invoice_prefix']) . "'");
 
 			if ($query->row['invoice_no']) {
 				$invoice_no = $query->row['invoice_no'] + 1;
@@ -645,26 +610,22 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Reward Total
-	 *
 	 * @param int $order_id
 	 *
 	 * @return int
 	 */
 	public function getRewardTotal(int $order_id): int {
-		$query = $this->db->query("SELECT SUM(`reward`) AS `total` FROM `" . DB_PREFIX . "order_product` WHERE `order_id` = '" . (int)$order_id . "'");
+		$query = $this->db->query("SELECT SUM(reward) AS `total` FROM `" . DB_PREFIX . "order_product` WHERE `order_id` = '" . (int)$order_id . "'");
 
 		return (int)$query->row['total'];
 	}
 
 	/**
-	 * Get Histories
-	 *
 	 * @param int $order_id
 	 * @param int $start
 	 * @param int $limit
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getHistories(int $order_id, int $start = 0, int $limit = 10): array {
 		if ($start < 0) {
@@ -675,14 +636,12 @@ class Order extends \Opencart\System\Engine\Model {
 			$limit = 10;
 		}
 
-		$query = $this->db->query("SELECT `oh`.`date_added`, `os`.`name` AS `status`, `oh`.`comment`, `oh`.`notify` FROM `" . DB_PREFIX . "order_history` `oh` LEFT JOIN `" . DB_PREFIX . "order_status` `os` ON `oh`.`order_status_id` = `os`.`order_status_id` WHERE `oh`.`order_id` = '" . (int)$order_id . "' AND `os`.`language_id` = '" . (int)$this->config->get('config_language_id') . "' ORDER BY `oh`.`date_added` DESC LIMIT " . (int)$start . "," . (int)$limit);
+		$query = $this->db->query("SELECT oh.`date_added`, os.`name` AS `status`, oh.`comment`, oh.`notify` FROM `" . DB_PREFIX . "order_history` oh LEFT JOIN `" . DB_PREFIX . "order_status` os ON oh.`order_status_id` = os.`order_status_id` WHERE oh.`order_id` = '" . (int)$order_id . "' AND os.`language_id` = '" . (int)$this->config->get('config_language_id') . "' ORDER BY oh.`date_added` DESC LIMIT " . (int)$start . "," . (int)$limit);
 
 		return $query->rows;
 	}
 
 	/**
-	 * Get Total Histories
-	 *
 	 * @param int $order_id
 	 *
 	 * @return int
@@ -694,8 +653,6 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Histories By Order Status ID
-	 *
 	 * @param int $order_status_id
 	 *
 	 * @return int
@@ -707,30 +664,26 @@ class Order extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Emails By Products Ordered
+	 * @param array $products
+	 * @param int   $start
+	 * @param int   $end
 	 *
-	 * @param array<int> $products
-	 * @param int        $start
-	 * @param int        $end
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getEmailsByProductsOrdered(array $products, int $start, int $end): array {
 		$implode = [];
 
 		foreach ($products as $product_id) {
-			$implode[] = "`op`.`product_id` = '" . (int)$product_id . "'";
+			$implode[] = "op.`product_id` = '" . (int)$product_id . "'";
 		}
 
-		$query = $this->db->query("SELECT DISTINCT `o`.`email` FROM `" . DB_PREFIX . "order` `o` LEFT JOIN `" . DB_PREFIX . "order_product` `op` ON (`o`.`order_id` = `op`.`order_id`) WHERE (" . implode(" OR ", $implode) . ") AND `o`.`order_status_id` <> '0' LIMIT " . (int)$start . "," . (int)$end);
+		$query = $this->db->query("SELECT DISTINCT o.`email` FROM `" . DB_PREFIX . "order` o LEFT JOIN `" . DB_PREFIX . "order_product` op ON (o.`order_id` = op.`order_id`) WHERE (" . implode(" OR ", $implode) . ") AND o.`order_status_id` <> '0' LIMIT " . (int)$start . "," . (int)$end);
 
 		return $query->rows;
 	}
 
 	/**
-	 * Get Total Emails By Products Ordered
-	 *
-	 * @param array<int> $products
+	 * @param array $products
 	 *
 	 * @return int
 	 */
@@ -738,10 +691,10 @@ class Order extends \Opencart\System\Engine\Model {
 		$implode = [];
 
 		foreach ($products as $product_id) {
-			$implode[] = "`op`.`product_id` = '" . (int)$product_id . "'";
+			$implode[] = "op.`product_id` = '" . (int)$product_id . "'";
 		}
 
-		$query = $this->db->query("SELECT COUNT(DISTINCT `o`.`email`) AS `total` FROM `" . DB_PREFIX . "order` `o` LEFT JOIN `" . DB_PREFIX . "order_product` `op` ON (`o`.`order_id` = `op`.`order_id`) WHERE (" . implode(" OR ", $implode) . ") AND `o`.`order_status_id` <> '0'");
+		$query = $this->db->query("SELECT COUNT(DISTINCT o.`email`) AS `total` FROM `" . DB_PREFIX . "order` o LEFT JOIN `" . DB_PREFIX . "order_product` op ON (o.`order_id` = op.`order_id`) WHERE (" . implode(" OR ", $implode) . ") AND o.`order_status_id` <> '0'");
 
 		return (int)$query->row['total'];
 	}

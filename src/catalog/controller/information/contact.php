@@ -30,10 +30,10 @@ class Contact extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('tool/image');
 
-		if ($this->config->get('config_image') && is_file(DIR_IMAGE . html_entity_decode($this->config->get('config_image'), ENT_QUOTES, 'UTF-8'))) {
-			$data['image'] = $this->model_tool_image->resize($this->config->get('config_image'), $this->config->get('config_image_location_width'), $this->config->get('config_image_location_height'));
+		if ($this->config->get('config_image')) {
+			$data['image'] = $this->model_tool_image->resize(html_entity_decode($this->config->get('config_image'), ENT_QUOTES, 'UTF-8'), $this->config->get('config_image_location_width'), $this->config->get('config_image_location_height'));
 		} else {
-			$data['image'] = '';
+			$data['image'] = false;
 		}
 
 		$data['store'] = $this->config->get('config_name');
@@ -52,8 +52,8 @@ class Contact extends \Opencart\System\Engine\Controller {
 			$location_info = $this->model_localisation_location->getLocation((int)$location_id);
 
 			if ($location_info) {
-				if ($location_info['image'] && is_file(DIR_IMAGE . html_entity_decode($location_info['image'], ENT_QUOTES, 'UTF-8'))) {
-					$image = $this->model_tool_image->resize($location_info['image'], $this->config->get('config_image_location_width'), $this->config->get('config_image_location_height'));
+				if (is_file(DIR_IMAGE . html_entity_decode($location_info['image'], ENT_QUOTES, 'UTF-8'))) {
+					$image = $this->model_tool_image->resize(html_entity_decode($location_info['image'], ENT_QUOTES, 'UTF-8'), $this->config->get('config_image_location_width'), $this->config->get('config_image_location_height'));
 				} else {
 					$image = '';
 				}
@@ -96,11 +96,8 @@ class Contact extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Send
-	 *
-	 * @throws \Exception
-	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	public function send(): void {
 		$this->load->language('information/contact');
@@ -119,15 +116,15 @@ class Contact extends \Opencart\System\Engine\Controller {
 			}
 		}
 
-		if (!oc_validate_length($this->request->post['name'], 3, 32)) {
+		if ((oc_strlen($this->request->post['name']) < 3) || (oc_strlen($this->request->post['name']) > 32)) {
 			$json['error']['name'] = $this->language->get('error_name');
 		}
 
-		if (!oc_validate_email($this->request->post['email'])) {
+		if (!filter_var($this->request->post['email'], FILTER_VALIDATE_EMAIL)) {
 			$json['error']['email'] = $this->language->get('error_email');
 		}
 
-		if (!oc_validate_length($this->request->post['enquiry'], 10, 3000)) {
+		if ((oc_strlen($this->request->post['enquiry']) < 10) || (oc_strlen($this->request->post['enquiry']) > 3000)) {
 			$json['error']['enquiry'] = $this->language->get('error_enquiry');
 		}
 
@@ -174,8 +171,6 @@ class Contact extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Success
-	 *
 	 * @return void
 	 */
 	public function success(): void {

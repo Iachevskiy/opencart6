@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Extension\Opencart\Dashboard;
  */
 class Customer extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -39,7 +37,7 @@ class Customer extends \Opencart\System\Engine\Controller {
 		$data['dashboard_customer_width'] = $this->config->get('dashboard_customer_width');
 
 		$data['columns'] = [];
-
+		
 		for ($i = 3; $i <= 12; $i++) {
 			$data['columns'][] = $i;
 		}
@@ -55,8 +53,6 @@ class Customer extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -81,8 +77,6 @@ class Customer extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Dashboard
-	 *
 	 * @return string
 	 */
 	public function dashboard(): string {

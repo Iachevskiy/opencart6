@@ -7,17 +7,14 @@ namespace Opencart\Admin\Controller\Mail;
  */
 class Reward extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
-	 * @param string            $route
-	 * @param array<int, mixed> $args
-	 * @param mixed             $output
-	 *
-	 * @throws \Exception
+	 * @param string $route
+	 * @param array  $args
+	 * @param mixed  $output
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
-	public function index(string $route, array $args, $output): void {
+	public function index(string $route, array $args, mixed $output): void {
 		if (isset($args[0])) {
 			$customer_id = (int)$args[0];
 		} else {

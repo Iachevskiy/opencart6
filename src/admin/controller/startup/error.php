@@ -7,28 +7,24 @@ namespace Opencart\Admin\Controller\Startup;
  */
 class Error extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
-		$this->registry->set('log', new \Opencart\System\Library\Log($this->config->get('config_error_filename') ?: $this->config->get('error_filename')));
+		$this->registry->set('log', new \Opencart\System\Library\Log($this->config->get('config_error_filename') ? $this->config->get('config_error_filename') : $this->config->get('error_filename')));
 
 		set_error_handler([$this, 'error']);
 		set_exception_handler([$this, 'exception']);
 	}
 
 	/**
-	 * Error
-	 *
-	 * @param int    $code
+	 * @param string $code
 	 * @param string $message
 	 * @param string $file
-	 * @param int    $line
+	 * @param string $line
 	 *
 	 * @return bool
 	 */
-	public function error(int $code, string $message, string $file, int $line): bool {
+	public function error(string $code, string $message, string $file, string $line): bool {
 		switch ($code) {
 			case E_NOTICE:
 			case E_USER_NOTICE:
@@ -66,8 +62,6 @@ class Error extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Exception
-	 *
 	 * @param \Throwable $e
 	 *
 	 * @return void

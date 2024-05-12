@@ -7,10 +7,8 @@ namespace Opencart\Admin\Model\Setting;
  */
 class Module extends \Opencart\System\Engine\Model {
 	/**
-	 * Add Module
-	 *
-	 * @param string               $code
-	 * @param array<string, mixed> $data
+	 * @param string $code
+	 * @param array  $data
 	 *
 	 * @return int
 	 */
@@ -23,10 +21,8 @@ class Module extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Edit Module
-	 *
-	 * @param int                  $module_id
-	 * @param array<string, mixed> $data
+	 * @param int   $module_id
+	 * @param array $data
 	 *
 	 * @return void
 	 */
@@ -35,8 +31,6 @@ class Module extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete Module
-	 *
 	 * @param int $module_id
 	 *
 	 * @return void
@@ -46,26 +40,9 @@ class Module extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete Modules By Code
-	 *
-	 * @param string $code
-	 *
-	 * @return void
-	 */
-	public function deleteModulesByCode(string $code): void {
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "module` WHERE `code` = '" . $this->db->escape($code) . "'");
-
-		$this->load->model('design/layout');
-
-		$this->model_design_layout->deleteModulesByCode($code);
-	}
-
-	/**
-	 * Get Module
-	 *
 	 * @param int $module_id
 	 *
-	 * @return array<mixed>
+	 * @return array
 	 */
 	public function getModule(int $module_id): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "module` WHERE `module_id` = '" . (int)$module_id . "'");
@@ -78,9 +55,7 @@ class Module extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Modules
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getModules(): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "module` ORDER BY `code`");
@@ -89,15 +64,23 @@ class Module extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Modules By Code
-	 *
 	 * @param string $code
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getModulesByCode(string $code): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "module` WHERE `code` = '" . $this->db->escape($code) . "' ORDER BY `name`");
 
 		return $query->rows;
+	}
+
+	/**
+	 * @param string $code
+	 *
+	 * @return void
+	 */
+	public function deleteModulesByCode(string $code): void {
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "module` WHERE `code` = '" . $this->db->escape($code) . "'");
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "layout_module` WHERE `code` = '" . $this->db->escape($code) . "' OR `code` LIKE '" . $this->db->escape($code . '.%') . "'");
 	}
 }

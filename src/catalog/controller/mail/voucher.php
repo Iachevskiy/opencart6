@@ -7,17 +7,14 @@ namespace Opencart\Catalog\Controller\Mail;
  */
 class Voucher extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
-	 * @param string            $route
-	 * @param array<int, mixed> $args
-	 * @param mixed             $output
-	 *
-	 * @throws \Exception
+	 * @param string $route
+	 * @param array  $args
+	 * @param mixed  $output
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
-	public function index(string &$route, array &$args, &$output): void {
+	public function index(string &$route, array &$args, mixed &$output): void {
 		$this->load->model('checkout/order');
 
 		$order_info = $this->model_checkout_order->getOrder($args[0]);

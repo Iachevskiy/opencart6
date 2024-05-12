@@ -7,11 +7,9 @@ namespace Opencart\Catalog\Model\Checkout;
  */
 class ShippingMethod extends \Opencart\System\Engine\Controller {
 	/**
-	 * Get Methods
+	 * @param array $shipping_address
 	 *
-	 * @param array<string, mixed> $shipping_address
-	 *
-	 * @return array<string, array<string, mixed>>
+	 * @return array
 	 */
 	public function getMethods(array $shipping_address): array {
 		$method_data = [];
@@ -24,14 +22,10 @@ class ShippingMethod extends \Opencart\System\Engine\Controller {
 			if ($this->config->get('shipping_' . $result['code'] . '_status')) {
 				$this->load->model('extension/' . $result['extension'] . '/shipping/' . $result['code']);
 
-				$key = 'model_extension_' . $result['extension'] . '_shipping_' . $result['code'];
+				$quote = $this->{'model_extension_' . $result['extension'] . '_shipping_' . $result['code']}->getQuote($shipping_address);
 
-				if (isset($this->{$key}->getQuote)) {
-					$quote = $this->{$key}->getQuote($shipping_address);
-
-					if ($quote) {
-						$method_data[$result['code']] = $quote;
-					}
+				if ($quote) {
+					$method_data[$result['code']] = $quote;
 				}
 			}
 		}

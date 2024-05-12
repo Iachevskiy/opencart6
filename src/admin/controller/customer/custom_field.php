@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Customer;
  */
 class CustomField extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -57,8 +55,6 @@ class CustomField extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -68,8 +64,6 @@ class CustomField extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -117,6 +111,8 @@ class CustomField extends \Opencart\System\Engine\Controller {
 		];
 
 		$this->load->model('customer/custom_field');
+
+		$custom_field_total = $this->model_customer_custom_field->getTotalCustomFields();
 
 		$results = $this->model_customer_custom_field->getCustomFields($filter_data);
 
@@ -191,8 +187,6 @@ class CustomField extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$custom_field_total = $this->model_customer_custom_field->getTotalCustomFields();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $custom_field_total,
 			'page'  => $page,
@@ -209,8 +203,6 @@ class CustomField extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -359,8 +351,6 @@ class CustomField extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -373,7 +363,7 @@ class CustomField extends \Opencart\System\Engine\Controller {
 		}
 
 		foreach ($this->request->post['custom_field_description'] as $language_id => $value) {
-			if (!oc_validate_length($value['name'], 1, 128)) {
+			if ((oc_strlen($value['name']) < 1) || (oc_strlen($value['name']) > 128)) {
 				$json['error']['name_' . $language_id] = $this->language->get('error_name');
 			}
 		}
@@ -386,7 +376,7 @@ class CustomField extends \Opencart\System\Engine\Controller {
 			if (isset($this->request->post['custom_field_value'])) {
 				foreach ($this->request->post['custom_field_value'] as $custom_field_value_id => $custom_field_value) {
 					foreach ($custom_field_value['custom_field_value_description'] as $language_id => $custom_field_value_description) {
-						if (!oc_validate_length($custom_field_value_description['name'], 1, 128)) {
+						if ((oc_strlen($custom_field_value_description['name']) < 1) || (oc_strlen($custom_field_value_description['name']) > 128)) {
 							$json['error']['custom_field_value_' . $custom_field_value_id . '_' . $language_id] = $this->language->get('error_custom_value');
 						}
 					}
@@ -394,7 +384,7 @@ class CustomField extends \Opencart\System\Engine\Controller {
 			}
 		}
 
-		if ($this->request->post['type'] == 'text' && $this->request->post['validation'] && @preg_match(html_entity_decode($this->request->post['validation'], ENT_QUOTES, 'UTF-8'), '') === false) {
+		if ($this->request->post['type'] == 'text' && $this->request->post['validation'] && @preg_match(html_entity_decode($this->request->post['validation'], ENT_QUOTES, 'UTF-8'), null) === false) {
 			$json['error']['validation'] = $this->language->get('error_validation');
 		}
 
@@ -415,8 +405,6 @@ class CustomField extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

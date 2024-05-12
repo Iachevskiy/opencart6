@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Customer;
  */
 class CustomerApproval extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -43,12 +41,10 @@ class CustomerApproval extends \Opencart\System\Engine\Controller {
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
 
-		$this->response->setOutput($this->load->view('customer/customer_approval', $data));
+		$this->response->setOutput($this->load->view('customer/customer_approval', $data));	
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -58,8 +54,6 @@ class CustomerApproval extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	public function getList(): string {
@@ -74,7 +68,7 @@ class CustomerApproval extends \Opencart\System\Engine\Controller {
 		} else {
 			$filter_email = '';
 		}
-
+		
 		if (isset($this->request->get['filter_customer_group_id'])) {
 			$filter_customer_group_id = (int)$this->request->get['filter_customer_group_id'];
 		} else {
@@ -98,7 +92,7 @@ class CustomerApproval extends \Opencart\System\Engine\Controller {
 		} else {
 			$filter_date_to = '';
 		}
-
+						
 		if (isset($this->request->get['page'])) {
 			$page = (int)$this->request->get['page'];
 		} else {
@@ -150,7 +144,9 @@ class CustomerApproval extends \Opencart\System\Engine\Controller {
 			'limit'                    => $this->config->get('config_pagination_admin')
 		];
 
-		$this->load->model('customer/customer_approval');
+		$this->load->model('customer/customer_approval');	
+
+		$customer_approval_total = $this->model_customer_customer_approval->getTotalCustomerApprovals($filter_data);
 
 		$results = $this->model_customer_customer_approval->getCustomerApprovals($filter_data);
 
@@ -178,11 +174,11 @@ class CustomerApproval extends \Opencart\System\Engine\Controller {
 		if (isset($this->request->get['filter_email'])) {
 			$url .= '&filter_email=' . urlencode(html_entity_decode($this->request->get['filter_email'], ENT_QUOTES, 'UTF-8'));
 		}
-
+			
 		if (isset($this->request->get['filter_customer_group_id'])) {
 			$url .= '&filter_customer_group_id=' . $this->request->get['filter_customer_group_id'];
 		}
-
+		
 		if (isset($this->request->get['filter_type'])) {
 			$url .= '&filter_type=' . $this->request->get['filter_type'];
 		}
@@ -194,8 +190,6 @@ class CustomerApproval extends \Opencart\System\Engine\Controller {
 		if (isset($this->request->get['filter_date_to'])) {
 			$url .= '&filter_date_to=' . $this->request->get['filter_date_to'];
 		}
-
-		$customer_approval_total = $this->model_customer_customer_approval->getTotalCustomerApprovals($filter_data);
 
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $customer_approval_total,
@@ -210,8 +204,6 @@ class CustomerApproval extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Approve
-	 *
 	 * @return void
 	 */
 	public function approve(): void {
@@ -258,15 +250,13 @@ class CustomerApproval extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Deny
-	 *
 	 * @return void
 	 */
 	public function deny(): void {
 		$this->load->language('customer/customer_approval');
 
 		$json = [];
-
+				
 		if (!$this->user->hasPermission('modify', 'customer/customer_approval')) {
 			$json['error'] = $this->language->get('error_permission');
 		}
@@ -300,7 +290,7 @@ class CustomerApproval extends \Opencart\System\Engine\Controller {
 
 			$json['success'] = $this->language->get('text_success');
 		}
-
+		
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
 	}

@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Design;
  */
 class Banner extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -57,8 +55,6 @@ class Banner extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -68,8 +64,6 @@ class Banner extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -118,6 +112,8 @@ class Banner extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('design/banner');
 
+		$banner_total = $this->model_design_banner->getTotalBanners();
+
 		$results = $this->model_design_banner->getBanners($filter_data);
 
 		foreach ($results as $result) {
@@ -149,8 +145,6 @@ class Banner extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$banner_total = $this->model_design_banner->getTotalBanners();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $banner_total,
 			'page'  => $page,
@@ -167,8 +161,6 @@ class Banner extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -247,25 +239,25 @@ class Banner extends \Opencart\System\Engine\Controller {
 
 		foreach ($banner_images as $language_id => $banner_image) {
 			foreach ($banner_image as $value) {
-				if ($value['image'] && is_file(DIR_IMAGE . html_entity_decode($value['image'], ENT_QUOTES, 'UTF-8'))) {
+				if (is_file(DIR_IMAGE . html_entity_decode($value['image'], ENT_QUOTES, 'UTF-8'))) {
 					$image = $value['image'];
 					$thumb = $value['image'];
 				} else {
 					$image = '';
 					$thumb = 'no_image.png';
 				}
-
+				
 				$data['banner_images'][$language_id][] = [
 					'title'      => $value['title'],
 					'link'       => $value['link'],
 					'image'      => $image,
-					'thumb'      => $this->model_tool_image->resize($thumb, $this->config->get('config_image_default_width'), $this->config->get('config_image_default_height')),
+					'thumb'      => $this->model_tool_image->resize(html_entity_decode($thumb, ENT_QUOTES, 'UTF-8'), 100, 100),
 					'sort_order' => $value['sort_order']
 				];
 			}
 		}
 
-		$data['placeholder'] = $this->model_tool_image->resize('no_image.png', $this->config->get('config_image_default_width'), $this->config->get('config_image_default_height'));
+		$data['placeholder'] = $this->model_tool_image->resize('no_image.png', 100, 100);
 
 		$data['user_token'] = $this->session->data['user_token'];
 
@@ -277,8 +269,6 @@ class Banner extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -290,14 +280,14 @@ class Banner extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!oc_validate_length($this->request->post['name'], 3, 64)) {
+		if ((oc_strlen($this->request->post['name']) < 3) || (oc_strlen($this->request->post['name']) > 64)) {
 			$json['error']['name'] = $this->language->get('error_name');
 		}
 
 		if (isset($this->request->post['banner_image'])) {
 			foreach ($this->request->post['banner_image'] as $language_id => $banner_image) {
 				foreach ($banner_image as $key => $value) {
-					if (!oc_validate_length($value['title'], 2, 64)) {
+					if ((oc_strlen(trim($value['title'])) < 2) || (oc_strlen($value['title']) > 64)) {
 						$json['error']['image_' . $language_id . '_' . $key . '_title'] = $this->language->get('error_title');
 					}
 				}
@@ -321,8 +311,6 @@ class Banner extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

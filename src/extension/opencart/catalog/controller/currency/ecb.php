@@ -3,12 +3,10 @@ namespace Opencart\Catalog\Controller\Extension\Opencart\Currency;
 /**
  * Class ECB
  *
- * @package Opencart\Catalog\Controller\Extension\Opencart\Currency
+ * @package
  */
 class ECB extends \Opencart\System\Engine\Controller {
 	/**
-	 * Currency
-	 *
 	 * @param string $default
 	 *
 	 * @return void
@@ -26,11 +24,9 @@ class ECB extends \Opencart\System\Engine\Controller {
 
 			$response = curl_exec($curl);
 
-			$status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
 			curl_close($curl);
 
-			if ($status == 200) {
+			if ($response) {
 				$dom = new \DOMDocument('1.0', 'UTF-8');
 				$dom->loadXml($response);
 
@@ -46,7 +42,7 @@ class ECB extends \Opencart\System\Engine\Controller {
 					}
 				}
 
-				if (count($currencies) > 1) {
+				if ($currencies) {
 					$this->load->model('localisation/currency');
 
 					$results = $this->model_localisation_currency->getCurrencies();
@@ -62,7 +58,7 @@ class ECB extends \Opencart\System\Engine\Controller {
 					}
 				}
 
-				$this->model_localisation_currency->editValueByCode($default, 1.00000);
+				$this->model_localisation_currency->editValueByCode($default, '1.00000');
 
 				$this->cache->delete('currency');
 			}

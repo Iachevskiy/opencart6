@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Catalog;
  */
 class SubscriptionPlan extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -58,8 +56,6 @@ class SubscriptionPlan extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -69,8 +65,6 @@ class SubscriptionPlan extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -119,6 +113,8 @@ class SubscriptionPlan extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('catalog/subscription_plan');
 
+		$subscription_plan_total = $this->model_catalog_subscription_plan->getTotalSubscriptionPlans();
+
 		$results = $this->model_catalog_subscription_plan->getSubscriptionPlans($filter_data);
 
 		foreach ($results as $result) {
@@ -152,8 +148,6 @@ class SubscriptionPlan extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$subscription_plan_total = $this->model_catalog_subscription_plan->getTotalSubscriptionPlans();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $subscription_plan_total,
 			'page'  => $page,
@@ -170,8 +164,6 @@ class SubscriptionPlan extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -227,7 +219,7 @@ class SubscriptionPlan extends \Opencart\System\Engine\Controller {
 		$data['languages'] = $this->model_localisation_language->getLanguages();
 
 		if (isset($this->request->get['subscription_plan_id'])) {
-			$data['subscription_plan_description'] = $this->model_catalog_subscription_plan->getDescriptions($this->request->get['subscription_plan_id']);
+			$data['subscription_plan_description'] = $this->model_catalog_subscription_plan->getDescription($this->request->get['subscription_plan_id']);
 		} else {
 			$data['subscription_plan_description'] = [];
 		}
@@ -323,8 +315,6 @@ class SubscriptionPlan extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -337,7 +327,7 @@ class SubscriptionPlan extends \Opencart\System\Engine\Controller {
 		}
 
 		foreach ($this->request->post['subscription_plan_description'] as $language_id => $value) {
-			if (!oc_validate_length($value['name'], 3, 255)) {
+			if ((oc_strlen(trim($value['name'])) < 3) || (oc_strlen($value['name']) > 255)) {
 				$json['error']['name_' . $language_id] = $this->language->get('error_name');
 			}
 		}
@@ -367,8 +357,6 @@ class SubscriptionPlan extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Copy
-	 *
 	 * @return void
 	 */
 	public function copy(): void {
@@ -401,8 +389,6 @@ class SubscriptionPlan extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {
@@ -422,8 +408,8 @@ class SubscriptionPlan extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('catalog/product');
 
-		foreach ($selected as $subscription_plan_id) {
-			$product_total = $this->model_catalog_product->getTotalSubscriptionsBySubscriptionPlanId($subscription_plan_id);
+		foreach ($selected as $subscription_id) {
+			$product_total = $this->model_catalog_product->getTotalProductsBySubscriptionPlanId($subscription_id);
 
 			if ($product_total) {
 				$json['error'] = sprintf($this->language->get('error_product'), $product_total);

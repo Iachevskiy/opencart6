@@ -12,15 +12,15 @@ class Review extends \Opencart\System\Engine\Controller {
 	public function index(): string {
 		$this->load->language('product/review');
 
+		$data['text_login'] = sprintf($this->language->get('text_login'), $this->url->link('account/login', 'language=' . $this->config->get('config_language')), $this->url->link('account/register', 'language=' . $this->config->get('config_language')));
+
+		$data['list'] = $this->getList();
+
 		if (isset($this->request->get['product_id'])) {
 			$data['product_id'] = (int)$this->request->get['product_id'];
 		} else {
 			$data['product_id'] = 0;
 		}
-
-		$data['text_login'] = sprintf($this->language->get('text_login'), $this->url->link('account/login', 'language=' . $this->config->get('config_language')), $this->url->link('account/register', 'language=' . $this->config->get('config_language')));
-
-		$data['list'] = $this->getList();
 
 		if ($this->customer->isLogged() || $this->config->get('config_review_guest')) {
 			$data['review_guest'] = true;
@@ -29,13 +29,15 @@ class Review extends \Opencart\System\Engine\Controller {
 		}
 
 		if ($this->customer->isLogged()) {
-			$data['customer'] = $this->customer->getFirstName() . ' ' . $this->customer->getLastName();
+			$data['customer_name'] = $this->customer->getFirstName() . ' ' . $this->customer->getLastName();
 		} else {
-			$data['customer'] = '';
+			$data['customer_name'] = '';
 		}
 
 		// Create a login token to prevent brute force attacks
-		$data['review_token'] = $this->session->data['review_token'] = oc_token(32);
+		$this->session->data['review_token'] = oc_token(32);
+
+		$data['review_token'] = $this->session->data['review_token'];
 
 		// Captcha
 		$this->load->model('setting/extension');
@@ -43,7 +45,7 @@ class Review extends \Opencart\System\Engine\Controller {
 		$extension_info = $this->model_setting_extension->getExtensionByCode('captcha', $this->config->get('config_captcha'));
 
 		if ($extension_info && $this->config->get('captcha_' . $this->config->get('config_captcha') . '_status') && in_array('review', (array)$this->config->get('config_captcha_page'))) {
-			$data['captcha'] = $this->load->controller('extension/' . $extension_info['extension'] . '/captcha/' . $extension_info['code']);
+			$data['captcha'] = $this->load->controller('extension/'  . $extension_info['extension'] . '/captcha/' . $extension_info['code']);
 		} else {
 			$data['captcha'] = '';
 		}
@@ -54,8 +56,6 @@ class Review extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Write
-	 *
 	 * @return void
 	 */
 	public function write(): void {
@@ -74,7 +74,7 @@ class Review extends \Opencart\System\Engine\Controller {
 		}
 
 		$keys = [
-			'author',
+			'name',
 			'text',
 			'rating'
 		];
@@ -85,23 +85,19 @@ class Review extends \Opencart\System\Engine\Controller {
 			}
 		}
 
-		if (!$this->config->get('config_review_status')) {
-			$json['error']['warning'] = $this->language->get('error_status');
-		}
+		$this->load->model('product/product');
 
-		$this->load->model('catalog/product');
-
-		$product_info = $this->model_catalog_product->getProduct($product_id);
+		$product_info = $this->model_product_product->getProduct($product_id);
 
 		if (!$product_info) {
 			$json['error']['warning'] = $this->language->get('error_product');
 		}
 
-		if (!oc_validate_length($this->request->post['author'], 3, 25)) {
-			$json['error']['author'] = $this->language->get('error_author');
+		if ((oc_strlen($this->request->post['name']) < 3) || (oc_strlen($this->request->post['name']) > 25)) {
+			$json['error']['name'] = $this->language->get('error_name');
 		}
 
-		if (!oc_validate_length($this->request->post['text'], 25, 1000)) {
+		if ((oc_strlen($this->request->post['text']) < 25) || (oc_strlen($this->request->post['text']) > 1000)) {
 			$json['error']['text'] = $this->language->get('error_text');
 		}
 
@@ -110,7 +106,7 @@ class Review extends \Opencart\System\Engine\Controller {
 		}
 
 		if (!$this->customer->isLogged() && !$this->config->get('config_review_guest')) {
-			$json['error']['warning']  = $this->language->get('error_login');
+			$json['error']['warning']  = $this->language->get('error_guest');
 		}
 
 		if ($this->customer->isLogged() && $this->config->get('config_review_purchased')) {
@@ -127,7 +123,7 @@ class Review extends \Opencart\System\Engine\Controller {
 		$extension_info = $this->model_setting_extension->getExtensionByCode('captcha', $this->config->get('config_captcha'));
 
 		if ($extension_info && $this->config->get('captcha_' . $this->config->get('config_captcha') . '_status') && in_array('review', (array)$this->config->get('config_captcha_page'))) {
-			$captcha = $this->load->controller('extension/' . $extension_info['extension'] . '/captcha/' . $extension_info['code'] . '.validate');
+			$captcha = $this->load->controller('extension/'  . $extension_info['extension'] . '/captcha/' . $extension_info['code'] . '.validate');
 
 			if ($captcha) {
 				$json['error']['captcha'] = $captcha;
@@ -147,8 +143,6 @@ class Review extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -158,8 +152,6 @@ class Review extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	public function getList(): string {
@@ -179,6 +171,8 @@ class Review extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('catalog/review');
 
+		$review_total = $this->model_catalog_review->getTotalReviewsByProductId($product_id);
+
 		$results = $this->model_catalog_review->getReviewsByProductId($product_id, ($page - 1) * 5, 5);
 
 		foreach ($results as $result) {
@@ -189,8 +183,6 @@ class Review extends \Opencart\System\Engine\Controller {
 				'date_added' => date($this->language->get('date_format_short'), strtotime($result['date_added']))
 			];
 		}
-
-		$review_total = $this->model_catalog_review->getTotalReviewsByProductId($product_id);
 
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $review_total,

@@ -46,7 +46,7 @@ jobs:
           rsync -e \
           "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" \
           --archive --compress --delete \
-          src/ vychevs4@test-market.ru:/home/vychevs4/public_html
+          src vychevs4@test-market.ru:/home/vychevs4/public_html
 
       # Добавляем шаг для создания директории .ssh, если она еще не существует
 #      - name: Create .ssh directory

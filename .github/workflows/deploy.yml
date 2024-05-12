@@ -44,4 +44,5 @@ jobs:
           rsync -e \
           "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" \
           --archive --compress --delete \
+          --exclude 'file_to_exclude.txt' \
           ./src/ vychevs4@test-market.ru:/home/vychevs4/public_html

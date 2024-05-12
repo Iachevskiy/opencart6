@@ -46,11 +46,4 @@ jobs:
           --archive --compress --delete  \
           --exclude 'config.php' \
           --exclude 'admin/config.php' \
-          --exclude 'image/cache/' \
-          --exclude 'system/storage/backup/' \
-          --exclude 'system/storage/cache/' \
-          --exclude 'system/storage/download/' \
-          --exclude 'system/storage/logs/' \
-          --exclude 'system/storage/session/' \
-          --exclude 'system/storage/upload/' \
           ./src/ vychevs4@test-market.ru:/home/vychevs4/public_html

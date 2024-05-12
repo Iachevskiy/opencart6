@@ -36,7 +36,7 @@
 !/src/system/storage/upload/index.html
 
 # CSS Files
-/src/catalog/view/stylesheet/stylesheet.css
+#/src/catalog/view/stylesheet/stylesheet.css
 
 # IDE Project files
 /src/.idea/*

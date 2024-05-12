@@ -32,41 +32,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Setup key
+      - name: Setup ssh key
       - run: set -eu
       - run: mkdir "$HOME/.ssh"
       - run: echo "${{ secrets.SSH_PRIVATE_KEY }}" > "$HOME/.ssh/key"
       - run: chmod 600 "$HOME/.ssh/key"
-#      - run: rsync -e "ssh -p 20022 -i $HOME/.ssh/key -o StrictHostKeyChecking=no" vychevs4@test-market.ru:/
-      - run: ls
-#      - run: ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no vychevs4@test-market.ru 'ls public_html'
-#      - run: cd src && rsync -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress --delete . vychevs4@test-market.ru:/home/vychevs4/public_html
 
+      - name: Sync files
       - run: |
           rsync -e \
           "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" \
           --archive --compress --delete \
           ./src/ vychevs4@test-market.ru:/home/vychevs4/public_html
-
-      # Добавляем шаг для создания директории .ssh, если она еще не существует
-#      - name: Create .ssh directory
-#        run: mkdir -p $HOME/.ssh
-
-      # Добавляем шаг для создания файла known_hosts, если его еще нет
-#      - name: Create known_hosts file
-#        run: touch $HOME/.ssh/known_hosts
-
-      # Добавляем шаг для обновления файла known_hosts
-#      - name: Update known_hosts
-#        run: echo "$KNOWN_HOSTS_PUBLIC_KEY" >> $HOME/.ssh/known_hosts
-#        env:
-#          KNOWN_HOSTS_PUBLIC_KEY: ${{ secrets.KNOWN_HOSTS_PUBLIC_KEY }}
-
-#      - name: Deploy to cPanel
-#        # Перенаправляем вывод ошибок для команды SSH
-#        run: |
-#          ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no vychevs4@test-market.ru 'ls'
-#        env:
-#          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-
-#          ssh username@yourdomain.com 'cd /path/to/your/repository && git pull'

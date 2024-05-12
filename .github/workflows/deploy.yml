@@ -41,9 +41,9 @@ jobs:
 
 #     Sync files
       - run: |
-          rsync -e \
+          rsync -e -v \
           "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" \
-          --archive --compress --delete \
+          --archive --compress --delete  \
           --exclude '../config.php' \
           --exclude 'admin/config.php' \
           --exclude 'image/cache/' \

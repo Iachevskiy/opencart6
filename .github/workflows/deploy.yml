@@ -32,14 +32,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Setup ssh key
+#     Setup ssh key
       - run: |
          set -eu
          mkdir "$HOME/.ssh"
          echo "${{ secrets.SSH_PRIVATE_KEY }}" > "$HOME/.ssh/key"
          chmod 600 "$HOME/.ssh/key"
 
-      - name: Sync files
+#     Sync files
       - run: |
           rsync -e \
           "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" \

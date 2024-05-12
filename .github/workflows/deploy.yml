@@ -44,7 +44,7 @@ jobs:
           rsync -v -e  \
           "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" \
           --archive --compress --delete  \
-          --exclude '../config.php' \
+          --exclude 'config.php' \
           --exclude 'admin/config.php' \
           --exclude 'image/cache/' \
           --exclude 'system/storage/backup/' \

@@ -2,11 +2,8 @@
 // APPLICATION
 define('APPLICATION', 'Catalog');
 
-// HTTP
-define('HTTP_SERVER', 'http://localhost/');
+require_once('env.php');
 
-// DIR
-define('DIR_OPENCART', '/var/www/html/');
 define('DIR_APPLICATION', DIR_OPENCART . 'catalog/');
 define('DIR_SYSTEM', DIR_OPENCART . 'system/');
 define('DIR_EXTENSION', DIR_OPENCART . 'extension/');
@@ -21,4 +18,4 @@ define('DIR_LOGS', DIR_STORAGE . 'logs/');
 define('DIR_SESSION', DIR_STORAGE . 'session/');
 define('DIR_UPLOAD', DIR_STORAGE . 'upload/');
 
-require_once('db.php');
+

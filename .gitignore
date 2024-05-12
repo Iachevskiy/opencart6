@@ -45,5 +45,5 @@
 /.cache
 /.php-cs-fixer.cache
 .env
-/src/install
-/src/install/*
+#/src/install
+#/src/install/*

@@ -44,12 +44,16 @@ jobs:
           rsync -v -e  \
           "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" \
           --archive --compress --delete  \
+          --exclude 'db.php' \
+          --exclude 'env.php' \
+          --exclude 'admin/env.php' \
+          --exclude 'image/cache/' \
+          --exclude 'system/storage/backup/' \
+          --exclude 'system/storage/cache/' \
+          --exclude 'system/storage/download/' \
+          --exclude 'system/storage/logs/' \
+          --exclude 'system/storage/session/' \
+          --exclude 'system/storage/upload/' \
           ./src/ vychevs4@test-market.ru:/home/vychevs4/public_html
 
-#  --exclude 'image/cache/' \
-#  --exclude 'system/storage/backup/' \
-#  --exclude 'system/storage/cache/' \
-#  --exclude 'system/storage/download/' \
-#  --exclude 'system/storage/logs/' \
-#  --exclude 'system/storage/session/' \
-#  --exclude 'system/storage/upload/' \
+

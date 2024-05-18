@@ -1,5 +1,5 @@
 # Config and Htaccess Files
-/src/.htaccess
+#/src/.htaccess
 /src/db.php
 /src/env.php
 /src/admin/env.php

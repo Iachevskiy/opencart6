@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Marketplace;
  */
 class Promotion extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return string
 	 */
 	public function index(): string {
@@ -43,14 +41,12 @@ class Promotion extends \Opencart\System\Engine\Controller {
 
 			$response = curl_exec($curl);
 
-			$status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
 			curl_close($curl);
 
-			if ($status == 200) {
+			if ($response) {
 				$promotion = json_decode($response, true);
 			} else {
-				$promotion = [];
+				$promotion = '';
 			}
 
 			$this->cache->set('promotion.' . $type, $promotion, 3600 * 24);

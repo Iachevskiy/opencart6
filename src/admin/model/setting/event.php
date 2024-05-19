@@ -7,9 +7,7 @@ namespace Opencart\Admin\Model\Setting;
  */
 class Event extends \Opencart\System\Engine\Model {
 	/**
-	 * Add Event
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
@@ -20,8 +18,6 @@ class Event extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete Event
-	 *
 	 * @param int $event_id
 	 *
 	 * @return void
@@ -31,8 +27,6 @@ class Event extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete Event By Code
-	 *
 	 * @param string $code
 	 *
 	 * @return void
@@ -42,8 +36,6 @@ class Event extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Edit Status
-	 *
 	 * @param int  $event_id
 	 * @param bool $status
 	 *
@@ -54,23 +46,9 @@ class Event extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Edit Status By Code
-	 *
-	 * @param string $code
-	 * @param bool   $status
-	 *
-	 * @return void
-	 */
-	public function editStatusByCode(string $code, bool $status): void {
-		$this->db->query("UPDATE `" . DB_PREFIX . "event` SET `status` = '" . (bool)$status . "' WHERE `code` = '" . $this->db->escape($code) . "'");
-	}
-
-	/**
-	 * Get Event
-	 *
 	 * @param int $event_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getEvent(int $event_id): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "event` WHERE `event_id` = '" . (int)$event_id . "'");
@@ -79,11 +57,9 @@ class Event extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Event By Code
-	 *
 	 * @param string $code
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getEventByCode(string $code): array {
 		$query = $this->db->query("SELECT DISTINCT * FROM `" . DB_PREFIX . "event` WHERE `code` = '" . $this->db->escape($code) . "' LIMIT 1");
@@ -92,11 +68,9 @@ class Event extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Events
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getEvents(array $data = []): array {
 		$sql = "SELECT * FROM `" . DB_PREFIX . "event`";
@@ -140,8 +114,6 @@ class Event extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Events
-	 *
 	 * @return int
 	 */
 	public function getTotalEvents(): int {

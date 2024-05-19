@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Design;
  */
 class SeoUrl extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -121,8 +119,6 @@ class SeoUrl extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -132,8 +128,6 @@ class SeoUrl extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -238,6 +232,8 @@ class SeoUrl extends \Opencart\System\Engine\Controller {
 		$this->load->model('design/seo_url');
 		$this->load->model('localisation/language');
 
+		$seo_url_total = $this->model_design_seo_url->getTotalSeoUrls($filter_data);
+
 		$results = $this->model_design_seo_url->getSeoUrls($filter_data);
 
 		foreach ($results as $result) {
@@ -329,8 +325,6 @@ class SeoUrl extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . (string)$this->request->get['order'];
 		}
 
-		$seo_url_total = $this->model_design_seo_url->getTotalSeoUrls($filter_data);
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $seo_url_total,
 			'page'  => $page,
@@ -347,8 +341,6 @@ class SeoUrl extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -485,8 +477,6 @@ class SeoUrl extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -498,11 +488,11 @@ class SeoUrl extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!oc_validate_length($this->request->post['key'], 1, 64)) {
+		if ((oc_strlen($this->request->post['key']) < 1) || (oc_strlen($this->request->post['key']) > 64)) {
 			$json['error']['key'] = $this->language->get('error_key');
 		}
 
-		if (!oc_validate_length($this->request->post['value'], 1, 255)) {
+		if ((oc_strlen($this->request->post['value']) < 1) || (oc_strlen($this->request->post['value']) > 255)) {
 			$json['error']['value'] = $this->language->get('error_value');
 		}
 
@@ -519,11 +509,11 @@ class SeoUrl extends \Opencart\System\Engine\Controller {
 		$keywords = explode('/', $this->request->post['keyword']);
 
 		foreach ($keywords as $keyword) {
-			if (!oc_validate_length($keyword, 1, 64)) {
+			if ((oc_strlen(trim($keyword)) < 1) || (oc_strlen($keyword) > 64)) {
 				$json['error']['keyword'] = $this->language->get('error_keyword');
 			}
 
-			if (!oc_validate_path($keyword)) {
+			if (preg_match('/[^a-zA-Z0-9\/_-]|[\p{Cyrillic}]+/u', $keyword)) {
 				$json['error']['keyword'] = $this->language->get('error_keyword_character');
 			}
 		}
@@ -537,9 +527,9 @@ class SeoUrl extends \Opencart\System\Engine\Controller {
 
 		if (!$json) {
 			if (!$this->request->post['seo_url_id']) {
-				$json['seo_url_id'] = $this->model_design_seo_url->addSeoUrl($this->request->post['key'], $this->request->post['value'], $this->request->post['keyword'], $this->request->post['store_id'], $this->request->post['language_id'], $this->request->post['sort_order']);
+				$json['seo_url_id'] = $this->model_design_seo_url->addSeoUrl($this->request->post);
 			} else {
-				$this->model_design_seo_url->editSeoUrl($this->request->post['seo_url_id'], $this->request->post['key'], $this->request->post['value'], $this->request->post['keyword'], $this->request->post['store_id'], $this->request->post['language_id'], $this->request->post['sort_order']);
+				$this->model_design_seo_url->editSeoUrl($this->request->post['seo_url_id'], $this->request->post);
 			}
 
 			$json['success'] = $this->language->get('text_success');
@@ -550,8 +540,6 @@ class SeoUrl extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {
@@ -577,76 +565,6 @@ class SeoUrl extends \Opencart\System\Engine\Controller {
 			}
 
 			$json['success'] = $this->language->get('text_success');
-		}
-
-		$this->response->addHeader('Content-Type: application/json');
-		$this->response->setOutput(json_encode($json));
-	}
-
-	/**
-	 * Refresh
-	 *
-	 * @return void
-	 */
-	public function refresh(): void {
-		$this->load->language('design/seo_url');
-
-		$json = [];
-
-		if (!$this->user->hasPermission('modify', 'design/seo_url')) {
-			$json['error'] = $this->language->get('error_permission');
-		}
-
-		if (!$json) {
-
-			$data['seo_urls'] = [];
-
-			$filter_data = [
-				'filter_keyword'     => $filter_keyword,
-				'filter_key'         => $filter_key,
-				'filter_value'       => $filter_value,
-				'filter_store_id'    => $filter_store_id,
-				'filter_language_id' => $filter_language_id,
-				'sort'               => $sort,
-				'order'              => $order,
-				'start'              => ($page - 1) * $this->config->get('config_pagination_admin'),
-				'limit'              => $this->config->get('config_pagination_admin')
-			];
-
-			$this->load->model('design/seo_url');
-
-			$results = $this->model_catalog_product->getProducts($filter_data);
-
-			foreach ($results as $result) {
-
-				$this->model_design_seo_url->deleteSeoUrl($seo_url_id);
-
-			}
-
-			$this->load->model('localisation/language');
-
-			$results = $this->model_design_seo_url->getSeoUrls($filter_data);
-
-			foreach ($results as $result) {
-
-				$this->model_design_seo_url->deleteSeoUrl($seo_url_id);
-
-			}
-
-			$email_total = $this->model_design_seo_url->getTotalEmailsByProductsOrdered($this->request->post['product']);
-
-			$start = ($page - 1) * $limit;
-			$end = $start > ($email_total - $limit) ? $email_total : ($start + $limit);
-
-			if ($end < $total) {
-				$json['text'] = sprintf($this->language->get('text_install'), $start, $end, $total);
-
-				$json['next'] = $this->url->link('marketplace/installer.install', 'user_token=' . $this->session->data['user_token'] . $url . '&page=' . ($page + 1), true);
-			} else {
-				$json['success'] = $this->language->get('text_success');
-
-				$json['next'] = $this->url->link('marketplace/installer.xml', 'user_token=' . $this->session->data['user_token'] . $url, true);
-			}
 		}
 
 		$this->response->addHeader('Content-Type: application/json');

@@ -3,12 +3,10 @@ namespace Opencart\Catalog\Controller\Extension\Opencart\Total;
 /**
  * Class Voucher
  *
- * @package Opencart\Catalog\Controller\Extension\Opencart\Total
+ * @package
  */
 class Voucher extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return string
 	 */
 	public function index(): string {
@@ -31,8 +29,6 @@ class Voucher extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {

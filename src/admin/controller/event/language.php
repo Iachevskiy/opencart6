@@ -6,15 +6,11 @@ namespace Opencart\Admin\Controller\Event;
  * @package Opencart\Admin\Controller\Event
  */
 class Language extends \Opencart\System\Engine\Controller {
+	// view/*/before
+	// Dump all the language vars into the template.
 	/**
-	 * Index
-	 *
-	 * Dump all the language vars into the template.
-	 *
-	 * view/ * /before
-	 *
-	 * @param string                $route
-	 * @param array<string, string> $args
+	 * @param string $route
+	 * @param array  $args
 	 *
 	 * @return void
 	 */
@@ -26,15 +22,11 @@ class Language extends \Opencart\System\Engine\Controller {
 		}
 	}
 
+	// controller/*/before
+	// 1. Before controller load store all current loaded language data.
 	/**
-	 * Before
-	 *
-	 * 1. Before controller load store all current loaded language data.
-	 *
-	 * controller/ * /before
-	 *
-	 * @param string       $route
-	 * @param array<mixed> $args
+	 * @param string $route
+	 * @param array  $args
 	 *
 	 * @return void
 	 */
@@ -46,20 +38,16 @@ class Language extends \Opencart\System\Engine\Controller {
 		}
 	}
 
+	// controller/*/after
+	// 2. After controller load restore old language data.
 	/**
-	 * After
-	 *
-	 *  // 2. After controller load restore old language data.
-	 *
-	 * // controller/ * / * /after
-	 *
-	 * @param string       $route
-	 * @param array<mixed> $args
-	 * @param mixed        $output
+	 * @param string $route
+	 * @param array  $args
+	 * @param mixed  $output
 	 *
 	 * @return void
 	 */
-	public function after(string &$route, array &$args, &$output): void {
+	public function after(string &$route, array &$args, mixed &$output): void {
 		$data = json_decode($this->language->get('backup'), true);
 
 		if (is_array($data)) {

@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Marketplace;
  */
 class Startup extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -56,8 +54,6 @@ class Startup extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -67,8 +63,6 @@ class Startup extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	public function getList(): string {
@@ -117,18 +111,19 @@ class Startup extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('setting/startup');
 
+		$startup_total = $this->model_setting_startup->getTotalStartups();
+
 		$results = $this->model_setting_startup->getStartups($filter_data);
 
 		foreach ($results as $result) {
 			$data['startups'][] = [
-				'startup_id'  => $result['startup_id'],
-				'code'        => $result['code'],
-				'description' => $result['description'],
-				'action'      => $result['action'],
-				'status'      => $result['status'],
-				'sort_order'  => $result['sort_order'],
-				'enable'      => $this->url->link('marketplace/startup.enable', 'user_token=' . $this->session->data['user_token'] . '&startup_id=' . $result['startup_id']),
-				'disable'     => $this->url->link('marketplace/startup.disable', 'user_token=' . $this->session->data['user_token'] . '&startup_id=' . $result['startup_id'])
+				'startup_id' => $result['startup_id'],
+				'code'       => $result['code'],
+				'action'     => $result['action'],
+				'status'     => $result['status'],
+				'sort_order' => $result['sort_order'],
+				'enable'     => $this->url->link('marketplace/startup.enable', 'user_token=' . $this->session->data['user_token'] . '&startup_id=' . $result['startup_id']),
+				'disable'    => $this->url->link('marketplace/startup.disable', 'user_token=' . $this->session->data['user_token'] . '&startup_id=' . $result['startup_id'])
 			];
 		}
 
@@ -154,8 +149,6 @@ class Startup extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$startup_total = $this->model_setting_startup->getTotalStartups();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $startup_total,
 			'page'  => $page,
@@ -172,8 +165,6 @@ class Startup extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Enable
-	 *
 	 * @return void
 	 */
 	public function enable(): void {
@@ -194,7 +185,7 @@ class Startup extends \Opencart\System\Engine\Controller {
 		if (!$json) {
 			$this->load->model('setting/startup');
 
-			$this->model_setting_startup->editStatus($startup_id, true);
+			$this->model_setting_startup->editStatus($startup_id, 1);
 
 			$json['success'] = $this->language->get('text_success');
 		}
@@ -204,8 +195,6 @@ class Startup extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Disable
-	 *
 	 * @return void
 	 */
 	public function disable(): void {
@@ -226,7 +215,7 @@ class Startup extends \Opencart\System\Engine\Controller {
 		if (!$json) {
 			$this->load->model('setting/startup');
 
-			$this->model_setting_startup->editStatus($startup_id, false);
+			$this->model_setting_startup->editStatus($startup_id, 0);
 
 			$json['success'] = $this->language->get('text_success');
 		}
@@ -236,8 +225,6 @@ class Startup extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

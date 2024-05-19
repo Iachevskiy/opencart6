@@ -8,15 +8,13 @@ namespace Opencart\Admin\Controller\Mail;
 class Gdpr extends \Opencart\System\Engine\Controller {
 	// admin/model/customer/gdpr/editStatus
 	/**
-	 * Index
-	 *
-	 * @param string            $route
-	 * @param array<int, mixed> $args
-	 * @param mixed             $output
+	 * @param string $route
+	 * @param array  $args
+	 * @param mixed  $output
 	 *
 	 * @return void
 	 */
-	public function index(string &$route, array &$args, &$output): void {
+	public function index(string &$route, array &$args, mixed &$output): void {
 		$this->load->model('customer/gdpr');
 
 		$gdpr_info = $this->model_customer_gdpr->getGdpr($args[0]);
@@ -47,13 +45,10 @@ class Gdpr extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Export
-	 *
-	 * @param array<string, mixed> $gdpr_info
-	 *
-	 * @throws \Exception
+	 * @param array $gdpr_info
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	public function export(array $gdpr_info): void {
 		$this->load->model('setting/store');
@@ -226,13 +221,10 @@ class Gdpr extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Approve
-	 *
-	 * @param array<string, mixed> $gdpr_info
-	 *
-	 * @throws \Exception
+	 * @param array $gdpr_info
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	public function approve(array $gdpr_info): void {
 		$this->load->model('setting/store');
@@ -320,13 +312,10 @@ class Gdpr extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Deny
-	 *
-	 * @param array<string, mixed> $gdpr_info
-	 *
-	 * @throws \Exception
+	 * @param array $gdpr_info
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	public function deny(array $gdpr_info): void {
 		$this->load->model('setting/store');
@@ -414,13 +403,10 @@ class Gdpr extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Remove
-	 *
-	 * @param array<string, mixed> $gdpr_info
-	 *
-	 * @throws \Exception
+	 * @param array $gdpr_info
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	public function remove(array $gdpr_info): void {
 		$this->load->model('setting/store');

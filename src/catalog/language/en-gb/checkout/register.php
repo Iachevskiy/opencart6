@@ -10,9 +10,9 @@ $_['text_payment_address']    = 'Payment Address';
 $_['text_shipping_address']   = 'Shipping Address';
 $_['text_your_password']      = 'Your Password';
 $_['text_agree']              = 'I have read and agree to the <a href="%s" class="modal-link"><b>%s</b></a>';
-$_['text_add_success']        = 'Success: Your account has been created!';
-$_['text_guest_success']      = 'Success: Your guest account information has been saved!';
-$_['text_edit_success']       = 'Success: Your account has been successfully updated.';
+$_['text_success_add']        = 'Success: Your account has been created!';
+$_['text_success_guest']      = 'Success: Your guest account information has been saved!';
+$_['text_success_edit']       = 'Success: Your account has been successfully updated.';
 
 // Entry
 $_['entry_customer_group']    = 'Account Type';
@@ -41,7 +41,7 @@ $_['error_customer_approval'] = 'Warning: Your this customer group requires appr
 $_['error_email']             = 'E-Mail address does not appear to be valid!';
 $_['error_exists']            = 'Warning: E-Mail Address is already registered!';
 $_['error_telephone']         = 'Telephone must be between 3 and 32 characters!';
-$_['error_password']          = 'Password must be between 6 and 20 characters!';
+$_['error_password']          = 'Password must be between 4 and 20 characters!';
 $_['error_confirm']           = 'Password confirmation does not match password!';
 $_['error_address_1']         = 'Address 1 must be between 3 and 128 characters!';
 $_['error_city']              = 'City must be between 2 and 128 characters!';

@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Extension;
  */
 class Other extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -16,8 +14,6 @@ class Other extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	public function getList(): string {
@@ -26,15 +22,15 @@ class Other extends \Opencart\System\Engine\Controller {
 
 		$available = [];
 
-		$results = glob(DIR_EXTENSION . '*/admin/controller/other/*.php');
+		$this->load->model('setting/extension');
+
+		$results = $this->model_setting_extension->getPaths('%/admin/controller/other/%.php');
 
 		foreach ($results as $result) {
-			$available[] = basename($result, '.php');
+			$available[] = basename($result['path'], '.php');
 		}
 
 		$installed = [];
-
-		$this->load->model('setting/extension');
 
 		$extensions = $this->model_setting_extension->getExtensionsByType('other');
 
@@ -50,11 +46,9 @@ class Other extends \Opencart\System\Engine\Controller {
 
 		if ($results) {
 			foreach ($results as $result) {
-				$path = substr($result, strlen(DIR_EXTENSION));
+				$extension = substr($result['path'], 0, strpos($result['path'], '/'));
 
-				$extension = substr($path, 0, strpos($path, '/'));
-
-				$code = basename($result, '.php');
+				$code = basename($result['path'], '.php');
 
 				$this->load->language('extension/' . $extension . '/other/' . $code, $code);
 
@@ -75,8 +69,6 @@ class Other extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Install
-	 *
 	 * @return void
 	 */
 	public function install(): void {
@@ -141,8 +133,6 @@ class Other extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Uninstall
-	 *
 	 * @return void
 	 */
 	public function uninstall(): void {

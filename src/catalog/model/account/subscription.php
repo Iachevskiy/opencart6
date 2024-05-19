@@ -7,11 +7,9 @@ namespace Opencart\Catalog\Model\Account;
  */
 class Subscription extends \Opencart\System\Engine\Model {
 	/**
-	 * Get Subscription
-	 *
 	 * @param int $subscription_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getSubscription(int $subscription_id): array {
 		$subscription_data = [];
@@ -21,7 +19,6 @@ class Subscription extends \Opencart\System\Engine\Model {
 		if ($query->num_rows) {
 			$subscription_data = $query->row;
 
-			$subscription_data['option'] = ($query->row['option'] ? json_decode($query->row['option'], true) : '');
 			$subscription_data['payment_method'] = ($query->row['payment_method'] ? json_decode($query->row['payment_method'], true) : '');
 			$subscription_data['shipping_method'] = ($query->row['shipping_method'] ? json_decode($query->row['shipping_method'], true) : '');
 		}
@@ -30,12 +27,10 @@ class Subscription extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Subscription By Order Product ID
-	 *
 	 * @param int $order_id
 	 * @param int $order_product_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getSubscriptionByOrderProductId(int $order_id, int $order_product_id): array {
 		$subscription_data = [];
@@ -45,7 +40,6 @@ class Subscription extends \Opencart\System\Engine\Model {
 		if ($query->num_rows) {
 			$subscription_data = $query->row;
 
-			$subscription_data['option'] = ($query->row['option'] ? json_decode($query->row['option'], true) : '');
 			$subscription_data['payment_method'] = ($query->row['payment_method'] ? json_decode($query->row['payment_method'], true) : '');
 			$subscription_data['shipping_method'] = ($query->row['shipping_method'] ? json_decode($query->row['shipping_method'], true) : '');
 		}
@@ -54,12 +48,10 @@ class Subscription extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Subscriptions
-	 *
 	 * @param int $start
 	 * @param int $limit
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getSubscriptions(int $start = 0, int $limit = 20): array {
 		if ($start < 0) {
@@ -73,11 +65,9 @@ class Subscription extends \Opencart\System\Engine\Model {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "subscription` WHERE `customer_id` = '" . (int)$this->customer->getId() . "' AND `subscription_status_id` > '0' AND `store_id` = '" . (int)$this->config->get('config_store_id') . "' ORDER BY `subscription_id` DESC LIMIT " . (int)$start . "," . (int)$limit);
 
 		return $query->rows;
-	}
+    }
 
 	/**
-	 * Get Total Subscriptions
-	 *
 	 * @return int
 	 */
 	public function getTotalSubscriptions(): int {
@@ -88,11 +78,9 @@ class Subscription extends \Opencart\System\Engine\Model {
 		} else {
 			return 0;
 		}
-	}
+    }
 
 	/**
-	 * Get Total Subscription By Shipping Address ID
-	 *
 	 * @param int $address_id
 	 *
 	 * @return int
@@ -104,8 +92,6 @@ class Subscription extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Subscription By Payment Address ID
-	 *
 	 * @param int $address_id
 	 *
 	 * @return int
@@ -117,13 +103,11 @@ class Subscription extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Histories
-	 *
 	 * @param int $subscription_id
 	 * @param int $start
 	 * @param int $limit
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getHistories(int $subscription_id, int $start = 0, int $limit = 10): array {
 		if ($start < 0) {
@@ -134,14 +118,12 @@ class Subscription extends \Opencart\System\Engine\Model {
 			$limit = 10;
 		}
 
-		$query = $this->db->query("SELECT `sh`.`date_added`, `ss`.`name` AS `status`, `sh`.`comment`, `sh`.`notify` FROM `" . DB_PREFIX . "subscription_history` `sh` LEFT JOIN `" . DB_PREFIX . "subscription_status` `ss` ON `sh`.`subscription_status_id` = `ss`.`subscription_status_id` WHERE `sh`.`subscription_id` = '" . (int)$subscription_id . "' AND `ss`.`language_id` = '" . (int)$this->config->get('config_language_id') . "' ORDER BY `sh`.`date_added` DESC LIMIT " . (int)$start . "," . (int)$limit);
+		$query = $this->db->query("SELECT sh.`date_added`, ss.`name` AS status, sh.`comment`, sh.`notify` FROM `" . DB_PREFIX . "subscription_history` `sh` LEFT JOIN `" . DB_PREFIX . "subscription_status` `ss` ON `sh`.`subscription_status_id` = ss.`subscription_status_id` WHERE sh.`subscription_id` = '" . (int)$subscription_id . "' AND ss.`language_id` = '" . (int)$this->config->get('config_language_id') . "' ORDER BY sh.`date_added` DESC LIMIT " . (int)$start . "," . (int)$limit);
 
 		return $query->rows;
 	}
 
 	/**
-	 * Get Total Histories
-	 *
 	 * @param int $subscription_id
 	 *
 	 * @return int
@@ -150,29 +132,5 @@ class Subscription extends \Opencart\System\Engine\Model {
 		$query = $this->db->query("SELECT COUNT(*) AS `total` FROM `" . DB_PREFIX . "subscription_history` WHERE `subscription_id` = '" . (int)$subscription_id . "'");
 
 		return (int)$query->row['total'];
-	}
-
-	/**
-	 * Edit Remaining
-	 *
-	 * @param int $subscription_id
-	 * @param int $remaining
-	 *
-	 * @return void
-	 */
-	public function editRemaining(int $subscription_id, int $remaining): void {
-		$this->db->query("UPDATE `" . DB_PREFIX . "subscription` SET `remaining` = '" . (int)$remaining . "' WHERE `subscription_id` = '" . (int)$subscription_id . "'");
-	}
-
-	/**
-	 * Edit Trial Remaining
-	 *
-	 * @param int $subscription_id
-	 * @param int $trial_remaining
-	 *
-	 * @return void
-	 */
-	public function editTrialRemaining(int $subscription_id, int $trial_remaining): void {
-		$this->db->query("UPDATE `" . DB_PREFIX . "subscription` SET `trial_remaining` = '" . (int)$trial_remaining . "' WHERE `subscription_id` = '" . (int)$subscription_id . "'");
 	}
 }

@@ -116,14 +116,23 @@
               <div class="row mb-3">
                 <label class="col-sm-2 col-form-label">{{ entry_image }}</label>
                 <div class="col-sm-10">
-                  <div class="border rounded d-block" style="max-width: 300px;">
-                    <img src="{{ thumb }}" alt="" title="" id="thumb-image" data-oc-placeholder="{{ placeholder }}" class="img-fluid"/>
-                    <input type="hidden" name="image" value="{{ image }}" id="input-image"/>
-                    <div class="d-grid">
-                      <button type="button" data-oc-toggle="image" data-oc-target="#input-image" data-oc-thumb="#thumb-image" class="btn btn-primary rounded-0"><i class="fa-solid fa-pencil"></i> {{ button_edit }}</button>
-                      <button type="button" data-oc-toggle="clear" data-oc-target="#input-image" data-oc-thumb="#thumb-image" class="btn btn-warning rounded-0"><i class="fa-regular fa-trash-can"></i> {{ button_clear }}</button>
+                  <div class="card image">
+                    <img src="{{ thumb }}" alt="" title="" id="thumb-image" data-oc-placeholder="{{ placeholder }}" class="card-img-top"/> <input type="hidden" name="image" value="{{ image }}" id="input-image"/>
+                    <div class="card-body">
+                      <button type="button" data-oc-toggle="image" data-oc-target="#input-image" data-oc-thumb="#thumb-image" class="btn btn-primary btn-sm btn-block"><i class="fa-solid fa-pencil"></i> {{ button_edit }}</button>
+                      <button type="button" data-oc-toggle="clear" data-oc-target="#input-image" data-oc-thumb="#thumb-image" class="btn btn-warning btn-sm btn-block"><i class="fa-regular fa-trash-can"></i> {{ button_clear }}</button>
                     </div>
                   </div>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label class="col-sm-2 col-form-label">{{ entry_top }}</label>
+                <div class="col-sm-10">
+                  <div class="form-check form-switch form-switch-lg">
+                    <input type="hidden" name="top" value="0"/>
+                    <input type="checkbox" name="top" value="1" id="input-top" class="form-check-input"{% if top %} checked{% endif %}/>
+                  </div>
+                  <div class="form-text">{{ help_top }}</div>
                 </div>
               </div>
               <div class="row mb-3">
@@ -170,7 +179,8 @@
                               <input type="text" name="category_seo_url[{{ store.store_id }}][{{ language.language_id }}]" value="{% if category_seo_url[store.store_id][language.language_id] %}{{ category_seo_url[store.store_id][language.language_id] }}{% endif %}" placeholder="{{ entry_keyword }}" id="input-keyword-{{ store.store_id }}-{{ language.language_id }}" class="form-control"/>
                             </div>
                             <div id="error-keyword-{{ store.store_id }}-{{ language.language_id }}" class="invalid-feedback"></div>
-                          {% endfor %}</td>
+                          {% endfor %}
+                        </td>
                       </tr>
                     {% endfor %}
                   </tbody>
@@ -214,17 +224,17 @@ $('textarea[data-oc-toggle=\'ckeditor\']').ckeditor({
 });
 
 $('#input-parent').autocomplete({
-    'source': function(request, response) {
+    'source': function (request, response) {
         $.ajax({
             url: 'index.php?route=catalog/category.autocomplete&user_token={{ user_token }}&filter_name=' + encodeURIComponent(request),
             dataType: 'json',
-            success: function(json) {
+            success: function (json) {
                 json.unshift({
-                    'category_id': '0',
-                    'name': '{{ text_none }}'
+                    'name': '{{ text_none }}',
+                    'category_id': '0'
                 });
 
-                response($.map(json, function(item) {
+                response($.map(json, function (item) {
                     return {
                         value: item['category_id'],
                         label: item['name']
@@ -233,19 +243,19 @@ $('#input-parent').autocomplete({
             }
         });
     },
-    'select': function(item) {
+    'select': function (item) {
         $('#input-parent').val(item['label']);
         $('#input-parent-id').val(item['value']);
     }
 });
 
 $('#input-filter').autocomplete({
-    'source': function(request, response) {
+    'source': function (request, response) {
         $.ajax({
             url: 'index.php?route=catalog/filter.autocomplete&user_token={{ user_token }}&filter_name=' + encodeURIComponent(request),
             dataType: 'json',
-            success: function(json) {
-                response($.map(json, function(item) {
+            success: function (json) {
+                response($.map(json, function (item) {
                     return {
                         label: item['name'],
                         value: item['filter_id']
@@ -254,7 +264,7 @@ $('#input-filter').autocomplete({
             }
         });
     },
-    'select': function(item) {
+    'select': function (item) {
         $('#input-filter').val('');
 
         $('#category-filter-' + item['value']).remove();
@@ -268,7 +278,7 @@ $('#input-filter').autocomplete({
     }
 });
 
-$('#category-filter').on('click', '.btn', function() {
+$('#category-filter').on('click', '.btn', function () {
     $(this).parent().parent().remove();
 });
 //--></script>

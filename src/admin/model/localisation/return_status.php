@@ -7,22 +7,18 @@ namespace Opencart\Admin\Model\Localisation;
  */
 class ReturnStatus extends \Opencart\System\Engine\Model {
 	/**
-	 * Add Return Status
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return ?int
+	 * @return int
 	 */
-	public function addReturnStatus(array $data): ?int {
-		$return_status_id = 0;
-
-		foreach ($data['return_status'] as $language_id => $return_status) {
-			if (!$return_status_id) {
-				$this->db->query("INSERT INTO `" . DB_PREFIX . "return_status` SET `language_id` = '" . (int)$language_id . "', `name` = '" . $this->db->escape($return_status['name']) . "'");
+	public function addReturnStatus(array $data): int {
+		foreach ($data['return_status'] as $language_id => $value) {
+			if (isset($return_status_id)) {
+				$this->db->query("INSERT INTO `" . DB_PREFIX . "return_status` SET `return_status_id` = '" . (int)$return_status_id . "', `language_id` = '" . (int)$language_id . "', `name` = '" . $this->db->escape($value['name']) . "'");
+			} else {
+				$this->db->query("INSERT INTO `" . DB_PREFIX . "return_status` SET `language_id` = '" . (int)$language_id . "', `name` = '" . $this->db->escape($value['name']) . "'");
 
 				$return_status_id = $this->db->getLastId();
-			} else {
-				$this->model_localisation_return_status->addDescription($return_status_id, $language_id, $return_status);
 			}
 		}
 
@@ -32,26 +28,22 @@ class ReturnStatus extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Edit Return Status
-	 *
-	 * @param int                  $return_status_id
-	 * @param array<string, mixed> $data
+	 * @param int   $return_status_id
+	 * @param array $data
 	 *
 	 * @return void
 	 */
-	public function editReturnStatus(int $return_status_id, array $data): void {
-		$this->deleteReturnStatus($return_status_id);
+	public function editReturnStatus(int $return_status_id, array $data) : void{
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "return_status` WHERE `return_status_id` = '" . (int)$return_status_id . "'");
 
-		foreach ($data['return_status'] as $language_id => $return_status) {
-			$this->model_localisation_return_status->addDescription($return_status_id, $language_id, $return_status);
+		foreach ($data['return_status'] as $language_id => $value) {
+			$this->db->query("INSERT INTO `" . DB_PREFIX . "return_status` SET `return_status_id` = '" . (int)$return_status_id . "', `language_id` = '" . (int)$language_id . "', `name` = '" . $this->db->escape($value['name']) . "'");
 		}
 
 		$this->cache->delete('return_status');
 	}
 
 	/**
-	 * Delete Return Status
-	 *
 	 * @param int $return_status_id
 	 *
 	 * @return void
@@ -63,24 +55,9 @@ class ReturnStatus extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete Return Statuses By Language ID
-	 *
-	 * @param int $language_id
-	 *
-	 * @return void
-	 */
-	public function deleteReturnStatusesByLanguageId(int $language_id): void {
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "return_status` WHERE `language_id` = '" . (int)$language_id . "'");
-
-		$this->cache->delete('return_status');
-	}
-
-	/**
-	 * Get Return Status
-	 *
 	 * @param int $return_status_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getReturnStatus(int $return_status_id): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "return_status` WHERE `return_status_id` = '" . (int)$return_status_id . "' AND `language_id` = '" . (int)$this->config->get('config_language_id') . "'");
@@ -89,11 +66,9 @@ class ReturnStatus extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Return Statuses
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getReturnStatuses(array $data = []): array {
 		$sql = "SELECT * FROM `" . DB_PREFIX . "return_status` WHERE `language_id` = '" . (int)$this->config->get('config_language_id') . "' ORDER BY `name`";
@@ -116,40 +91,23 @@ class ReturnStatus extends \Opencart\System\Engine\Model {
 			$sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
 		}
 
-		$key = md5($sql);
-
-		$return_status_data = $this->cache->get('return_status.' . $key);
+		$return_status_data = $this->cache->get('return_status.' . md5($sql));
 
 		if (!$return_status_data) {
 			$query = $this->db->query($sql);
 
 			$return_status_data = $query->rows;
 
-			$this->cache->set('return_status.' . $key, $return_status_data);
+			$this->cache->set('return_status.' . md5($sql), $return_status_data);
 		}
 
 		return $return_status_data;
 	}
 
 	/**
-	 * Add Description
-	 *
-	 * @param int                  $return_status_id
-	 * @param int                  $language_id
-	 * @param array<string, mixed> $data
-	 *
-	 * @return void
-	 */
-	public function addDescription(int $return_status_id, int $language_id, array $data): void {
-		$this->db->query("INSERT INTO `" . DB_PREFIX . "return_status` SET `return_status_id` = '" . (int)$return_status_id . "', `language_id` = '" . (int)$language_id . "', `name` = '" . $this->db->escape($data['name']) . "'");
-	}
-
-	/**
-	 * Get Descriptions
-	 *
 	 * @param int $return_status_id
 	 *
-	 * @return array<int, array<string, string>>
+	 * @return array
 	 */
 	public function getDescriptions(int $return_status_id): array {
 		$return_status_data = [];
@@ -164,21 +122,6 @@ class ReturnStatus extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Descriptions By Language ID
-	 *
-	 * @param int $language_id
-	 *
-	 * @return array<int, array<string, string>>
-	 */
-	public function getDescriptionsByLanguageId(int $language_id): array {
-		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "return_status` WHERE `language_id` = '" . (int)$language_id . "'");
-
-		return $query->rows;
-	}
-
-	/**
-	 * Get Total Return Statuses
-	 *
 	 * @return int
 	 */
 	public function getTotalReturnStatuses(): int {

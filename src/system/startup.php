@@ -3,8 +3,8 @@
 error_reporting(E_ALL);
 
 // Check Version
-if (version_compare(PHP_VERSION, '7.4', '<')) {
-	exit('PHP7.4+ Required');
+if (version_compare(phpversion(), '8.0.0', '<')) {
+	exit('PHP8+ Required');
 }
 
 if (!ini_get('date.timezone')) {
@@ -45,8 +45,10 @@ if ((isset($_SERVER['HTTPS']) && (($_SERVER['HTTPS'] == 'on') || ($_SERVER['HTTP
 	$_SERVER['HTTPS'] = false;
 }
 
-// Check IP
-if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+// Check IP if forwarded IP
+if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+	$_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
+} elseif (!empty($_SERVER['HTTP_CLIENT_IP'])) {
 	$_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CLIENT_IP'];
 }
 
@@ -58,4 +60,3 @@ require_once(DIR_SYSTEM . 'engine/config.php');
 
 // Helper
 require_once(DIR_SYSTEM . 'helper/general.php');
-require_once(DIR_SYSTEM . 'helper/validation.php');

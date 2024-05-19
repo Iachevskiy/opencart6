@@ -3,13 +3,13 @@ namespace Opencart\System\Library\Cache;
 /**
  * Class Redis
  *
- * @package Opencart\System\Library\Cache
+ * @package
  */
 class Redis {
 	/**
-	 * @var \Redis
+	 * @var object|\Redis
 	 */
-	private \Redis $redis;
+	private object $redis;
 	/**
 	 * @var int
 	 */
@@ -18,7 +18,7 @@ class Redis {
 	/**
 	 * Constructor
 	 *
-	 * @param int $expire
+	 * @param    int  $expire
 	 */
 	public function __construct(int $expire = 3600) {
 		$this->expire = $expire;
@@ -30,11 +30,11 @@ class Redis {
 	/**
 	 * Get
 	 *
-	 * @param string $key
+	 * @param    string  $key
 	 *
-	 * @return mixed
+	 * @return	 array|string|null
 	 */
-	public function get(string $key) {
+	public function get(string $key): array|string|null {
 		$data = $this->redis->get(CACHE_PREFIX . $key);
 
 		return json_decode($data, true);
@@ -43,13 +43,11 @@ class Redis {
 	/**
 	 * Set
 	 *
-	 * @param string $key
-	 * @param mixed  $value
-	 * @param int    $expire
-	 *
-	 * @return void
+	 * @param    string  $key
+	 * @param    array|string|null  $value
+	 * @param	 int  $expire
 	 */
-	public function set(string $key, $value, int $expire = 0): void {
+	public function set(string $key, array|string|null $value, int $expire = 0) {
 		if (!$expire) {
 			$expire = $this->expire;
 		}
@@ -64,9 +62,7 @@ class Redis {
 	/**
 	 * Delete
 	 *
-	 * @param string $key
-	 *
-	 * @return void
+	 * @param    string  $key
 	 */
 	public function delete(string $key): void {
 		$this->redis->del(CACHE_PREFIX . $key);

@@ -6,15 +6,12 @@ namespace Opencart\System\Library\Mail;
  * Basic PHP mail class
  */
 class Mail {
-	/**
-	 * @var array<string, mixed>
-	 */
 	protected array $option = [];
 
 	/**
 	 * Constructor
 	 *
-	 * @param array<string, mixed> $option
+	 * @param    array  $option
 	 */
 	public function __construct(array &$option = []) {
 		$this->option = &$option;
@@ -23,7 +20,7 @@ class Mail {
 	/**
 	 * Send
 	 *
-	 * @return bool
+	 * @return    bool
 	 */
 	public function send(): bool {
 		if (is_array($this->option['to'])) {
@@ -32,13 +29,13 @@ class Mail {
 			$to = $this->option['to'];
 		}
 
-		if (version_compare(PHP_VERSION, '8.0', '>=')) {
+		if (version_compare(phpversion(), '8.0', '>=') || substr(PHP_OS, 0, 3) == 'WIN') {
 			$eol = "\r\n";
 		} else {
 			$eol = PHP_EOL;
 		}
 
-		$boundary = '----=_NextPart_' . md5((string)time());
+		$boundary = '----=_NextPart_' . md5(time());
 
 		$header  = 'MIME-Version: 1.0' . $eol;
 		$header .= 'Date: ' . date('D, d M Y H:i:s O') . $eol;
@@ -51,7 +48,7 @@ class Mail {
 		}
 
 		$header .= 'Return-Path: ' . $this->option['from'] . $eol;
-		$header .= 'X-Mailer: PHP/' . PHP_VERSION . $eol;
+		$header .= 'X-Mailer: PHP/' . phpversion() . $eol;
 		$header .= 'Content-Type: multipart/mixed; boundary="' . $boundary . '"' . $eol . $eol;
 
 		$message = '--' . $boundary . $eol;

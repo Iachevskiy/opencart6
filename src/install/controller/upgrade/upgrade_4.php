@@ -101,6 +101,13 @@ class Upgrade4 extends \Opencart\System\Engine\Controller {
 			}
 
 			$missing[] = [
+				'key'        => 'config_encryption',
+				'value'      => hash('sha512', oc_token(32)),
+				'code'       => 'config',
+				'serialized' => 0
+			];
+
+			$missing[] = [
 				'key'        => 'config_voucher_min',
 				'value'      => 1,
 				'code'       => 'config',
@@ -173,6 +180,15 @@ class Upgrade4 extends \Opencart\System\Engine\Controller {
 				];
 			}
 
+			if (isset($settings['config_smtp_timeout'])) {
+				$missing[] = [
+					'key'        => 'config_mail_smtp_timeout',
+					'value'      => $settings['config_smtp_timeout'],
+					'code'       => 'config',
+					'serialized' => 0
+				];
+			}
+
 			$missing[] = [
 				'key'        => 'config_article_description_length',
 				'value'      => 100,
@@ -181,43 +197,15 @@ class Upgrade4 extends \Opencart\System\Engine\Controller {
 			];
 
 			$missing[] = [
-				'key'        => 'config_image_default_width',
-				'value'      => 300,
+				'key'        => 'config_image_blog_width',
+				'value'      => 90,
 				'code'       => 'config',
 				'serialized' => 0
 			];
 
 			$missing[] = [
-				'key'        => 'config_image_default_height',
-				'value'      => 300,
-				'code'       => 'config',
-				'serialized' => 0
-			];
-
-			$missing[] = [
-				'key'        => 'config_image_article_width',
-				'value'      => 1140,
-				'code'       => 'config',
-				'serialized' => 0
-			];
-
-			$missing[] = [
-				'key'        => 'config_image_article_height',
-				'value'      => 380,
-				'code'       => 'config',
-				'serialized' => 0
-			];
-
-			$missing[] = [
-				'key'        => 'config_image_topic_width',
-				'value'      => 1140,
-				'code'       => 'config',
-				'serialized' => 0
-			];
-
-			$missing[] = [
-				'key'        => 'config_image_topic_height',
-				'value'      => 380,
+				'key'        => 'config_image_blog_height',
+				'value'      => 90,
 				'code'       => 'config',
 				'serialized' => 0
 			];
@@ -300,6 +288,7 @@ class Upgrade4 extends \Opencart\System\Engine\Controller {
 				'serialized' => 0
 			];
 
+
 			$missing[] = [
 				'key'        => 'config_subscription_denied_status_id',
 				'value'      => 5,
@@ -349,7 +338,7 @@ class Upgrade4 extends \Opencart\System\Engine\Controller {
 
 			foreach ($query->rows as $extension) {
 				//get all setting from setting table
-				$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "setting` WHERE `code` = '" . $this->db->escape($extension['code']) . "'");
+				$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "setting` WHERE `code` = '" . $extension['code'] . "'");
 
 				if ($query->num_rows) {
 					foreach ($query->rows as $result) {
@@ -364,7 +353,6 @@ class Upgrade4 extends \Opencart\System\Engine\Controller {
 			// Update some language settings
 			$this->db->query("UPDATE `" . DB_PREFIX . "setting` SET `value` = 'en-gb' WHERE `key` = 'config_language' AND `value` = 'en'");
 			$this->db->query("UPDATE `" . DB_PREFIX . "setting` SET `value` = 'en-gb' WHERE `key` = 'config_language_admin' AND `value` = 'en'");
-			$this->db->query("UPDATE `" . DB_PREFIX . "setting` SET `key` = 'config_language_catalog' WHERE `key` = 'config_language'");
 
 			// Remove some setting keys
 			$remove = [
@@ -449,7 +437,7 @@ class Upgrade4 extends \Opencart\System\Engine\Controller {
 		}
 
 		if (!$json) {
-			$json['text'] = sprintf($this->language->get('text_patch'), 4, 4, 9);
+			$json['text'] = sprintf($this->language->get('text_progress'), 4, 4, 9);
 
 			$url = '';
 

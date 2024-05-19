@@ -1,30 +1,26 @@
 <?php
 /**
  * @package		OpenCart
- *
  * @author		Daniel Kerr
  * @copyright	Copyright (c) 2005 - 2017, OpenCart, Ltd. (https://www.opencart.com/)
  * @license		https://opensource.org/licenses/GPL-3.0
- *
- * @see		https://www.opencart.com
- */
+ * @link		https://www.opencart.com
+*/
 namespace Opencart\System\Library;
 /**
  * Class Mail
  */
 class Mail {
 	private object $adaptor;
-	/**
-	 * @var array<string, mixed>
-	 */
 	private array $option = [];
 
 	/**
 	 * Constructor
 	 *
-	 * @param string               $adaptor
-	 * @param array<string, mixed> $option
-	 */
+	 * @param	string	$adaptor
+	 * @param   array	$option
+	 *
+ 	*/
 	public function __construct(string $adaptor = 'mail', array $option = []) {
 		$class = 'Opencart\System\Library\Mail\\' . $adaptor;
 
@@ -38,98 +34,98 @@ class Mail {
 	}
 
 	/**
-	 * setTo
+     * setTo
+     *
+     * @param	string	$to
 	 *
-	 * @param array<string>|string $to
-	 *
-	 * @return void
-	 */
-	public function setTo($to): void {
+	 * @return  void
+     */
+	public function setTo(string|array $to): void {
 		$this->option['to'] = $to;
 	}
 
 	/**
-	 * setFrom
+     * setFrom
+     *
+     * @param	string	$from
 	 *
-	 * @param string $from
-	 *
-	 * @return void
-	 */
+	 * @return  void
+     */
 	public function setFrom(string $from): void {
 		$this->option['from'] = $from;
 	}
 
 	/**
-	 * setSender
+     * setSender
+     *
+     * @param	string	$sender
 	 *
-	 * @param string $sender
-	 *
-	 * @return void
-	 */
+	 * @return  void
+     */
 	public function setSender(string $sender): void {
 		$this->option['sender'] = $sender;
 	}
 
 	/**
-	 * setReplyTo
+     * setReplyTo
+     *
+     * @param	string	$reply_to
 	 *
-	 * @param string $reply_to
-	 *
-	 * @return void
-	 */
+	 * @return  void
+     */
 	public function setReplyTo(string $reply_to): void {
 		$this->option['reply_to'] = $reply_to;
 	}
 
 	/**
-	 * setSubject
+     * setSubject
+     *
+     * @param	string	$subject
 	 *
-	 * @param string $subject
-	 *
-	 * @return void
-	 */
+	 * @return  void
+     */
 	public function setSubject(string $subject): void {
 		$this->option['subject'] = $subject;
 	}
 
 	/**
-	 * setText
+     * setText
+     *
+     * @param	string	$text
 	 *
-	 * @param string $text
-	 *
-	 * @return void
-	 */
+	 * @return  void
+     */
 	public function setText(string $text): void {
 		$this->option['text'] = $text;
 	}
 
 	/**
-	 * setHtml
+     * setHtml
+     *
+     * @param	string	$html
 	 *
-	 * @param string $html
-	 *
-	 * @return void
-	 */
+	 * @return  void
+     */
 	public function setHtml(string $html): void {
 		$this->option['html'] = $html;
 	}
 
 	/**
-	 * addAttachment
+     * addAttachment
+     *
+     * @param	string	$filename
 	 *
-	 * @param string $filename
-	 *
-	 * @return void
-	 */
+	 * @return  void
+     */
 	public function addAttachment(string $filename): void {
 		$this->option['attachments'][] = $filename;
 	}
 
 	/**
-	 * Send
-	 *
-	 * @return bool
-	 */
+     * Send
+     *
+	 * @return  bool
+     */
 	public function send(): bool {
 		if (empty($this->option['to'])) {
 			throw new \Exception('Error: E-Mail to required!');

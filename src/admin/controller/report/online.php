@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Report;
  */
 class Online extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -29,7 +27,7 @@ class Online extends \Opencart\System\Engine\Controller {
 		if (isset($this->request->get['page'])) {
 			$url .= '&page=' . $this->request->get['page'];
 		}
-
+			
 		$data['breadcrumbs'] = [];
 
 		$data['breadcrumbs'][] = [
@@ -49,13 +47,11 @@ class Online extends \Opencart\System\Engine\Controller {
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
-
+		
 		$this->response->setOutput($this->load->view('report/online', $data));
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -65,8 +61,6 @@ class Online extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -100,6 +94,8 @@ class Online extends \Opencart\System\Engine\Controller {
 		$this->load->model('report/online');
 		$this->load->model('customer/customer');
 
+		$customer_total = $this->model_report_online->getTotalOnline($filter_data);
+
 		$results = $this->model_report_online->getOnline($filter_data);
 
 		foreach ($results as $result) {
@@ -131,8 +127,6 @@ class Online extends \Opencart\System\Engine\Controller {
 		if (isset($this->request->get['filter_ip'])) {
 			$url .= '&filter_ip=' . $this->request->get['filter_ip'];
 		}
-
-		$customer_total = $this->model_report_online->getTotalOnline($filter_data);
 
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $customer_total,

@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Customer;
  */
 class CustomerGroup extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -57,8 +55,6 @@ class CustomerGroup extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -68,8 +64,6 @@ class CustomerGroup extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -118,6 +112,8 @@ class CustomerGroup extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('customer/customer_group');
 
+		$customer_group_total = $this->model_customer_customer_group->getTotalCustomerGroups();
+
 		$results = $this->model_customer_customer_group->getCustomerGroups($filter_data);
 
 		foreach ($results as $result) {
@@ -150,8 +146,6 @@ class CustomerGroup extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$customer_group_total = $this->model_customer_customer_group->getTotalCustomerGroups();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $customer_group_total,
 			'page'  => $page,
@@ -168,8 +162,6 @@ class CustomerGroup extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -250,8 +242,6 @@ class CustomerGroup extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -264,7 +254,7 @@ class CustomerGroup extends \Opencart\System\Engine\Controller {
 		}
 
 		foreach ($this->request->post['customer_group_description'] as $language_id => $value) {
-			if (!oc_validate_length($value['name'], 3, 32)) {
+			if ((oc_strlen($value['name']) < 3) || (oc_strlen($value['name']) > 32)) {
 				$json['error']['name_' . $language_id] = $this->language->get('error_name');
 			}
 		}
@@ -286,8 +276,6 @@ class CustomerGroup extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

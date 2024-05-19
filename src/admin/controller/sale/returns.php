@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Sale;
  */
 class Returns extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -150,8 +148,6 @@ class Returns extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -161,8 +157,6 @@ class Returns extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -299,6 +293,8 @@ class Returns extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('sale/returns');
 
+		$return_total = $this->model_sale_returns->getTotalReturns($filter_data);
+
 		$results = $this->model_sale_returns->getReturns($filter_data);
 
 		foreach ($results as $result) {
@@ -406,8 +402,6 @@ class Returns extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$return_total = $this->model_sale_returns->getTotalReturns($filter_data);
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $return_total,
 			'page'  => $page,
@@ -424,8 +418,6 @@ class Returns extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -634,8 +626,6 @@ class Returns extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -651,27 +641,27 @@ class Returns extends \Opencart\System\Engine\Controller {
 			$json['error']['order_id'] = $this->language->get('error_order_id');
 		}
 
-		if (!oc_validate_length($this->request->post['firstname'], 1, 32)) {
+		if ((oc_strlen($this->request->post['firstname']) < 1) || (oc_strlen($this->request->post['firstname']) > 32)) {
 			$json['error']['firstname'] = $this->language->get('error_firstname');
 		}
 
-		if (!oc_validate_length($this->request->post['lastname'], 1, 32)) {
+		if ((oc_strlen($this->request->post['lastname']) < 1) || (oc_strlen($this->request->post['lastname']) > 32)) {
 			$json['error']['lastname'] = $this->language->get('error_lastname');
 		}
 
-		if (!oc_validate_email($this->request->post['email'])) {
+		if ((oc_strlen($this->request->post['email']) > 96) || !filter_var($this->request->post['email'], FILTER_VALIDATE_EMAIL)) {
 			$json['error']['email'] = $this->language->get('error_email');
 		}
 
-		if (!oc_validate_length($this->request->post['telephone'], 3, 32)) {
+		if ((oc_strlen($this->request->post['telephone']) < 3) || (oc_strlen($this->request->post['telephone']) > 32)) {
 			$json['error']['telephone'] = $this->language->get('error_telephone');
 		}
 
-		if (!oc_validate_length($this->request->post['product'], 1, 255)) {
+		if ((oc_strlen($this->request->post['product']) < 1) || (oc_strlen($this->request->post['product']) > 255)) {
 			$json['error']['product'] = $this->language->get('error_product');
 		}
 
-		if (!oc_validate_length($this->request->post['model'], 1, 64)) {
+		if ((oc_strlen($this->request->post['model']) < 1) || (oc_strlen($this->request->post['model']) > 64)) {
 			$json['error']['model'] = $this->language->get('error_model');
 		}
 
@@ -700,8 +690,6 @@ class Returns extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {
@@ -734,8 +722,6 @@ class Returns extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * History
-	 *
 	 * @return void
 	 */
 	public function history(): void {
@@ -745,8 +731,6 @@ class Returns extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get History
-	 *
 	 * @return string
 	 */
 	public function getHistory(): string {
@@ -794,8 +778,6 @@ class Returns extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Add History
-	 *
 	 * @return void
 	 */
 	public function addHistory(): void {

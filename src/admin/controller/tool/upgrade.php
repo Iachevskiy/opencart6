@@ -18,8 +18,6 @@ namespace Opencart\Admin\Controller\Tool;
  */
 class Upgrade extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -51,15 +49,9 @@ class Upgrade extends \Opencart\System\Engine\Controller {
 
 		$response = curl_exec($curl);
 
-		$status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
 		curl_close($curl);
 
-		if ($status == 200) {
-			$response_info = json_decode($response, true);
-		} else {
-			$response_info = [];
-		}
+		$response_info = json_decode($response, true);
 
 		if ($response_info) {
 			$data['latest_version'] = $response_info['version'];
@@ -88,8 +80,6 @@ class Upgrade extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Download
-	 *
 	 * @return void
 	 */
 	public function download(): void {
@@ -149,8 +139,6 @@ class Upgrade extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Install
-	 *
 	 * @return void
 	 */
 	public function install(): void {
@@ -214,7 +202,7 @@ class Upgrade extends \Opencart\System\Engine\Controller {
 									unlink(DIR_OPENCART . $destination);
 								}
 
-								if (file_put_contents(DIR_OPENCART . $destination, $zip->getFromIndex($i)) === false) {
+								if (!copy('zip://' . $file . '#' . $source, DIR_OPENCART . $destination)) {
 									$json['error'] = sprintf($this->language->get('error_copy'), $source, $destination);
 								}
 							}

@@ -1,7 +1,8 @@
 # Config and Htaccess Files
-/src/.htaccess
-/src/config.php
-/src/admin/config.php
+#/src/.htaccess
+/src/db.php
+/src/env.php
+/src/admin/env.php
 
 # Image Cache Files
 /src/image/cache/*
@@ -36,7 +37,7 @@
 !/src/system/storage/upload/index.html
 
 # CSS Files
-/src/catalog/view/stylesheet/stylesheet.css
+#/src/catalog/view/stylesheet/stylesheet.css
 
 # IDE Project files
 /src/.idea/*
@@ -45,3 +46,5 @@
 /.cache
 /.php-cs-fixer.cache
 .env
+#/src/install
+#/src/install/*

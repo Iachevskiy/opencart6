@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Localisation;
  */
 class WeightClass extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -55,8 +53,6 @@ class WeightClass extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -66,8 +62,6 @@ class WeightClass extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -116,6 +110,8 @@ class WeightClass extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('localisation/weight_class');
 
+		$weight_class_total = $this->model_localisation_weight_class->getTotalWeightClasses();
+
 		$results = $this->model_localisation_weight_class->getWeightClasses($filter_data);
 
 		foreach ($results as $result) {
@@ -150,8 +146,6 @@ class WeightClass extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$weight_class_total = $this->model_localisation_weight_class->getTotalWeightClasses();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $weight_class_total,
 			'page'  => $page,
@@ -168,8 +162,6 @@ class WeightClass extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -244,8 +236,6 @@ class WeightClass extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -258,7 +248,7 @@ class WeightClass extends \Opencart\System\Engine\Controller {
 		}
 
 		foreach ($this->request->post['weight_class_description'] as $language_id => $value) {
-			if (!oc_validate_length($value['title'], 3, 32)) {
+			if ((oc_strlen($value['title']) < 3) || (oc_strlen($value['title']) > 32)) {
 				$json['error']['title_' . $language_id] = $this->language->get('error_title');
 			}
 
@@ -284,8 +274,6 @@ class WeightClass extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

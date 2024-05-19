@@ -7,9 +7,7 @@ namespace Opencart\Admin\Model\Setting;
  */
 class Extension extends \Opencart\System\Engine\Model {
 	/**
-	 * Get Extensions
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getExtensions(): array {
 		$query = $this->db->query("SELECT DISTINCT `extension` FROM `" . DB_PREFIX . "extension`");
@@ -18,11 +16,9 @@ class Extension extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Extensions By Type
-	 *
 	 * @param string $type
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getExtensionsByType(string $type): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "extension` WHERE `type` = '" . $this->db->escape($type) . "' ORDER BY `code` ASC");
@@ -31,12 +27,10 @@ class Extension extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Extension By Code
-	 *
 	 * @param string $type
 	 * @param string $code
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getExtensionByCode(string $type, string $code): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "extension` WHERE `type` = '" . $this->db->escape($type) . "' AND `code` = '" . $this->db->escape($code) . "'");
@@ -45,8 +39,6 @@ class Extension extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Extensions By Extension
-	 *
 	 * @param string $extension
 	 *
 	 * @return int
@@ -58,8 +50,6 @@ class Extension extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Install
-	 *
 	 * @param string $type
 	 * @param string $extension
 	 * @param string $code
@@ -77,8 +67,6 @@ class Extension extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Uninstall
-	 *
 	 * @param string $type
 	 * @param string $code
 	 *
@@ -86,28 +74,21 @@ class Extension extends \Opencart\System\Engine\Model {
 	 */
 	public function uninstall(string $type, string $code): void {
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "extension` WHERE `type` = '" . $this->db->escape($type) . "' AND `code` = '" . $this->db->escape($code) . "'");
-
-		$this->load->model('setting/setting');
-
-		$this->model_setting_setting->deleteSettingsByCode($type . '_' . $code);
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "setting` WHERE `code` = '" . $this->db->escape($type . '_' . $code) . "'");
 	}
 
 	/**
-	 * Add Install
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
 	public function addInstall(array $data): int {
-		$this->db->query("INSERT INTO `" . DB_PREFIX . "extension_install` SET `extension_id` = '" . (int)$data['extension_id'] . "', `extension_download_id` = '" . (int)$data['extension_download_id'] . "', `name` = '" . $this->db->escape($data['name']) . "', `description` = '" . $this->db->escape($data['description']) . "', `code` = '" . $this->db->escape($data['code']) . "', `version` = '" . $this->db->escape($data['version']) . "', `author` = '" . $this->db->escape($data['author']) . "', `link` = '" . $this->db->escape($data['link']) . "', `status` = '0', `date_added` = NOW()");
+		$this->db->query("INSERT INTO `" . DB_PREFIX . "extension_install` SET `extension_id` = '" . (int)$data['extension_id'] . "', `extension_download_id` = '" . (int)$data['extension_download_id'] . "', `name` = '" . $this->db->escape($data['name']) . "', `code` = '" . $this->db->escape($data['code']) . "', `version` = '" . $this->db->escape($data['version']) . "', `author` = '" . $this->db->escape($data['author']) . "', `link` = '" . $this->db->escape($data['link']) . "', `status` = '0', `date_added` = NOW()");
 
 		return $this->db->getLastId();
 	}
 
 	/**
-	 * Delete Install
-	 *
 	 * @param int $extension_install_id
 	 *
 	 * @return void
@@ -117,8 +98,6 @@ class Extension extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Edit Status
-	 *
 	 * @param int  $extension_install_id
 	 * @param bool $status
 	 *
@@ -129,11 +108,9 @@ class Extension extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Install
-	 *
 	 * @param int $extension_install_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getInstall(int $extension_install_id): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "extension_install` WHERE `extension_install_id` = '" . (int)$extension_install_id . "'");
@@ -142,11 +119,9 @@ class Extension extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Install By Extension Download ID
-	 *
 	 * @param int $extension_download_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getInstallByExtensionDownloadId(int $extension_download_id): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "extension_install` WHERE `extension_download_id` = '" . (int)$extension_download_id . "'");
@@ -155,11 +130,9 @@ class Extension extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Install By Code
-	 *
 	 * @param string $code
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getInstallByCode(string $code): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "extension_install` WHERE `code` = '" . $this->db->escape($code) . "'");
@@ -168,11 +141,9 @@ class Extension extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Installs
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getInstalls(array $data = []): array {
 		$sql = "SELECT * FROM `" . DB_PREFIX . "extension_install`";
@@ -217,9 +188,7 @@ class Extension extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Installs
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
@@ -236,8 +205,6 @@ class Extension extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Add Path
-	 *
 	 * @param int    $extension_install_id
 	 * @param string $path
 	 *
@@ -248,8 +215,6 @@ class Extension extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete Path
-	 *
 	 * @param int $extension_path_id
 	 *
 	 * @return void
@@ -259,11 +224,9 @@ class Extension extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Paths By Extension Install ID
-	 *
 	 * @param int $extension_install_id
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getPathsByExtensionInstallId(int $extension_install_id): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "extension_path` WHERE `extension_install_id` = '" . (int)$extension_install_id . "' ORDER BY `extension_path_id` ASC");
@@ -272,11 +235,9 @@ class Extension extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Paths
-	 *
 	 * @param string $path
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getPaths(string $path): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "extension_path` WHERE `path` LIKE '" . $this->db->escape($path) . "' ORDER BY `path` ASC");
@@ -285,8 +246,6 @@ class Extension extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Paths
-	 *
 	 * @param string $path
 	 *
 	 * @return int

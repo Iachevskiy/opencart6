@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Common;
  */
 class Language extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return string
 	 */
 	public function index(): string {
@@ -57,8 +55,6 @@ class Language extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -73,7 +69,7 @@ class Language extends \Opencart\System\Engine\Controller {
 		}
 
 		if (isset($this->request->post['redirect'])) {
-			$redirect = html_entity_decode($this->request->post['redirect'], ENT_QUOTES, 'UTF-8');
+			$redirect = htmlspecialchars_decode($this->request->post['redirect'], ENT_COMPAT);
 		} else {
 			$redirect = '';
 		}
@@ -87,15 +83,9 @@ class Language extends \Opencart\System\Engine\Controller {
 		}
 
 		if (!$json) {
-			$option = [
-				'expires'  => time() + 60 * 60 * 24 * 365 * 10,
-				'path'     => $this->config->get('session_path'),
-				'SameSite' => $this->config->get('config_session_samesite')
-			];
+			setcookie('language', $code, time() + 60 * 60 * 24 * 365 * 10);
 
-			setcookie('language', $code, $option);
-
-			if ($redirect && str_starts_with($redirect, $this->config->get('config_url'))) {
+			if ($redirect && substr($redirect, 0, strlen($this->config->get('config_url'))) == $this->config->get('config_url')) {
 				$json['redirect'] = $redirect;
 			} else {
 				$json['redirect'] = $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true);

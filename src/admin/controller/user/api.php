@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\User;
  */
 class Api extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -57,8 +55,6 @@ class Api extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -68,8 +64,6 @@ class Api extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -118,6 +112,8 @@ class Api extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('user/api');
 
+		$user_total = $this->model_user_api->getTotalApis();
+
 		$results = $this->model_user_api->getApis($filter_data);
 
 		foreach ($results as $result) {
@@ -154,8 +150,6 @@ class Api extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$user_total = $this->model_user_api->getTotalApis();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $user_total,
 			'page'  => $page,
@@ -172,8 +166,6 @@ class Api extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -283,8 +275,6 @@ class Api extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -296,11 +286,11 @@ class Api extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!oc_validate_length($this->request->post['username'], 3, 64)) {
+		if ((oc_strlen($this->request->post['username']) < 3) || (oc_strlen($this->request->post['username']) > 64)) {
 			$json['error']['username'] = $this->language->get('error_username');
 		}
 
-		if (!oc_validate_length($this->request->post['key'], 64, 256)) {
+		if ((oc_strlen($this->request->post['key']) < 64) || (oc_strlen($this->request->post['key']) > 256)) {
 			$json['error']['key'] = $this->language->get('error_key');
 		}
 
@@ -325,8 +315,6 @@ class Api extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {
@@ -359,8 +347,6 @@ class Api extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete Session
-	 *
 	 * @return void
 	 */
 	public function deleteSession(): void {

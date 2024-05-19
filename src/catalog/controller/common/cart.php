@@ -123,8 +123,6 @@ class Cart extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Info
-	 *
 	 * @return void
 	 */
 	public function info(): void {
@@ -132,8 +130,6 @@ class Cart extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Remove Product
-	 *
 	 * @return void
 	 */
 	public function removeProduct(): void {
@@ -168,17 +164,15 @@ class Cart extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Remove Voucher
-	 *
 	 * @return void
 	 */
 	public function removeVoucher(): void {
-		$this->load->language('checkout/voucher');
+		$this->load->language('checkout/cart');
 
 		$json = [];
 
-		if (isset($this->request->post['key'])) {
-			$key = $this->request->post['key'];
+		if (isset($this->request->get['key'])) {
+			$key = $this->request->get['key'];
 		} else {
 			$key = '';
 		}

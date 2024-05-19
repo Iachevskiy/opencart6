@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Marketing;
  */
 class Affiliate extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -173,6 +171,8 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 			'value' => 800
 		];
 
+		$data['user_token'] = $this->session->data['user_token'];
+
 		$data['filter_customer'] = $filter_customer;
 		$data['filter_tracking'] = $filter_tracking;
 		$data['filter_payment_method'] = $filter_payment_method;
@@ -193,8 +193,6 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -204,8 +202,6 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -340,6 +336,9 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 		];
 
 		$this->load->model('marketing/affiliate');
+		$this->load->model('customer/customer');
+
+		$affiliate_total = $this->model_marketing_affiliate->getTotalAffiliates($filter_data);
 
 		$results = $this->model_marketing_affiliate->getAffiliates($filter_data);
 
@@ -349,7 +348,7 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 				'name'        => $result['name'],
 				'tracking'    => $result['tracking'],
 				'commission'  => $result['commission'],
-				'balance'     => $this->currency->format((int)$result['balance'], $this->config->get('config_currency')),
+				'balance'     => $this->currency->format($result['balance'], $this->config->get('config_currency')),
 				'status'      => $result['status'],
 				'date_added'  => date($this->language->get('date_format_short'), strtotime($result['date_added'])),
 				'customer'    => $this->url->link('customer/customer.form', 'user_token=' . $this->session->data['user_token'] . '&customer_id=' . $result['customer_id']),
@@ -400,7 +399,6 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 		$data['sort_name'] = $this->url->link('marketing/affiliate.list', 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url);
 		$data['sort_tracking'] = $this->url->link('marketing/affiliate.list', 'user_token=' . $this->session->data['user_token'] . '&sort=ca.tracking' . $url);
 		$data['sort_commission'] = $this->url->link('marketing/affiliate.list', 'user_token=' . $this->session->data['user_token'] . '&sort=ca.commission' . $url);
-		$data['sort_balance'] = $this->url->link('marketing/affiliate.list', 'user_token=' . $this->session->data['user_token'] . '&sort=ca.balance' . $url);
 		$data['sort_date_added'] = $this->url->link('marketing/affiliate.list', 'user_token=' . $this->session->data['user_token'] . '&sort=ca.date_added' . $url);
 
 		$url = '';
@@ -445,8 +443,6 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 			$url .= '&limit=' . $this->request->get['limit'];
 		}
 
-		$affiliate_total = $this->model_marketing_affiliate->getTotalAffiliates($filter_data);
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $affiliate_total,
 			'page'  => $page,
@@ -464,8 +460,6 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -653,9 +647,8 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 		$data['custom_fields'] = [];
 
 		$filter_data = [
-			'filter_location' => 'affiliate',
-			'sort'            => 'cf.sort_order',
-			'order'           => 'ASC'
+			'sort'  => 'cf.sort_order',
+			'order' => 'ASC'
 		];
 
 		// Custom Fields
@@ -678,7 +671,7 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 		}
 
 		if (!empty($affiliate_info)) {
-			$data['affiliate_custom_field'] = $affiliate_info['custom_field'];
+			$data['affiliate_custom_field'] = json_decode($affiliate_info['custom_field'], true);
 		} else {
 			$data['affiliate_custom_field'] = [];
 		}
@@ -697,8 +690,6 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -760,12 +751,6 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 		if ($customer_info) {
 			$this->load->model('customer/custom_field');
 
-			$filter_data = [
-				'filter_location'          => 'account',
-				'filter_customer_group_id' => $this->request->post['customer_group_id'],
-				'filter_status'            => 1
-			];
-
 			$custom_fields = $this->model_customer_custom_field->getCustomFields(['filter_customer_group_id' => $customer_info['customer_group_id']]);
 
 			foreach ($custom_fields as $custom_field) {
@@ -799,8 +784,6 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {
@@ -833,11 +816,9 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Calculate
-	 *
 	 * @return void
 	 */
-	public function calculate(): void {
+	public function calculate() {
 		$this->load->language('marketing/affiliate');
 
 		$json = [];
@@ -864,8 +845,6 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Csv
-	 *
 	 * @return \Opencart\System\Engine\Action|void
 	 */
 	public function csv() {
@@ -911,7 +890,7 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 				header('Content-Disposition: attachment; filename=payout-' . date('d-m-Y') . '.csv"');
 				header('Content-Length: ' . strlen($csv));
 
-				echo $csv;
+				print($csv);
 			} else {
 				exit('Error: Headers already sent out!');
 			}
@@ -921,11 +900,9 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Complete
-	 *
 	 * @return void
 	 */
-	public function complete(): void {
+	public function complete() {
 		$this->load->language('marketing/affiliate');
 
 		$json = [];
@@ -962,8 +939,6 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Report
-	 *
 	 * @return void
 	 */
 	public function report(): void {
@@ -973,8 +948,6 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get Report
-	 *
 	 * @return string
 	 */
 	private function getReport(): string {
@@ -1036,8 +1009,6 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Autocomplete
-	 *
 	 * @return void
 	 */
 	public function autocomplete(): void {
@@ -1059,7 +1030,7 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 			'filter_name'  => $filter_name,
 			'filter_email' => $filter_email,
 			'start'        => 0,
-			'limit'        => $this->config->get('config_autocomplete_limit')
+			'limit'        => 5
 		];
 
 		$this->load->model('marketing/affiliate');

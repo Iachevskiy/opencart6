@@ -7,27 +7,23 @@ namespace Opencart\Catalog\Model\Catalog;
  */
 class Manufacturer extends \Opencart\System\Engine\Model {
 	/**
-	 * Get Manufacturer
-	 *
 	 * @param int $manufacturer_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getManufacturer(int $manufacturer_id): array {
-		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "manufacturer` `m` LEFT JOIN `" . DB_PREFIX . "manufacturer_to_store` `m2s` ON (`m`.`manufacturer_id` = `m2s`.`manufacturer_id`) WHERE `m`.`manufacturer_id` = '" . (int)$manufacturer_id . "' AND `m2s`.`store_id` = '" . (int)$this->config->get('config_store_id') . "'");
+		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "manufacturer` m LEFT JOIN `" . DB_PREFIX . "manufacturer_to_store` m2s ON (m.`manufacturer_id` = m2s.`manufacturer_id`) WHERE m.`manufacturer_id` = '" . (int)$manufacturer_id . "' AND m2s.`store_id` = '" . (int)$this->config->get('config_store_id') . "'");
 
 		return $query->row;
 	}
 
 	/**
-	 * Get Manufacturer(s)
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getManufacturers(array $data = []): array {
-		$sql = "SELECT * FROM `" . DB_PREFIX . "manufacturer` `m` LEFT JOIN `" . DB_PREFIX . "manufacturer_to_store` `m2s` ON (`m`.`manufacturer_id` = `m2s`.`manufacturer_id`) WHERE `m2s`.`store_id` = '" . (int)$this->config->get('config_store_id') . "'";
+		$sql = "SELECT * FROM `" . DB_PREFIX . "manufacturer` m LEFT JOIN `" . DB_PREFIX . "manufacturer_to_store` m2s ON (m.`manufacturer_id` = m2s.`manufacturer_id`) WHERE m2s.`store_id` = '" . (int)$this->config->get('config_store_id') . "'";
 
 		$sort_data = [
 			'name',
@@ -58,24 +54,20 @@ class Manufacturer extends \Opencart\System\Engine\Model {
 			$sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
 		}
 
-		$key = md5($sql);
-
-		$manufacturer_data = $this->cache->get('manufacturer.' . $key);
+		$manufacturer_data = $this->cache->get('manufacturer.' . md5($sql));
 
 		if (!$manufacturer_data) {
 			$query = $this->db->query($sql);
 
 			$manufacturer_data = $query->rows;
 
-			$this->cache->set('manufacturer.' . $key, $manufacturer_data);
+			$this->cache->set('manufacturer.' . md5($sql), $manufacturer_data);
 		}
 
 		return $manufacturer_data;
 	}
 
 	/**
-	 * Get Layout ID
-	 *
 	 * @param int $manufacturer_id
 	 *
 	 * @return int

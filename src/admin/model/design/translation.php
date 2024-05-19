@@ -7,9 +7,7 @@ namespace Opencart\Admin\Model\Design;
  */
 class Translation extends \Opencart\System\Engine\Model {
 	/**
-	 * Add Translation
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return void
 	 */
@@ -18,10 +16,8 @@ class Translation extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Edit Translation
-	 *
-	 * @param int                  $translation_id
-	 * @param array<string, mixed> $data
+	 * @param int   $translation_id
+	 * @param array $data
 	 *
 	 * @return void
 	 */
@@ -30,8 +26,6 @@ class Translation extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete Translation
-	 *
 	 * @param int $translation_id
 	 *
 	 * @return void
@@ -41,33 +35,9 @@ class Translation extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete Translations By Store ID
-	 *
-	 * @param int $store_id
-	 *
-	 * @return void
-	 */
-	public function deleteTranslationsByStoreId(int $store_id): void {
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "translation` WHERE `store_id` = '" . (int)$store_id . "'");
-	}
-
-	/**
-	 * Delete Translations By Language ID
-	 *
-	 * @param int $language_id
-	 *
-	 * @return void
-	 */
-	public function deleteTranslationsByLanguageId(int $language_id): void {
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "translation` WHERE `language_id` = '" . (int)$language_id . "'");
-	}
-
-	/**
-	 * Get Translation
-	 *
 	 * @param int $translation_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getTranslation(int $translation_id): array {
 		$query = $this->db->query("SELECT DISTINCT * FROM `" . DB_PREFIX . "translation` WHERE `translation_id` = '" . (int)$translation_id . "'");
@@ -76,14 +46,12 @@ class Translation extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Translations
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getTranslations(array $data = []): array {
-		$sql = "SELECT *, (SELECT `s`.`name` FROM `" . DB_PREFIX . "store` `s` WHERE `s`.`store_id` = `t`.`store_id`) AS `store`, (SELECT `l`.`name` FROM `" . DB_PREFIX . "language` `l` WHERE `l`.`language_id` = `t`.`language_id`) AS `language` FROM `" . DB_PREFIX . "translation` `t`";
+		$sql = "SELECT *, (SELECT s.`name` FROM `" . DB_PREFIX . "store` s WHERE s.`store_id` = t.`store_id`) AS store, (SELECT l.`name` FROM `" . DB_PREFIX . "language` l WHERE l.`language_id` = t.`language_id`) AS language FROM `" . DB_PREFIX . "translation` t";
 
 		$sort_data = [
 			'store',
@@ -123,8 +91,6 @@ class Translation extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Translations
-	 *
 	 * @return int
 	 */
 	public function getTotalTranslations(): int {

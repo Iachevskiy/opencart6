@@ -7,9 +7,7 @@ namespace Opencart\Admin\Model\Tool;
  */
 class Backup extends \Opencart\System\Engine\Model {
 	/**
-	 * Get Tables
-	 *
-	 * @return array<int, string>
+	 * @return array
 	 */
 	public function getTables(): array {
 		$table_data = [];
@@ -26,13 +24,11 @@ class Backup extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Records
-	 *
 	 * @param string $table
 	 * @param int    $start
 	 * @param int    $limit
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getRecords(string $table, int $start = 0, int $limit = 100): array {
 		if ($start < 0) {
@@ -53,8 +49,6 @@ class Backup extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Records
-	 *
 	 * @param string $table
 	 *
 	 * @return int

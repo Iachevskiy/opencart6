@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Localisation;
  */
 class TaxRate extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -57,8 +55,6 @@ class TaxRate extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -68,8 +64,6 @@ class TaxRate extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -118,16 +112,20 @@ class TaxRate extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('localisation/tax_rate');
 
+		$tax_rate_total = $this->model_localisation_tax_rate->getTotalTaxRates();
+
 		$results = $this->model_localisation_tax_rate->getTaxRates($filter_data);
 
 		foreach ($results as $result) {
 			$data['tax_rates'][] = [
-				'tax_rate_id' => $result['tax_rate_id'],
-				'name'        => $result['name'],
-				'rate'        => $result['rate'],
-				'type'        => ($result['type'] == 'F' ? $this->language->get('text_amount') : $this->language->get('text_percent')),
-				'geo_zone'    => $result['geo_zone'],
-				'edit'        => $this->url->link('localisation/tax_rate.form', 'user_token=' . $this->session->data['user_token'] . '&tax_rate_id=' . $result['tax_rate_id'] . $url)
+				'tax_rate_id'   => $result['tax_rate_id'],
+				'name'          => $result['name'],
+				'rate'          => $result['rate'],
+				'type'          => ($result['type'] == 'F' ? $this->language->get('text_amount') : $this->language->get('text_percent')),
+				'geo_zone'      => $result['geo_zone'],
+				'date_added'    => date($this->language->get('date_format_short'), strtotime($result['date_added'])),
+				'date_modified' => date($this->language->get('date_format_short'), strtotime($result['date_modified'])),
+				'edit'          => $this->url->link('localisation/tax_rate.form', 'user_token=' . $this->session->data['user_token'] . '&tax_rate_id=' . $result['tax_rate_id'] . $url)
 			];
 		}
 
@@ -143,6 +141,8 @@ class TaxRate extends \Opencart\System\Engine\Controller {
 		$data['sort_rate'] = $this->url->link('localisation/tax_rate.list', 'user_token=' . $this->session->data['user_token'] . '&sort=tr.rate' . $url);
 		$data['sort_type'] = $this->url->link('localisation/tax_rate.list', 'user_token=' . $this->session->data['user_token'] . '&sort=tr.type' . $url);
 		$data['sort_geo_zone'] = $this->url->link('localisation/tax_rate.list', 'user_token=' . $this->session->data['user_token'] . '&sort=gz.name' . $url);
+		$data['sort_date_added'] = $this->url->link('localisation/tax_rate.list', 'user_token=' . $this->session->data['user_token'] . '&sort=tr.date_added' . $url);
+		$data['sort_date_modified'] = $this->url->link('localisation/tax_rate.list', 'user_token=' . $this->session->data['user_token'] . '&sort=tr.date_modified' . $url);
 
 		$url = '';
 
@@ -153,8 +153,6 @@ class TaxRate extends \Opencart\System\Engine\Controller {
 		if (isset($this->request->get['order'])) {
 			$url .= '&order=' . $this->request->get['order'];
 		}
-
-		$tax_rate_total = $this->model_localisation_tax_rate->getTotalTaxRates();
 
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $tax_rate_total,
@@ -172,8 +170,6 @@ class TaxRate extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -224,7 +220,7 @@ class TaxRate extends \Opencart\System\Engine\Controller {
 			$data['tax_rate_id'] = 0;
 		}
 
-		if (!empty($tax_rate_info)) {
+	    if (!empty($tax_rate_info)) {
 			$data['name'] = $tax_rate_info['name'];
 		} else {
 			$data['name'] = '';
@@ -270,8 +266,6 @@ class TaxRate extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -283,7 +277,7 @@ class TaxRate extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!oc_validate_length($this->request->post['name'], 3, 32)) {
+		if ((oc_strlen($this->request->post['name']) < 3) || (oc_strlen($this->request->post['name']) > 32)) {
 			$json['error']['name'] = $this->language->get('error_name');
 		}
 
@@ -308,8 +302,6 @@ class TaxRate extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

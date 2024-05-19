@@ -7,59 +7,39 @@ namespace Opencart\Catalog\Model\Account;
  */
 class Wishlist extends \Opencart\System\Engine\Model {
 	/**
-	 * Add Wishlist
-	 *
-	 * @param int $customer_id
 	 * @param int $product_id
 	 *
 	 * @return void
 	 */
-	public function addWishlist(int $customer_id, int $product_id): void {
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "customer_wishlist` WHERE `customer_id` = '" . (int)$customer_id . "' AND `store_id` = '" . (int)$this->config->get('config_store_id') . "' AND `product_id` = '" . (int)$product_id . "'");
+	public function addWishlist(int $product_id): void {
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "customer_wishlist` WHERE `customer_id` = '" . (int)$this->customer->getId() . "' AND `product_id` = '" . (int)$product_id . "'");
 
-		$this->db->query("INSERT INTO `" . DB_PREFIX . "customer_wishlist` SET `customer_id` = '" . (int)$customer_id . "', `store_id` = '" . (int)$this->config->get('config_store_id') . "', `product_id` = '" . (int)$product_id . "', `date_added` = NOW()");
+		$this->db->query("INSERT INTO `" . DB_PREFIX . "customer_wishlist` SET `customer_id` = '" . (int)$this->customer->getId() . "', `product_id` = '" . (int)$product_id . "', `date_added` = NOW()");
 	}
 
 	/**
-	 * Delete Wishlist
-	 *
-	 * @param int $customer_id
 	 * @param int $product_id
 	 *
 	 * @return void
 	 */
-	public function deleteWishlist(int $customer_id, int $product_id = 0): void {
-		$sql = "DELETE FROM `" . DB_PREFIX . "customer_wishlist` WHERE `customer_id` = '" . (int)$customer_id . "' AND `store_id` = '" . (int)$this->config->get('config_store_id') . "'";
-
-		if ($product_id) {
-			$sql .= " AND `product_id` = '" . (int)$product_id . "'";
-		}
-
-		$this->db->query($sql);
+	public function deleteWishlist(int $product_id): void {
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "customer_wishlist` WHERE `customer_id` = '" . (int)$this->customer->getId() . "' AND `product_id` = '" . (int)$product_id . "'");
 	}
 
 	/**
-	 * Get Wishlist
-	 *
-	 * @param int $customer_id
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
-	public function getWishlist(int $customer_id): array {
-		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "customer_wishlist` WHERE `customer_id` = '" . (int)$customer_id . "' AND `store_id` = '" . (int)$this->config->get('config_store_id') . "'");
+	public function getWishlist(): array {
+		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "customer_wishlist` WHERE `customer_id` = '" . (int)$this->customer->getId() . "'");
 
 		return $query->rows;
 	}
 
 	/**
-	 * Get Total Wishlist
-	 *
-	 * @param int $customer_id
-	 *
 	 * @return int
 	 */
-	public function getTotalWishlist(int $customer_id): int {
-		$query = $this->db->query("SELECT COUNT(*) AS `total` FROM `" . DB_PREFIX . "customer_wishlist` WHERE `customer_id` = '" . (int)$customer_id . "' AND `store_id` = '" . (int)$this->config->get('config_store_id') . "'");
+	public function getTotalWishlist(): int {
+		$query = $this->db->query("SELECT COUNT(*) AS `total` FROM `" . DB_PREFIX . "customer_wishlist` WHERE `customer_id` = '" . (int)$this->customer->getId() . "'");
 
 		return (int)$query->row['total'];
 	}

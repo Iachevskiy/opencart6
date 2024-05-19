@@ -3,12 +3,10 @@ namespace Opencart\Catalog\Controller\Extension\Opencart\Module;
 /**
  * Class Filter
  *
- * @package Opencart\Catalog\Controller\Extension\Opencart\Module
+ * @package
  */
 class Filter extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return string
 	 */
 	public function index(): string {
@@ -18,7 +16,7 @@ class Filter extends \Opencart\System\Engine\Controller {
 			$parts = [];
 		}
 
-		$category_id = (int)end($parts);
+		$category_id = end($parts);
 
 		$this->load->model('catalog/category');
 

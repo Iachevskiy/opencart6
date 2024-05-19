@@ -26,9 +26,7 @@ class Register extends \Opencart\System\Engine\Controller {
 
 		$data['shipping_required'] = $this->cart->hasShipping();
 
-		$this->session->data['upload_token'] = oc_token(32);
-
-		$data['upload'] = $this->url->link('tool/upload', 'language=' . $this->config->get('config_language') . '&upload_token=' . $this->session->data['upload_token']);
+		$data['upload'] = $this->url->link('tool/upload', 'language=' . $this->config->get('config_language'));
 
 		$data['customer_groups'] = [];
 
@@ -37,8 +35,8 @@ class Register extends \Opencart\System\Engine\Controller {
 
 			$customer_groups = $this->model_account_customer_group->getCustomerGroups();
 
-			foreach ($customer_groups as $customer_group) {
-				if (in_array($customer_group['customer_group_id'], (array)$this->config->get('config_customer_group_display'))) {
+			foreach ($customer_groups  as $customer_group) {
+				if (in_array($customer_group['customer_group_id'], $this->config->get('config_customer_group_display'))) {
 					$data['customer_groups'][] = $customer_group;
 				}
 			}
@@ -146,14 +144,14 @@ class Register extends \Opencart\System\Engine\Controller {
 		$extension_info = $this->model_setting_extension->getExtensionByCode('captcha', $this->config->get('config_captcha'));
 
 		if ($extension_info && $this->config->get('captcha_' . $this->config->get('config_captcha') . '_status') && in_array('register', (array)$this->config->get('config_captcha_page'))) {
-			$data['captcha'] = $this->load->controller('extension/' . $extension_info['extension'] . '/captcha/' . $extension_info['code']);
+			$data['captcha'] = $this->load->controller('extension/'  . $extension_info['extension'] . '/captcha/' . $extension_info['code']);
 		} else {
 			$data['captcha'] = '';
 		}
 
 		$this->load->model('catalog/information');
 
-		$information_info = $this->model_catalog_information->getInformation((int)$this->config->get('config_account_id'));
+		$information_info = $this->model_catalog_information->getInformation($this->config->get('config_account_id'));
 
 		if ($information_info) {
 			$data['text_agree'] = sprintf($this->language->get('text_agree'), $this->url->link('information/information.info', 'language=' . $this->config->get('config_language') . '&information_id=' . $this->config->get('config_account_id')), $information_info['title']);
@@ -167,8 +165,6 @@ class Register extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -218,8 +214,19 @@ class Register extends \Opencart\System\Engine\Controller {
 		}
 
 		// Validate cart has products and has stock.
-		if ((!$this->cart->hasProducts() && empty($this->session->data['vouchers'])) || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout')) || !$this->cart->hasMinimum()) {
+		if ((!$this->cart->hasProducts() && empty($this->session->data['vouchers'])) || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout'))) {
 			$json['redirect'] = $this->url->link('checkout/cart', 'language=' . $this->config->get('config_language'), true);
+		}
+
+		// Validate minimum quantity requirements.
+		$products = $this->cart->getProducts();
+
+		foreach ($products as $product) {
+			if (!$product['minimum']) {
+				$json['redirect'] = $this->url->link('checkout/cart', 'language=' . $this->config->get('config_language'), true);
+
+				break;
+			}
 		}
 
 		if (!$json) {
@@ -243,15 +250,15 @@ class Register extends \Opencart\System\Engine\Controller {
 				$json['error']['warning'] = $this->language->get('error_customer_group');
 			}
 
-			if (!oc_validate_length($this->request->post['firstname'], 1, 32)) {
+			if ((oc_strlen($this->request->post['firstname']) < 1) || (oc_strlen($this->request->post['firstname']) > 32)) {
 				$json['error']['firstname'] = $this->language->get('error_firstname');
 			}
 
-			if (!oc_validate_length($this->request->post['lastname'], 1, 32)) {
+			if ((oc_strlen($this->request->post['lastname']) < 1) || (oc_strlen($this->request->post['lastname']) > 32)) {
 				$json['error']['lastname'] = $this->language->get('error_lastname');
 			}
 
-			if (!oc_validate_email($this->request->post['email'])) {
+			if ((oc_strlen($this->request->post['email']) > 96) || !filter_var($this->request->post['email'], FILTER_VALIDATE_EMAIL)) {
 				$json['error']['email'] = $this->language->get('error_email');
 			}
 
@@ -261,7 +268,7 @@ class Register extends \Opencart\System\Engine\Controller {
 				$json['error']['warning'] = $this->language->get('error_exists');
 			}
 
-			// Logged in, so add customer details
+			// Logged
 			if ($this->customer->isLogged()) {
 				$customer_info = $this->model_account_customer->getCustomerByEmail($this->request->post['email']);
 
@@ -270,7 +277,7 @@ class Register extends \Opencart\System\Engine\Controller {
 				}
 			}
 
-			if ($this->config->get('config_telephone_required') && !oc_validate_length($this->request->post['telephone'], 3, 32)) {
+			if ($this->config->get('config_telephone_required') && (oc_strlen($this->request->post['telephone']) < 3) || (oc_strlen($this->request->post['telephone']) > 32)) {
 				$json['error']['telephone'] = $this->language->get('error_telephone');
 			}
 
@@ -290,11 +297,11 @@ class Register extends \Opencart\System\Engine\Controller {
 			}
 
 			if ($this->config->get('config_checkout_payment_address')) {
-				if (!oc_validate_length($this->request->post['payment_address_1'], 3, 128)) {
+				if ((oc_strlen($this->request->post['payment_address_1']) < 3) || (oc_strlen($this->request->post['payment_address_1']) > 128)) {
 					$json['error']['payment_address_1'] = $this->language->get('error_address_1');
 				}
 
-				if (!oc_validate_length($this->request->post['payment_city'], 2, 128)) {
+				if ((oc_strlen($this->request->post['payment_city']) < 2) || (oc_strlen($this->request->post['payment_city']) > 128)) {
 					$json['error']['payment_city'] = $this->language->get('error_city');
 				}
 
@@ -302,7 +309,7 @@ class Register extends \Opencart\System\Engine\Controller {
 
 				$payment_country_info = $this->model_localisation_country->getCountry((int)$this->request->post['payment_country_id']);
 
-				if ($payment_country_info && $payment_country_info['postcode_required'] && !oc_validate_length($this->request->post['payment_postcode'], 2, 10)) {
+				if ($payment_country_info && $payment_country_info['postcode_required'] && (oc_strlen($this->request->post['payment_postcode']) < 2 || oc_strlen($this->request->post['payment_postcode']) > 10)) {
 					$json['error']['payment_postcode'] = $this->language->get('error_postcode');
 				}
 
@@ -329,20 +336,20 @@ class Register extends \Opencart\System\Engine\Controller {
 			if ($this->cart->hasShipping() && !$this->request->post['address_match']) {
 				// If payment address not required we need to use the firstname and lastname from the account.
 				if ($this->config->get('config_checkout_payment_address')) {
-					if (!oc_validate_length($this->request->post['shipping_firstname'], 1, 32)) {
+					if ((oc_strlen($this->request->post['shipping_firstname']) < 1) || (oc_strlen($this->request->post['shipping_firstname']) > 32)) {
 						$json['error']['shipping_firstname'] = $this->language->get('error_firstname');
 					}
 
-					if (!oc_validate_length($this->request->post['shipping_lastname'], 1, 32)) {
+					if ((oc_strlen($this->request->post['shipping_lastname']) < 1) || (oc_strlen($this->request->post['shipping_lastname']) > 32)) {
 						$json['error']['shipping_lastname'] = $this->language->get('error_lastname');
 					}
 				}
 
-				if (!oc_validate_length($this->request->post['shipping_address_1'], 3, 128)) {
+				if ((oc_strlen($this->request->post['shipping_address_1']) < 3) || (oc_strlen($this->request->post['shipping_address_1']) > 128)) {
 					$json['error']['shipping_address_1'] = $this->language->get('error_address_1');
 				}
 
-				if (!oc_validate_length($this->request->post['shipping_city'], 2, 128)) {
+				if ((oc_strlen($this->request->post['shipping_city']) < 2) || (oc_strlen($this->request->post['shipping_city']) > 128)) {
 					$json['error']['shipping_city'] = $this->language->get('error_city');
 				}
 
@@ -350,7 +357,7 @@ class Register extends \Opencart\System\Engine\Controller {
 
 				$shipping_country_info = $this->model_localisation_country->getCountry((int)$this->request->post['shipping_country_id']);
 
-				if ($shipping_country_info && $shipping_country_info['postcode_required'] && !oc_validate_length($this->request->post['shipping_postcode'], 2, 10)) {
+				if ($shipping_country_info && $shipping_country_info['postcode_required'] && (oc_strlen($this->request->post['shipping_postcode']) < 2 || oc_strlen($this->request->post['shipping_postcode']) > 10)) {
 					$json['error']['shipping_postcode'] = $this->language->get('error_postcode');
 				}
 
@@ -375,14 +382,14 @@ class Register extends \Opencart\System\Engine\Controller {
 			}
 
 			// If account register password required
-			if ($this->request->post['account'] && !oc_validate_length(html_entity_decode($this->request->post['password'], ENT_QUOTES, 'UTF-8'), 6, 40)) {
+			if ($this->request->post['account'] && (oc_strlen(html_entity_decode($this->request->post['password'], ENT_QUOTES, 'UTF-8')) < 4) || (oc_strlen(html_entity_decode($this->request->post['password'], ENT_QUOTES, 'UTF-8')) > 40)) {
 				$json['error']['password'] = $this->language->get('error_password');
 			}
 
 			if ($this->request->post['account']) {
 				$this->load->model('catalog/information');
 
-				$information_info = $this->model_catalog_information->getInformation((int)$this->config->get('config_account_id'));
+				$information_info = $this->model_catalog_information->getInformation($this->config->get('config_account_id'));
 
 				if ($information_info && !$this->request->post['agree']) {
 					$json['error']['warning'] = sprintf($this->language->get('error_agree'), $information_info['title']);
@@ -414,7 +421,7 @@ class Register extends \Opencart\System\Engine\Controller {
 				'lastname'          => $this->request->post['lastname'],
 				'email'             => $this->request->post['email'],
 				'telephone'         => $this->request->post['telephone'],
-				'custom_field'      => $this->request->post['custom_field'] ?? []
+				'custom_field'      => isset($this->request->post['custom_field']) ? $this->request->post['custom_field'] : []
 			];
 
 			// Register
@@ -422,7 +429,7 @@ class Register extends \Opencart\System\Engine\Controller {
 				$customer_data['customer_id'] = $this->model_account_customer->addCustomer($this->request->post);
 			}
 
-			// Logged in, so edit customer details
+			// Logged so edit customer details
 			if ($this->customer->isLogged()) {
 				$this->model_account_customer->editCustomer($this->customer->getId(), $this->request->post);
 			}
@@ -483,7 +490,7 @@ class Register extends \Opencart\System\Engine\Controller {
 					'iso_code_2'     => $iso_code_2,
 					'iso_code_3'     => $iso_code_3,
 					'address_format' => $address_format,
-					'custom_field'   => $this->request->post['payment_custom_field'] ?? []
+					'custom_field'   => isset($this->request->post['payment_custom_field']) ? $this->request->post['payment_custom_field'] : []
 				];
 
 				// Add
@@ -495,7 +502,7 @@ class Register extends \Opencart\System\Engine\Controller {
 
 				// Edit
 				if ($this->customer->isLogged() && $payment_address_data['address_id']) {
-					$this->model_account_address->editAddress($this->customer->getId(), $payment_address_data['address_id'], $payment_address_data);
+					$this->model_account_address->editAddress($payment_address_data['address_id'], $payment_address_data);
 				}
 
 				// Requires Approval
@@ -562,7 +569,7 @@ class Register extends \Opencart\System\Engine\Controller {
 						'iso_code_2'     => $iso_code_2,
 						'iso_code_3'     => $iso_code_3,
 						'address_format' => $address_format,
-						'custom_field'   => $this->request->post['shipping_custom_field'] ?? []
+						'custom_field'   => isset($this->request->post['shipping_custom_field']) ? $this->request->post['shipping_custom_field'] : []
 					];
 
 					// Add
@@ -576,7 +583,7 @@ class Register extends \Opencart\System\Engine\Controller {
 
 					// Edit
 					if ($this->customer->isLogged() && $shipping_address_data['address_id']) {
-						$this->model_account_address->editAddress($this->customer->getId(), $shipping_address_data['address_id'], $shipping_address_data);
+						$this->model_account_address->editAddress($shipping_address_data['address_id'], $shipping_address_data);
 					}
 
 					// Requires Approval
@@ -599,11 +606,11 @@ class Register extends \Opencart\System\Engine\Controller {
 					// Create customer token
 					$this->session->data['customer_token'] = oc_token(26);
 
-					$json['success'] = $this->language->get('text_add_success');
+					$json['success'] = $this->language->get('text_success_add');
 				} elseif ($this->customer->isLogged()) {
-					$json['success'] = $this->language->get('text_edit_success');
+					$json['success'] = $this->language->get('text_success_edit');
 				} else {
-					$json['success'] = $this->language->get('text_guest_success');
+					$json['success'] = $this->language->get('text_success_guest');
 				}
 			} else {
 				// If account needs approval we redirect to the account success / requires approval page.

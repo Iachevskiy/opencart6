@@ -7,11 +7,9 @@ namespace Opencart\Catalog\Model\Marketing;
  */
 class Marketing extends \Opencart\System\Engine\Model {
 	/**
-	 * Get Marketing By Code
-	 *
 	 * @param string $code
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getMarketingByCode(string $code): array {
 		$query = $this->db->query("SELECT DISTINCT * FROM `" . DB_PREFIX . "marketing` WHERE `code` = '" . $this->db->escape($code) . "'");
@@ -20,8 +18,6 @@ class Marketing extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Add Report
-	 *
 	 * @param int    $marketing_id
 	 * @param string $ip
 	 * @param string $country

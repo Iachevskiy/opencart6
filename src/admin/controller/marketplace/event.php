@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Marketplace;
  */
 class Event extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -56,8 +54,6 @@ class Event extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -67,8 +63,6 @@ class Event extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	public function getList(): string {
@@ -117,6 +111,8 @@ class Event extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('setting/event');
 
+		$event_total = $this->model_setting_event->getTotalEvents();
+
 		$results = $this->model_setting_event->getEvents($filter_data);
 
 		foreach ($results as $result) {
@@ -154,8 +150,6 @@ class Event extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$event_total = $this->model_setting_event->getTotalEvents();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $event_total,
 			'page'  => $page,
@@ -172,8 +166,6 @@ class Event extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Enable
-	 *
 	 * @return void
 	 */
 	public function enable(): void {
@@ -194,7 +186,7 @@ class Event extends \Opencart\System\Engine\Controller {
 		if (!$json) {
 			$this->load->model('setting/event');
 
-			$this->model_setting_event->editStatus($event_id, true);
+			$this->model_setting_event->editStatus($event_id, 1);
 
 			$json['success'] = $this->language->get('text_success');
 		}
@@ -204,8 +196,6 @@ class Event extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Disable
-	 *
 	 * @return void
 	 */
 	public function disable(): void {
@@ -226,7 +216,7 @@ class Event extends \Opencart\System\Engine\Controller {
 		if (!$json) {
 			$this->load->model('setting/event');
 
-			$this->model_setting_event->editStatus($event_id, false);
+			$this->model_setting_event->editStatus($event_id, 0);
 
 			$json['success'] = $this->language->get('text_success');
 		}
@@ -236,8 +226,6 @@ class Event extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

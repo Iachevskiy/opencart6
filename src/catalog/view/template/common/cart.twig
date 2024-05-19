@@ -21,10 +21,12 @@
                 {% if product.subscription %}
                   <br/>
                   <small> - {{ text_subscription }}: {{ product.subscription }}</small>
-                {% endif %}</td>
+                {% endif %}
+              </td>
               <td class="text-end">x {{ product.quantity }}</td>
               <td class="text-end">{{ product.total }}</td>
               <td class="text-end">
+
                 <form action="{{ product_remove }}" method="post" data-oc-toggle="ajax" data-oc-load="{{ list }}" data-oc-target="#header-cart">
                   <input type="hidden" name="key" value="{{ product.cart_id }}">
                   <button type="submit" data-bs-toggle="tooltip" title="{{ button_remove }}" class="btn btn-danger"><i class="fa-solid fa-circle-xmark"></i></button>
@@ -32,6 +34,7 @@
               </td>
             </tr>
           {% endfor %}
+
           {% for voucher in vouchers %}
             <tr>
               <td class="text-center"></td>
@@ -46,7 +49,9 @@
               </td>
             </tr>
           {% endfor %}
+
         </table>
+
         <div>
           <table class="table table-sm table-bordered mb-2">
             {% for total in totals %}

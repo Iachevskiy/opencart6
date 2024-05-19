@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Design;
  */
 class Translation extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -57,8 +55,6 @@ class Translation extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -68,8 +64,6 @@ class Translation extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -120,6 +114,8 @@ class Translation extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('design/translation');
 
+		$translation_total = $this->model_design_translation->getTotalTranslations();
+
 		$results = $this->model_design_translation->getTranslations($filter_data);
 
 		foreach ($results as $result) {
@@ -159,8 +155,6 @@ class Translation extends \Opencart\System\Engine\Controller {
 		$data['sort_key'] = $this->url->link('design/translation.list', 'user_token=' . $this->session->data['user_token'] . '&sort=key' . $url);
 		$data['sort_value'] = $this->url->link('design/translation.list', 'user_token=' . $this->session->data['user_token'] . '&sort=value' . $url);
 
-		$translation_total = $this->model_design_translation->getTotalTranslations();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $translation_total,
 			'page'  => $page,
@@ -177,8 +171,6 @@ class Translation extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -277,8 +269,6 @@ class Translation extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -290,7 +280,7 @@ class Translation extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!oc_validate_length($this->request->post['key'], 3, 64)) {
+		if ((oc_strlen($this->request->post['key']) < 3) || (oc_strlen($this->request->post['key']) > 64)) {
 			$json['error']['key'] = $this->language->get('error_key');
 		}
 
@@ -298,7 +288,7 @@ class Translation extends \Opencart\System\Engine\Controller {
 			$this->load->model('design/translation');
 
 			if (!$this->request->post['translation_id']) {
-				$this->model_design_translation->addTranslation($this->request->post);
+				$json['translation_id'] = $this->model_design_translation->addTranslation($this->request->post);
 			} else {
 				$this->model_design_translation->editTranslation($this->request->post['translation_id'], $this->request->post);
 			}
@@ -311,8 +301,6 @@ class Translation extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {
@@ -345,8 +333,6 @@ class Translation extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Path
-	 *
 	 * @return void
 	 */
 	public function path(): void {
@@ -411,8 +397,6 @@ class Translation extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Translation
-	 *
 	 * @return void
 	 */
 	public function translation(): void {

@@ -8,17 +8,14 @@ namespace Opencart\Catalog\Controller\Mail;
 class Gdpr extends \Opencart\System\Engine\Controller {
 	// catalog/model/account/gdpr/addGdpr
 	/**
-	 * Index
-	 *
-	 * @param string            $route
-	 * @param array<int, mixed> $args
-	 * @param mixed             $output
-	 *
-	 * @throws \Exception
+	 * @param string $route
+	 * @param array  $args
+	 * @param mixed  $output
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
-	public function index(string &$route, array &$args, &$output): void {
+	public function index(string &$route, array &$args, mixed &$output): void {
 		// $args[0] $code
 		// $args[1] $email
 		// $args[2] $action
@@ -85,17 +82,14 @@ class Gdpr extends \Opencart\System\Engine\Controller {
 	// catalog/model/account/gdpr/editStatus/after
 
 	/**
-	 * Remove
-	 *
-	 * @param string            $route
-	 * @param array<int, mixed> $args
-	 * @param mixed             $output
-	 *
-	 * @throws \Exception
+	 * @param string $route
+	 * @param array  $args
+	 * @param mixed  $output
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
-	public function remove(string &$route, array &$args, &$output): void {
+	public function remove(string &$route, array &$args, mixed &$output): void {
 		if (isset($args[0])) {
 			$gdpr_id = $args[0];
 		} else {

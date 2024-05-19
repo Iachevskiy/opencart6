@@ -7,13 +7,6 @@ namespace Opencart\Admin\Controller\Extension;
  */
 class Dashboard extends \Opencart\System\Engine\Controller {
 	/**
-	 * @var array<string, string>
-	 */
-	private array $error = [];
-
-	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -21,8 +14,6 @@ class Dashboard extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	public function getList(): string {
@@ -30,15 +21,15 @@ class Dashboard extends \Opencart\System\Engine\Controller {
 
 		$available = [];
 
-		$results = glob(DIR_EXTENSION . '*/admin/controller/dashboard/*.php');
+		$this->load->model('setting/extension');
+
+		$results = $this->model_setting_extension->getPaths('%/admin/controller/dashboard/%.php');
 
 		foreach ($results as $result) {
-			$available[] = basename($result, '.php');
+			$available[] = basename($result['path'], '.php');
 		}
 
 		$installed = [];
-
-		$this->load->model('setting/extension');
 
 		$extensions = $this->model_setting_extension->getExtensionsByType('dashboard');
 
@@ -54,11 +45,9 @@ class Dashboard extends \Opencart\System\Engine\Controller {
 
 		if ($results) {
 			foreach ($results as $result) {
-				$path = substr($result, strlen(DIR_EXTENSION));
+				$extension = substr($result['path'], 0, strpos($result['path'], '/'));
 
-				$extension = substr($path, 0, strpos($path, '/'));
-
-				$code = basename($result, '.php');
+				$code = basename($result['path'], '.php');
 
 				$this->load->language('extension/' . $extension . '/dashboard/' . $code, $code);
 
@@ -81,8 +70,6 @@ class Dashboard extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Validate
-	 *
 	 * @return bool
 	 */
 	protected function validate(): bool {
@@ -94,8 +81,6 @@ class Dashboard extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Install
-	 *
 	 * @return void
 	 */
 	public function install(): void {
@@ -131,7 +116,7 @@ class Dashboard extends \Opencart\System\Engine\Controller {
 			$this->load->model('user/user_group');
 
 			$this->model_user_user_group->addPermission($this->user->getGroupId(), 'access', 'extension/' . $extension . '/dashboard/' . $code);
-			$this->model_user_user_group->addPermission($this->user->getGroupId(), 'modify', 'extension/' . $extension . '/dashboard/' . $code);
+			$this->model_user_user_group->addPermission($this->user->getGroupId(), 'modify', 'extension/' .$extension . '/dashboard/' . $code);
 
 			$namespace = str_replace(['_', '/'], ['', '\\'], ucwords($extension, '_/'));
 
@@ -160,8 +145,6 @@ class Dashboard extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Uninstall
-	 *
 	 * @return void
 	 */
 	public function uninstall(): void {

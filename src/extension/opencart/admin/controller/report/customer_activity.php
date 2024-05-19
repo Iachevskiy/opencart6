@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Extension\Opencart\Report;
  */
 class CustomerActivity extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -47,8 +45,6 @@ class CustomerActivity extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -73,8 +69,6 @@ class CustomerActivity extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Report
-	 *
 	 * @return void
 	 */
 	public function report(): void {
@@ -88,8 +82,6 @@ class CustomerActivity extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -99,8 +91,6 @@ class CustomerActivity extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get Report
-	 *
 	 * @return string
 	 */
 	public function getReport(): string {
@@ -139,8 +129,8 @@ class CustomerActivity extends \Opencart\System\Engine\Controller {
 		$filter_data = [
 			'filter_customer'   => $filter_customer,
 			'filter_ip'         => $filter_ip,
-			'filter_date_start' => $filter_date_start,
-			'filter_date_end'   => $filter_date_end,
+			'filter_date_start'	=> $filter_date_start,
+			'filter_date_end'	=> $filter_date_end,
 			'start'             => ($page - 1) * 20,
 			'limit'             => 20
 		];

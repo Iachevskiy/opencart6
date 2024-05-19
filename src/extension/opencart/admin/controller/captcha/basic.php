@@ -3,12 +3,10 @@ namespace Opencart\Admin\Controller\Extension\Opencart\Captcha;
 /**
  * Class Basic
  *
- * @package Opencart\Admin\Controller\Extension\Opencart\Captcha
+ * @package Opencart\Admin\Controller\Extension\Opencart\Captch
  */
 class Basic extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -46,8 +44,6 @@ class Basic extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {

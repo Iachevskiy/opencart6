@@ -7,26 +7,24 @@ namespace Opencart\Admin\Model\Marketing;
  */
 class Coupon extends \Opencart\System\Engine\Model {
 	/**
-	 * Add Coupon
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
 	public function addCoupon(array $data): int {
-		$this->db->query("INSERT INTO `" . DB_PREFIX . "coupon` SET `name` = '" . $this->db->escape((string)$data['name']) . "', `code` = '" . $this->db->escape((string)$data['code']) . "', `discount` = '" . (float)$data['discount'] . "', `type` = '" . $this->db->escape((string)$data['type']) . "', `total` = '" . (float)$data['total'] . "', `logged` = '" . (isset($data['logged']) ? (bool)$data['logged'] : 0) . "', `shipping` = '" . (isset($data['shipping']) ? (bool)$data['shipping'] : 0) . "', `date_start` = '" . $this->db->escape((string)$data['date_start']) . "', `date_end` = '" . $this->db->escape((string)$data['date_end']) . "', `uses_total` = '" . (int)$data['uses_total'] . "', `uses_customer` = '" . (int)$data['uses_customer'] . "', `status` = '" . (bool)($data['status'] ?? 0) . "', `date_added` = NOW()");
+		$this->db->query("INSERT INTO `" . DB_PREFIX . "coupon` SET `name` = '" . $this->db->escape((string)$data['name']) . "', `code` = '" . $this->db->escape((string)$data['code']) . "', `discount` = '" . (float)$data['discount'] . "', `type` = '" . $this->db->escape((string)$data['type']) . "', `total` = '" . (float)$data['total'] . "', `logged` = '" . (isset($data['logged']) ? (bool)$data['logged'] : 0) . "', `shipping` = '" . (isset($data['shipping']) ? (bool)$data['shipping'] : 0) . "', `date_start` = '" . $this->db->escape((string)$data['date_start']) . "', `date_end` = '" . $this->db->escape((string)$data['date_end']) . "', `uses_total` = '" . (int)$data['uses_total'] . "', `uses_customer` = '" . (int)$data['uses_customer'] . "', `status` = '" . (bool)(isset($data['status']) ? $data['status'] : 0) . "', `date_added` = NOW()");
 
 		$coupon_id = $this->db->getLastId();
 
 		if (isset($data['coupon_product'])) {
 			foreach ($data['coupon_product'] as $product_id) {
-				$this->addProduct($coupon_id, $product_id);
+				$this->db->query("INSERT INTO `" . DB_PREFIX . "coupon_product` SET `coupon_id` = '" . (int)$coupon_id . "', `product_id` = '" . (int)$product_id . "'");
 			}
 		}
 
 		if (isset($data['coupon_category'])) {
 			foreach ($data['coupon_category'] as $category_id) {
-				$this->addCategory($coupon_id, $category_id);
+				$this->db->query("INSERT INTO `" . DB_PREFIX . "coupon_category` SET `coupon_id` = '" . (int)$coupon_id . "', `category_id` = '" . (int)$category_id . "'");
 			}
 		}
 
@@ -34,54 +32,47 @@ class Coupon extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Edit Coupon
-	 *
-	 * @param int                  $coupon_id
-	 * @param array<string, mixed> $data
+	 * @param int   $coupon_id
+	 * @param array $data
 	 *
 	 * @return void
 	 */
 	public function editCoupon(int $coupon_id, array $data): void {
-		$this->db->query("UPDATE `" . DB_PREFIX . "coupon` SET `name` = '" . $this->db->escape((string)$data['name']) . "', `code` = '" . $this->db->escape((string)$data['code']) . "', `discount` = '" . (float)$data['discount'] . "', `type` = '" . $this->db->escape((string)$data['type']) . "', `total` = '" . (float)$data['total'] . "', `logged` = '" . (isset($data['logged']) ? (bool)$data['logged'] : 0) . "', `shipping` = '" . (isset($data['shipping']) ? (bool)$data['shipping'] : 0) . "', `date_start` = '" . $this->db->escape((string)$data['date_start']) . "', `date_end` = '" . $this->db->escape((string)$data['date_end']) . "', `uses_total` = '" . (int)$data['uses_total'] . "', `uses_customer` = '" . (int)$data['uses_customer'] . "', `status` = '" . (bool)($data['status'] ?? 0) . "' WHERE `coupon_id` = '" . (int)$coupon_id . "'");
+		$this->db->query("UPDATE `" . DB_PREFIX . "coupon` SET `name` = '" . $this->db->escape((string)$data['name']) . "', `code` = '" . $this->db->escape((string)$data['code']) . "', `discount` = '" . (float)$data['discount'] . "', `type` = '" . $this->db->escape((string)$data['type']) . "', `total` = '" . (float)$data['total'] . "', `logged` = '" . (isset($data['logged']) ? (bool)$data['logged'] : 0) . "', `shipping` = '" . (isset($data['shipping']) ? (bool)$data['shipping'] : 0) . "', `date_start` = '" . $this->db->escape((string)$data['date_start']) . "', `date_end` = '" . $this->db->escape((string)$data['date_end']) . "', `uses_total` = '" . (int)$data['uses_total'] . "', `uses_customer` = '" . (int)$data['uses_customer'] . "', `status` = '" . (bool)(isset($data['status']) ? $data['status'] : 0) . "' WHERE `coupon_id` = '" . (int)$coupon_id . "'");
 
-		$this->deleteProducts($coupon_id);
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "coupon_product` WHERE `coupon_id` = '" . (int)$coupon_id . "'");
 
 		if (isset($data['coupon_product'])) {
 			foreach ($data['coupon_product'] as $product_id) {
-				$this->addProduct($coupon_id, $product_id);
+				$this->db->query("INSERT INTO `" . DB_PREFIX . "coupon_product` SET `coupon_id` = '" . (int)$coupon_id . "', `product_id` = '" . (int)$product_id . "'");
 			}
 		}
 
-		$this->deleteCategories($coupon_id);
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "coupon_category` WHERE `coupon_id` = '" . (int)$coupon_id . "'");
 
 		if (isset($data['coupon_category'])) {
 			foreach ($data['coupon_category'] as $category_id) {
-				$this->addCategory($coupon_id, $category_id);
+				$this->db->query("INSERT INTO `" . DB_PREFIX . "coupon_category` SET `coupon_id` = '" . (int)$coupon_id . "', `category_id` = '" . (int)$category_id . "'");
 			}
 		}
 	}
 
 	/**
-	 * Delete Coupon
-	 *
 	 * @param int $coupon_id
 	 *
 	 * @return void
 	 */
 	public function deleteCoupon(int $coupon_id): void {
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "coupon` WHERE `coupon_id` = '" . (int)$coupon_id . "'");
-
-		$this->deleteProducts($coupon_id);
-		$this->deleteCategories($coupon_id);
-		$this->deleteHistories($coupon_id);
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "coupon_product` WHERE `coupon_id` = '" . (int)$coupon_id . "'");
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "coupon_category` WHERE `coupon_id` = '" . (int)$coupon_id . "'");
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "coupon_history` WHERE `coupon_id` = '" . (int)$coupon_id . "'");
 	}
 
 	/**
-	 * Get Coupon
-	 *
 	 * @param int $coupon_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getCoupon(int $coupon_id): array {
 		$query = $this->db->query("SELECT DISTINCT * FROM `" . DB_PREFIX . "coupon` WHERE `coupon_id` = '" . (int)$coupon_id . "'");
@@ -90,11 +81,9 @@ class Coupon extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Coupon By Code
-	 *
 	 * @param string $code
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getCouponByCode(string $code): array {
 		$query = $this->db->query("SELECT DISTINCT * FROM `" . DB_PREFIX . "coupon` WHERE `code` = '" . $this->db->escape($code) . "'");
@@ -103,11 +92,9 @@ class Coupon extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Coupons
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getCoupons(array $data = []): array {
 		$sql = "SELECT `coupon_id`, `name`, `code`, `discount`, `date_start`, `date_end`, `status` FROM `" . DB_PREFIX . "coupon`";
@@ -151,45 +138,9 @@ class Coupon extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Add Product
-	 *
-	 * @param int $coupon_id
-	 * @param int $product_id
-	 *
-	 * @return void
-	 */
-	public function addProduct(int $coupon_id, int $product_id): void {
-		$this->db->query("INSERT INTO `" . DB_PREFIX . "coupon_product` SET `coupon_id` = '" . (int)$coupon_id . "', `product_id` = '" . (int)$product_id . "'");
-	}
-
-	/**
-	 * Delete Products
-	 *
 	 * @param int $coupon_id
 	 *
-	 * @return void
-	 */
-	public function deleteProducts(int $coupon_id): void {
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "coupon_product` WHERE `coupon_id` = '" . (int)$coupon_id . "'");
-	}
-
-	/**
-	 * Delete Products By Product ID
-	 *
-	 * @param int $product_id
-	 *
-	 * @return void
-	 */
-	public function deleteProductsByProductId(int $product_id): void {
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "coupon_product` WHERE `product_id` = '" . (int)$product_id . "'");
-	}
-
-	/**
-	 * Get Products
-	 *
-	 * @param int $coupon_id
-	 *
-	 * @return array<int, int>
+	 * @return array
 	 */
 	public function getProducts(int $coupon_id): array {
 		$coupon_product_data = [];
@@ -204,45 +155,9 @@ class Coupon extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Add Category
-	 *
-	 * @param int $coupon_id
-	 * @param int $category_id
-	 *
-	 * @return void
-	 */
-	public function addCategory(int $coupon_id, int $category_id): void {
-		$this->db->query("INSERT INTO `" . DB_PREFIX . "coupon_category` SET `coupon_id` = '" . (int)$coupon_id . "', `category_id` = '" . (int)$category_id . "'");
-	}
-
-	/**
-	 * Delete Categories
-	 *
 	 * @param int $coupon_id
 	 *
-	 * @return void
-	 */
-	public function deleteCategories(int $coupon_id): void {
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "coupon_category` WHERE `coupon_id` = '" . (int)$coupon_id . "'");
-	}
-
-	/**
-	 * Delete Categories By Category ID
-	 *
-	 * @param int $category_id
-	 *
-	 * @return void
-	 */
-	public function deleteCategoriesByCategoryId(int $category_id): void {
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "coupon_category` WHERE `category_id` = '" . (int)$category_id . "'");
-	}
-
-	/**
-	 * Get Categories
-	 *
-	 * @param int $coupon_id
-	 *
-	 * @return array<int, int>
+	 * @return array
 	 */
 	public function getCategories(int $coupon_id): array {
 		$coupon_category_data = [];
@@ -257,8 +172,6 @@ class Coupon extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Coupons
-	 *
 	 * @return int
 	 */
 	public function getTotalCoupons(): int {
@@ -268,13 +181,11 @@ class Coupon extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Histories
-	 *
 	 * @param int $coupon_id
 	 * @param int $start
 	 * @param int $limit
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getHistories(int $coupon_id, int $start = 0, int $limit = 10): array {
 		if ($start < 0) {
@@ -285,25 +196,12 @@ class Coupon extends \Opencart\System\Engine\Model {
 			$limit = 10;
 		}
 
-		$query = $this->db->query("SELECT `ch`.`order_id`, CONCAT(`c`.`firstname`, ' ', `c`.`lastname`) AS `customer`, `ch`.`amount`, `ch`.`date_added` FROM `" . DB_PREFIX . "coupon_history` `ch` LEFT JOIN `" . DB_PREFIX . "customer` `c` ON (`ch`.`customer_id` = `c`.`customer_id`) WHERE `ch`.`coupon_id` = '" . (int)$coupon_id . "' ORDER BY `ch`.`date_added` ASC LIMIT " . (int)$start . "," . (int)$limit);
+		$query = $this->db->query("SELECT ch.`order_id`, CONCAT(c.`firstname`, ' ', c.`lastname`) AS customer, ch.`amount`, ch.`date_added` FROM `" . DB_PREFIX . "coupon_history` ch LEFT JOIN `" . DB_PREFIX . "customer` c ON (ch.`customer_id` = c.`customer_id`) WHERE ch.`coupon_id` = '" . (int)$coupon_id . "' ORDER BY ch.`date_added` ASC LIMIT " . (int)$start . "," . (int)$limit);
 
 		return $query->rows;
 	}
 
 	/**
-	 * Delete Coupon Histories
-	 *
-	 * @param int $coupon_id
-	 *
-	 * @return void
-	 */
-	public function deleteHistories(int $coupon_id): void {
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "coupon_history` WHERE `coupon_id` = '" . (int)$coupon_id . "'");
-	}
-
-	/**
-	 * Get Total Histories
-	 *
 	 * @param int $coupon_id
 	 *
 	 * @return int

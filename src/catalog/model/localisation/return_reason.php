@@ -7,11 +7,9 @@ namespace Opencart\Catalog\Model\Localisation;
  */
 class ReturnReason extends \Opencart\System\Engine\Model {
 	/**
-	 * Get Return Reasons
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getReturnReasons(array $data = []): array {
 		$sql = "SELECT * FROM `" . DB_PREFIX . "return_reason` WHERE `language_id` = '" . (int)$this->config->get('config_language_id') . "' ORDER BY `name`";
@@ -34,16 +32,14 @@ class ReturnReason extends \Opencart\System\Engine\Model {
 			$sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
 		}
 
-		$key = md5($sql);
-
-		$return_reason_data = $this->cache->get('return_reason.' . $key);
+		$return_reason_data = $this->cache->get('return_reason.' . md5($sql));
 
 		if (!$return_reason_data) {
 			$query = $this->db->query($sql);
 
 			$return_reason_data = $query->rows;
 
-			$this->cache->set('return_reason.' . $key, $return_reason_data);
+			$this->cache->set('return_reason.' . md5($sql), $return_reason_data);
 		}
 
 		return $return_reason_data;

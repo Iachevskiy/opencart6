@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Extension\Opencart\Module;
  */
 class BestSeller extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -63,7 +61,7 @@ class BestSeller extends \Opencart\System\Engine\Controller {
 		if (isset($module_info['axis'])) {
 			$data['axis'] = $module_info['axis'];
 		} else {
-			$data['axis'] = '';
+			$data['axis'] ='';
 		}
 
 		if (isset($module_info['limit'])) {
@@ -89,7 +87,7 @@ class BestSeller extends \Opencart\System\Engine\Controller {
 		} else {
 			$data['status'] = '';
 		}
-
+		
 		if (isset($this->request->get['module_id'])) {
 			$data['module_id'] = (int)$this->request->get['module_id'];
 		} else {
@@ -108,8 +106,6 @@ class BestSeller extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -121,7 +117,7 @@ class BestSeller extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!oc_validate_length($this->request->post['name'], 3, 64)) {
+		if ((oc_strlen($this->request->post['name']) < 3) || (oc_strlen($this->request->post['name']) > 64)) {
 			$json['error']['name'] = $this->language->get('error_name');
 		}
 
@@ -152,8 +148,6 @@ class BestSeller extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Install
-	 *
 	 * @return void
 	 */
 	public function install(): void {
@@ -165,8 +159,6 @@ class BestSeller extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Uninstall
-	 *
 	 * @return void
 	 */
 	public function uninstall(): void {
@@ -178,8 +170,6 @@ class BestSeller extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Report
-	 *
 	 * @return void
 	 */
 	public function report(): void {
@@ -189,8 +179,6 @@ class BestSeller extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get Report
-	 *
 	 * @return string
 	 */
 	public function getReport(): string {
@@ -240,8 +228,6 @@ class BestSeller extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Sync
-	 *
 	 * @return void
 	 */
 	public function sync(): void {

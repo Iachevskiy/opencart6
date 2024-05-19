@@ -3,12 +3,10 @@ namespace Opencart\Catalog\Controller\Extension\Opencart\Payment;
 /**
  * Class Cheque
  *
- * @package Opencart\Catalog\Controller\Extension\Opencart\Payment
+ * @package
  */
 class Cheque extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return string
 	 */
 	public function index(): string {
@@ -23,8 +21,6 @@ class Cheque extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Confirm
-	 *
 	 * @return void
 	 */
 	public function confirm(): void {

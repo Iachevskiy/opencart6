@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Localisation;
  */
 class Currency extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -58,8 +56,6 @@ class Currency extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -69,8 +65,6 @@ class Currency extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -131,6 +125,8 @@ class Currency extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('localisation/currency');
 
+		$currency_total = $this->model_localisation_currency->getTotalCurrencies();
+
 		$results = $this->model_localisation_currency->getCurrencies($filter_data);
 
 		foreach ($results as $result) {
@@ -169,8 +165,6 @@ class Currency extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$currency_total = $this->model_localisation_currency->getTotalCurrencies();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $currency_total,
 			'page'  => $page,
@@ -187,8 +181,6 @@ class Currency extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -291,8 +283,6 @@ class Currency extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -304,7 +294,7 @@ class Currency extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!oc_validate_length($this->request->post['title'], 3, 32)) {
+		if ((oc_strlen($this->request->post['title']) < 3) || (oc_strlen($this->request->post['title']) > 32)) {
 			$json['error']['title'] = $this->language->get('error_title');
 		}
 
@@ -329,8 +319,6 @@ class Currency extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Refresh
-	 *
 	 * @return void
 	 */
 	public function refresh(): void {
@@ -361,8 +349,6 @@ class Currency extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

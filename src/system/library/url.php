@@ -1,12 +1,10 @@
 <?php
 /**
  * @package   OpenCart
- *
  * @author    Daniel Kerr
  * @copyright Copyright (c) 2005 - 2022, OpenCart, Ltd. (https://www.opencart.com/)
  * @license   https://opensource.org/licenses/GPL-3.0
  * @author    Daniel Kerr
- *
  * @see       https://www.opencart.com
  */
 namespace Opencart\System\Library;
@@ -19,14 +17,14 @@ class Url {
 	 */
 	private string $url;
 	/**
-	 * @var array<int, object>
+	 * @var array
 	 */
 	private array $rewrite = [];
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 *
-	 * @param string $url
+	 * @param 	string 	$url
 	 */
 	public function __construct(string $url) {
 		$this->url = $url;
@@ -37,28 +35,24 @@ class Url {
 	 *
 	 * Add a rewrite method to the URL system
 	 *
-	 * @param \Opencart\System\Engine\Controller $rewrite
+	 * @param	object	$rewrite
 	 *
-	 * @return void
+	 * @return 	void
 	 */
-	public function addRewrite(object $rewrite): void {
-		if (is_callable([$rewrite, 'rewrite'])) {
-			$this->rewrite[] = $rewrite;
-		}
+	public function addRewrite(\Opencart\System\Engine\Controller $rewrite): void {
+		$this->rewrite[] = $rewrite;
 	}
 
 	/**
-	 * Link
-	 *
 	 * Generates a URL
 	 *
-	 * @param string $route
-	 * @param mixed  $args
-	 * @param bool   $js
+	 * @param 	string        	$route
+	 * @param 	string|array	$args
+	 * @param 	bool			$js
 	 *
 	 * @return string
 	 */
-	public function link(string $route, $args = '', bool $js = false): string {
+	public function link(string $route, string|array $args = '', bool $js = false): string {
 		$url = $this->url . 'index.php?route=' . $route;
 
 		if ($args) {

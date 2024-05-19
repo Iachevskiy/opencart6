@@ -1,0 +1,59 @@
+#name: Deploy to cPanel
+#
+#on:
+#  push:
+#    branches:
+#      - master
+#
+#jobs:
+#  deploy:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v2
+#
+#      - name: Deploy to cPanel
+#        run: |
+#          ssh vychevs4@test-market.ru 'ls'
+#        env:
+#          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+name: Deploy to cPanel
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+#     Setup ssh key
+      - run: |
+         set -eu
+         mkdir "$HOME/.ssh"
+         echo "${{ secrets.SSH_PRIVATE_KEY }}" > "$HOME/.ssh/key"
+         chmod 600 "$HOME/.ssh/key"
+
+#     Sync filess
+      - run: |
+          rsync -v -e  \
+          "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" \
+          --archive --compress --delete  \
+          --exclude 'db.php' \
+          --exclude 'env.php' \
+          --exclude 'admin/env.php' \
+          --exclude 'image/cache/' \
+          --exclude 'system/storage/backup/' \
+          --exclude 'system/storage/cache/' \
+          --exclude 'system/storage/download/' \
+          --exclude 'system/storage/logs/' \
+          --exclude 'system/storage/session/' \
+          --exclude 'system/storage/upload/' \
+          ./src/ vychevs4@test-market.ru:/home/vychevs4/public_html
+
+

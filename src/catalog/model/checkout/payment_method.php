@@ -7,11 +7,9 @@ namespace Opencart\Catalog\Model\Checkout;
  */
 class PaymentMethod extends \Opencart\System\Engine\Controller {
 	/**
-	 * Get Methods
+	 * @param array $payment_address
 	 *
-	 * @param array<string, mixed> $payment_address
-	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getMethods(array $payment_address = []): array {
 		$method_data = [];
@@ -24,14 +22,10 @@ class PaymentMethod extends \Opencart\System\Engine\Controller {
 			if ($this->config->get('payment_' . $result['code'] . '_status')) {
 				$this->load->model('extension/' . $result['extension'] . '/payment/' . $result['code']);
 
-				$key = 'model_extension_' . $result['extension'] . '_payment_' . $result['code'];
+				$payment_methods = $this->{'model_extension_' . $result['extension'] . '_payment_' . $result['code']}->getMethods($payment_address);
 
-				if ($this->{$key}->getMethods) {
-					$payment_methods = $this->{$key}->getMethods($payment_address);
-
-					if ($payment_methods) {
-						$method_data[$result['code']] = $payment_methods;
-					}
+				if ($payment_methods) {
+					$method_data[$result['code']] = $payment_methods;
 				}
 			}
 		}

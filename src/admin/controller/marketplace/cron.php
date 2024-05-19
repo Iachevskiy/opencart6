@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Marketplace;
  */
 class Cron extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -59,8 +57,6 @@ class Cron extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -70,8 +66,6 @@ class Cron extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	public function getList(): string {
@@ -120,6 +114,8 @@ class Cron extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('setting/cron');
 
+		$cron_total = $this->model_setting_cron->getTotalCrons();
+
 		$results = $this->model_setting_cron->getCrons($filter_data);
 
 		foreach ($results as $result) {
@@ -162,8 +158,6 @@ class Cron extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$cron_total = $this->model_setting_cron->getTotalCrons();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $cron_total,
 			'page'  => $page,
@@ -180,8 +174,6 @@ class Cron extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Run
-	 *
 	 * @return void
 	 */
 	public function run(): void {
@@ -212,7 +204,7 @@ class Cron extends \Opencart\System\Engine\Controller {
 
 				$store->load->controller($cron_info['action'], $cron_id, $cron_info['code'], $cron_info['cycle'], $cron_info['date_added'], $cron_info['date_modified']);
 
-				$store->session->destroy();
+				$store->session->destroy($store->session->getId());
 
 				$this->model_setting_cron->editCron($cron_info['cron_id']);
 			}
@@ -225,8 +217,6 @@ class Cron extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Enable
-	 *
 	 * @return void
 	 */
 	public function enable(): void {
@@ -247,7 +237,7 @@ class Cron extends \Opencart\System\Engine\Controller {
 		if (!$json) {
 			$this->load->model('setting/cron');
 
-			$this->model_setting_cron->editStatus($cron_id, true);
+			$this->model_setting_cron->editStatus($cron_id, 1);
 
 			$json['success'] = $this->language->get('text_success');
 		}
@@ -257,8 +247,6 @@ class Cron extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Disable
-	 *
 	 * @return void
 	 */
 	public function disable(): void {
@@ -279,7 +267,7 @@ class Cron extends \Opencart\System\Engine\Controller {
 		if (!$json) {
 			$this->load->model('setting/cron');
 
-			$this->model_setting_cron->editStatus($cron_id, false);
+			$this->model_setting_cron->editStatus($cron_id, 0);
 
 			$json['success'] = $this->language->get('text_success');
 		}
@@ -289,8 +277,6 @@ class Cron extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

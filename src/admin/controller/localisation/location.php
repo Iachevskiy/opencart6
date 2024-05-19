@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Localisation;
  */
 class Location extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -57,8 +55,6 @@ class Location extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -68,8 +64,6 @@ class Location extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -118,6 +112,8 @@ class Location extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('localisation/location');
 
+		$location_total = $this->model_localisation_location->getTotalLocations();
+
 		$results = $this->model_localisation_location->getLocations($filter_data);
 
 		foreach ($results as $result) {
@@ -150,8 +146,6 @@ class Location extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$location_total = $this->model_localisation_location->getTotalLocations();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $location_total,
 			'page'  => $page,
@@ -168,8 +162,6 @@ class Location extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -220,6 +212,8 @@ class Location extends \Opencart\System\Engine\Controller {
 			$data['location_id'] = 0;
 		}
 
+		$this->load->model('setting/store');
+
 		if (!empty($location_info)) {
 			$data['name'] = $location_info['name'];
 		} else {
@@ -243,7 +237,7 @@ class Location extends \Opencart\System\Engine\Controller {
 		} else {
 			$data['telephone'] = '';
 		}
-
+		
 		if (!empty($location_info)) {
 			$data['image'] = $location_info['image'];
 		} else {
@@ -252,10 +246,10 @@ class Location extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('tool/image');
 
-		$data['placeholder'] = $this->model_tool_image->resize('no_image.png', $this->config->get('config_image_default_width'), $this->config->get('config_image_default_height'));
+		$data['placeholder'] = $this->model_tool_image->resize('no_image.png', 100, 100);
 
-		if ($data['image'] && is_file(DIR_IMAGE . html_entity_decode($data['image'], ENT_QUOTES, 'UTF-8'))) {
-			$data['thumb'] = $this->model_tool_image->resize($data['image'], $this->config->get('config_image_default_width'), $this->config->get('config_image_default_height'));
+		if (is_file(DIR_IMAGE . html_entity_decode($data['image'], ENT_QUOTES, 'UTF-8'))) {
+			$data['thumb'] = $this->model_tool_image->resize(html_entity_decode($data['image'], ENT_QUOTES, 'UTF-8'), 100, 100);
 		} else {
 			$data['thumb'] = $data['placeholder'];
 		}
@@ -282,8 +276,6 @@ class Location extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -295,15 +287,15 @@ class Location extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!oc_validate_length($this->request->post['name'], 3, 32)) {
+		if ((oc_strlen($this->request->post['name']) < 3) || (oc_strlen($this->request->post['name']) > 32)) {
 			$json['error']['name'] = $this->language->get('error_name');
 		}
 
-		if (!oc_validate_length($this->request->post['address'], 3, 128)) {
+		if ((oc_strlen($this->request->post['address']) < 3) || (oc_strlen($this->request->post['address']) > 128)) {
 			$json['error']['address'] = $this->language->get('error_address');
 		}
 
-		if (!oc_validate_length($this->request->post['telephone'], 3, 32)) {
+		if ((oc_strlen($this->request->post['telephone']) < 3) || (oc_strlen($this->request->post['telephone']) > 32)) {
 			$json['error']['telephone'] = $this->language->get('error_telephone');
 		}
 
@@ -324,8 +316,6 @@ class Location extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

@@ -13,12 +13,12 @@ $registry->set('autoloader', $autoloader);
 
 // Config
 $config = new \Opencart\System\Engine\Config();
-
+$registry->set('config', $config);
 $config->addPath(DIR_CONFIG);
+
 // Load the default config
 $config->load('default');
 $config->load(strtolower(APPLICATION));
-$registry->set('config', $config);
 
 // Set the default application
 $config->set('application', APPLICATION);
@@ -31,7 +31,7 @@ $log = new \Opencart\System\Library\Log($config->get('error_filename'));
 $registry->set('log', $log);
 
 // Error Handler
-set_error_handler(function(int $code, string $message, string $file, int $line) use ($log, $config) {
+set_error_handler(function(string $code, string $message, string $file, string $line) use ($log, $config) {
 	switch ($code) {
 		case E_NOTICE:
 		case E_USER_NOTICE:
@@ -65,7 +65,7 @@ set_error_handler(function(int $code, string $message, string $file, int $line) 
 });
 
 // Exception Handler
-set_exception_handler(function(\Throwable $e) use ($log, $config): void {
+set_exception_handler(function(\Throwable $e) use ($log, $config)  {
 	if ($config->get('error_log')) {
 		$log->write($e->getMessage() . ': in ' . $e->getFile() . ' on line ' . $e->getLine());
 	}
@@ -90,9 +90,6 @@ if ($config->has('action_event')) {
 		}
 	}
 }
-
-// Factory
-$registry->set('factory', new \Opencart\System\Engine\Factory($registry));
 
 // Loader
 $loader = new \Opencart\System\Engine\Loader($registry);
@@ -123,11 +120,11 @@ $response->addHeader('Access-Control-Allow-Headers: X-Requested-With, Content-Ty
 $response->addHeader('Access-Control-Allow-Methods: PUT, POST, GET, OPTIONS, DELETE');
 $response->addHeader('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
 $response->addHeader('Pragma: no-cache');
-$response->setCompression((int)$config->get('response_compression'));
+$response->setCompression($config->get('response_compression'));
 
 // Database
 if ($config->get('db_autostart')) {
-	$db = new \Opencart\System\Library\DB($config->get('db_engine'), $config->get('db_hostname'), $config->get('db_username'), $config->get('db_password'), $config->get('db_database'), $config->get('db_port'), $config->get('db_ssl_key'), $config->get('db_ssl_cert'), $config->get('db_ssl_ca'));
+	$db = new \Opencart\System\Library\DB($config->get('db_engine'), $config->get('db_hostname'), $config->get('db_username'), $config->get('db_password'), $config->get('db_database'), $config->get('db_port'));
 	$registry->set('db', $db);
 }
 
@@ -162,8 +159,8 @@ $registry->set('cache', new \Opencart\System\Library\Cache($config->get('cache_e
 
 // Template
 $template = new \Opencart\System\Library\Template($config->get('template_engine'));
-$template->addPath(DIR_TEMPLATE);
 $registry->set('template', $template);
+$template->addPath(DIR_TEMPLATE);
 
 // Language
 $language = new \Opencart\System\Library\Language($config->get('language_code'));
@@ -177,17 +174,18 @@ $registry->set('url', new \Opencart\System\Library\Url($config->get('site_url'))
 // Document
 $registry->set('document', new \Opencart\System\Library\Document());
 
+// Action error object to execute if any other actions cannot be executed.
 $action = '';
 $args = [];
+$output = '';
 
-// Action error object to execute if any other actions cannot be executed.
 $error = new \Opencart\System\Engine\Action($config->get('action_error'));
 
 // Pre Actions
 foreach ($config->get('action_pre_action') as $pre_action) {
 	$pre_action = new \Opencart\System\Engine\Action($pre_action);
 
-	$result = $pre_action->execute($registry, $args);
+	$result = $pre_action->execute($registry);
 
 	if ($result instanceof \Opencart\System\Engine\Action) {
 		$action = $result;
@@ -199,7 +197,6 @@ foreach ($config->get('action_pre_action') as $pre_action) {
 	if ($result instanceof \Exception) {
 		$action = $error;
 
-		// In case there is an error we only want to execute once.
 		$error = '';
 
 		break;
@@ -207,53 +204,56 @@ foreach ($config->get('action_pre_action') as $pre_action) {
 }
 
 // Route
-if (isset($request->get['route'])) {
-	$route = (string)$request->get['route'];
-} else {
-	$route = (string)$config->get('action_default');
-}
-
-if ($action) {
-	$route = $action->getId();
-}
-
-// Keep the original trigger
-$trigger = $route;
-
-$args = [];
-
-	// Trigger the pre events
-$event->trigger('controller/' . $trigger . '/before', [&$route, &$args]);
-
-// Action to execute
 if (!$action) {
-	$action = new \Opencart\System\Engine\Action($route);
+	if (!empty($request->get['route'])) {
+		$action = new \Opencart\System\Engine\Action((string)$request->get['route']);
+	} else {
+		$action = new \Opencart\System\Engine\Action($config->get('action_default'));
+	}
 }
 
 // Dispatch
 while ($action) {
-	// Execute action
-	$output = $action->execute($registry, $args);
+	// Route needs to be updated each time so it can trigger events
+	$route = $action->getId();
 
-	// Make action a non-object so it's not infinitely looping
+	// Keep the original trigger.
+	$trigger = $route;
+
+	$result = $event->trigger('controller/' . $trigger . '/before', [&$route, &$args]);
+
+	if ($result instanceof \Opencart\System\Engine\Action) {
+		$action = $result;
+	}
+
+	// Execute the action.
+	$result = $action->execute($registry, $args);
+
 	$action = '';
 
-	// Action object returned then we keep the loop going
-	if ($output instanceof \Opencart\System\Engine\Action) {
-		$action = $output;
+	if ($result instanceof \Opencart\System\Engine\Action) {
+		$action = $result;
 	}
 
 	// If action cannot be executed, we return the action error object.
-	if ($output instanceof \Exception) {
+	if ($result instanceof \Exception) {
 		$action = $error;
 
 		// In case there is an error we don't want to infinitely keep calling the action error object.
 		$error = '';
 	}
-}
 
-// Trigger the post events
-$event->trigger('controller/' . $trigger . '/after', [&$route, &$args, &$output]);
+	// If not an object, then it's the output
+	if (!$action) {
+		$output = $result;
+	}
+
+	$result = $event->trigger('controller/' . $trigger . '/after', [&$route, &$args, &$output]);
+
+	if ($result instanceof \Opencart\System\Engine\Action) {
+		$action = $result;
+	}
+}
 
 // Output
 $response->output();

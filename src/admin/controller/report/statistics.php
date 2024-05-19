@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Report;
  */
 class Statistics extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -40,8 +38,6 @@ class Statistics extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -51,17 +47,15 @@ class Statistics extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	public function getList(): string {
 		$data['statistics'] = [];
-
+		
 		$this->load->model('report/statistics');
-
+		
 		$results = $this->model_report_statistics->getStatistics();
-
+		
 		foreach ($results as $result) {
 			$data['statistics'][] = [
 				'name'  => $this->language->get('text_' . $result['code']),
@@ -74,8 +68,6 @@ class Statistics extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Order Sale
-	 *
 	 * @return void
 	 */
 	public function orderSale(): void {
@@ -91,7 +83,7 @@ class Statistics extends \Opencart\System\Engine\Controller {
 			$this->load->model('report/statistics');
 			$this->load->model('sale/order');
 
-			$this->model_report_statistics->editValue('order_sale', $this->model_sale_order->getTotalSales(['filter_order_status' => implode(',', array_merge((array)$this->config->get('config_complete_status'), (array)$this->config->get('config_processing_status')))]));
+			$this->model_report_statistics->editValue('order_sale', $this->model_sale_order->getTotalSales(['filter_order_status' => implode(',', array_merge($this->config->get('config_complete_status'), $this->config->get('config_processing_status')))]));
 
 			$json['success'] = $this->language->get('text_success');
 		}
@@ -101,8 +93,6 @@ class Statistics extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Order Processing
-	 *
 	 * @return void
 	 */
 	public function orderProcessing(): void {
@@ -128,8 +118,6 @@ class Statistics extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Order Complete
-	 *
 	 * @return void
 	 */
 	public function orderComplete(): void {
@@ -145,7 +133,7 @@ class Statistics extends \Opencart\System\Engine\Controller {
 			$this->load->model('report/statistics');
 			$this->load->model('sale/order');
 
-			$this->model_report_statistics->editValue('order_complete', $this->model_sale_order->getTotalOrders(['filter_order_status' => implode(',', (array)$this->config->get('config_complete_status'))]));
+			$this->model_report_statistics->editValue('order_complete', $this->model_sale_order->getTotalOrders(['filter_order_status' => implode(',', $this->config->get('config_complete_status'))]));
 
 			$json['success'] = $this->language->get('text_success');
 		}
@@ -155,8 +143,6 @@ class Statistics extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Order Other
-	 *
 	 * @return void
 	 */
 	public function orderOther(): void {
@@ -177,7 +163,7 @@ class Statistics extends \Opencart\System\Engine\Controller {
 			$results = $this->model_localisation_order_status->getOrderStatuses();
 
 			foreach ($results as $result) {
-				if (!in_array($result['order_status_id'], array_merge((array)$this->config->get('config_complete_status'), (array)$this->config->get('config_processing_status')))) {
+				if (!in_array($result['order_status_id'], array_merge($this->config->get('config_complete_status'), $this->config->get('config_processing_status')))) {
 					$order_status_data[] = $result['order_status_id'];
 				}
 			}
@@ -194,8 +180,6 @@ class Statistics extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Returns
-	 *
 	 * @return void
 	 */
 	public function returns(): void {
@@ -221,8 +205,6 @@ class Statistics extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Product
-	 *
 	 * @return void
 	 */
 	public function product(): void {
@@ -248,8 +230,6 @@ class Statistics extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Review
-	 *
 	 * @return void
 	 */
 	public function review(): void {

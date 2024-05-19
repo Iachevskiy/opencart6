@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Design;
  */
 class Layout extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -57,8 +55,6 @@ class Layout extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -68,8 +64,6 @@ class Layout extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -118,6 +112,8 @@ class Layout extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('design/layout');
 
+		$layout_total = $this->model_design_layout->getTotalLayouts();
+
 		$results = $this->model_design_layout->getLayouts($filter_data);
 
 		foreach ($results as $result) {
@@ -148,8 +144,6 @@ class Layout extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$layout_total = $this->model_design_layout->getTotalLayouts();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $layout_total,
 			'page'  => $page,
@@ -166,8 +160,6 @@ class Layout extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -235,6 +227,7 @@ class Layout extends \Opencart\System\Engine\Controller {
 		}
 
 		$this->load->model('setting/extension');
+
 		$this->load->model('setting/module');
 
 		$data['extensions'] = [];
@@ -248,19 +241,19 @@ class Layout extends \Opencart\System\Engine\Controller {
 
 			$module_data = [];
 
-			$modules = $this->model_setting_module->getModulesByCode($extension['extension'] . '.' . $extension['code']);
+			$modules = $this->model_setting_module->getModulesByCode($extension['extension'] .'.' . $extension['code']);
 
 			foreach ($modules as $module) {
 				$module_data[] = [
 					'name' => strip_tags($module['name']),
-					'code' => $extension['extension'] . '.' . $extension['code'] . '.' . $module['module_id']
+					'code' => $extension['extension'] . '.' .  $extension['code'] . '.' .  $module['module_id']
 				];
 			}
 
 			if ($this->config->has('module_' . $extension['code'] . '_status') || $module_data) {
 				$data['extensions'][] = [
 					'name'   => strip_tags($this->language->get($extension['code'] . '_heading_title')),
-					'code'   => $extension['extension'] . '.' . $extension['code'],
+					'code'   => $extension['extension'] . '.' .  $extension['code'],
 					'module' => $module_data
 				];
 			}
@@ -287,14 +280,14 @@ class Layout extends \Opencart\System\Engine\Controller {
 					'edit'       => $this->url->link('extension/' . $part[0] . '/module/' . $part[1], 'user_token=' . $this->session->data['user_token'])
 				];
 			} else {
-				$module_info = $this->model_setting_module->getModule((int)$part[2]);
+				$module_info = $this->model_setting_module->getModule($part[2]);
 
 				if ($module_info) {
 					$data['layout_modules'][] = [
 						'code'       => $layout_module['code'],
 						'position'   => $layout_module['position'],
 						'sort_order' => $layout_module['sort_order'],
-						'edit'       => $this->url->link('extension/' . $part[0] . '/module/' . $part[1], 'user_token=' . $this->session->data['user_token'] . '&module_id=' . $part[2])
+						'edit'   	 => $this->url->link('extension/' . $part[0] . '/module/' . $part[1], 'user_token=' . $this->session->data['user_token'] . '&module_id=' . $part[2])
 					];
 				}
 			}
@@ -310,8 +303,6 @@ class Layout extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -323,7 +314,7 @@ class Layout extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!oc_validate_length($this->request->post['name'], 3, 64)) {
+		if ((oc_strlen($this->request->post['name']) < 3) || (oc_strlen($this->request->post['name']) > 64)) {
 			$json['error']['name'] = $this->language->get('error_name');
 		}
 
@@ -344,8 +335,6 @@ class Layout extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {
@@ -374,31 +363,31 @@ class Layout extends \Opencart\System\Engine\Controller {
 				$json['error'] = $this->language->get('error_default');
 			}
 
-			$store_total = $this->model_setting_store->getTotalLayoutsByLayoutId($layout_id);
+			$store_total = $this->model_setting_store->getTotalStoresByLayoutId($layout_id);
 
 			if ($store_total) {
 				$json['error'] = sprintf($this->language->get('error_store'), $store_total);
 			}
 
-			$product_total = $this->model_catalog_product->getTotalLayoutsByLayoutId($layout_id);
+			$product_total = $this->model_catalog_product->getTotalProductsByLayoutId($layout_id);
 
 			if ($product_total) {
 				$json['error'] = sprintf($this->language->get('error_product'), $product_total);
 			}
 
-			$category_total = $this->model_catalog_category->getTotalLayoutsByLayoutId($layout_id);
+			$category_total = $this->model_catalog_category->getTotalCategoriesByLayoutId($layout_id);
 
 			if ($category_total) {
 				$json['error'] = sprintf($this->language->get('error_category'), $category_total);
 			}
 
-			$manufacturer_total = $this->model_catalog_manufacturer->getTotalLayoutsByLayoutId($layout_id);
+			$manufacturer_total = $this->model_catalog_manufacturer->getTotalManufacturersByLayoutId($layout_id);
 
 			if ($manufacturer_total) {
 				$json['error'] = sprintf($this->language->get('error_manufacturer'), $manufacturer_total);
 			}
 
-			$information_total = $this->model_catalog_information->getTotalLayoutsByLayoutId($layout_id);
+			$information_total = $this->model_catalog_information->getTotalInformationsByLayoutId($layout_id);
 
 			if ($information_total) {
 				$json['error'] = sprintf($this->language->get('error_information'), $information_total);

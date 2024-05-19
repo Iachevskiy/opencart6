@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Error;
  */
 class Exception extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @param string $message
 	 * @param string $code
 	 * @param string $file

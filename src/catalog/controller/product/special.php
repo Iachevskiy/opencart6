@@ -12,6 +12,10 @@ class Special extends \Opencart\System\Engine\Controller {
 	public function index(): void {
 		$this->load->language('product/special');
 
+		$this->load->model('catalog/product');
+
+		$this->load->model('tool/image');
+
 		if (isset($this->request->get['sort'])) {
 			$sort = $this->request->get['sort'];
 		} else {
@@ -68,7 +72,7 @@ class Special extends \Opencart\System\Engine\Controller {
 			'href' => $this->url->link('product/special', 'language=' . $this->config->get('config_language') . $url)
 		];
 
-		$data['text_compare'] = sprintf($this->language->get('text_compare'), isset($this->session->data['compare']) ? count($this->session->data['compare']) : 0);
+		$data['text_compare'] = sprintf($this->language->get('text_compare'), (isset($this->session->data['compare']) ? count($this->session->data['compare']) : 0));
 
 		$data['compare'] = $this->url->link('product/compare', 'language=' . $this->config->get('config_language'));
 
@@ -81,22 +85,15 @@ class Special extends \Opencart\System\Engine\Controller {
 			'limit' => $limit
 		];
 
-		$this->load->model('catalog/product');
-		$this->load->model('tool/image');
+		$product_total = $this->model_catalog_product->getTotalSpecials();
 
 		$results = $this->model_catalog_product->getSpecials($filter_data);
 
 		foreach ($results as $result) {
-			$description = trim(strip_tags(html_entity_decode($result['description'], ENT_QUOTES, 'UTF-8')));
-
-			if (oc_strlen($description) > $this->config->get('config_product_description_length')) {
-				$description = oc_substr($description, 0, $this->config->get('config_product_description_length')) . '..';
-			}
-
-			if ($result['image'] && is_file(DIR_IMAGE . html_entity_decode($result['image'], ENT_QUOTES, 'UTF-8'))) {
-				$image = $result['image'];
+			if (is_file(DIR_IMAGE . html_entity_decode($result['image'], ENT_QUOTES, 'UTF-8'))) {
+				$image = $this->model_tool_image->resize(html_entity_decode($result['image'], ENT_QUOTES, 'UTF-8'), $this->config->get('config_image_product_width'), $this->config->get('config_image_product_height'));
 			} else {
-				$image = 'placeholder.png';
+				$image = $this->model_tool_image->resize('placeholder.png', $this->config->get('config_image_product_width'), $this->config->get('config_image_product_height'));
 			}
 
 			if ($this->customer->isLogged() || !$this->config->get('config_customer_price')) {
@@ -119,9 +116,9 @@ class Special extends \Opencart\System\Engine\Controller {
 
 			$product_data = [
 				'product_id'  => $result['product_id'],
-				'thumb'       => $this->model_tool_image->resize($image, $this->config->get('config_image_product_width'), $this->config->get('config_image_product_height')),
+				'thumb'       => $image,
 				'name'        => $result['name'],
-				'description' => $description,
+				'description' => oc_substr(trim(strip_tags(html_entity_decode($result['description'], ENT_QUOTES, 'UTF-8'))), 0, $this->config->get('config_product_description_length')) . '..',
 				'price'       => $price,
 				'special'     => $special,
 				'tax'         => $tax,
@@ -186,9 +183,9 @@ class Special extends \Opencart\System\Engine\Controller {
 		}
 
 		$data['sorts'][] = [
-			'text'  => $this->language->get('text_model_asc'),
-			'value' => 'p.model-ASC',
-			'href'  => $this->url->link('product/special', 'language=' . $this->config->get('config_language') . '&sort=p.model&order=ASC' . $url)
+				'text'  => $this->language->get('text_model_asc'),
+				'value' => 'p.model-ASC',
+				'href'  => $this->url->link('product/special', 'language=' . $this->config->get('config_language') . '&sort=p.model&order=ASC' . $url)
 		];
 
 		$data['sorts'][] = [
@@ -235,8 +232,6 @@ class Special extends \Opencart\System\Engine\Controller {
 			$url .= '&limit=' . $this->request->get['limit'];
 		}
 
-		$product_total = $this->model_catalog_product->getTotalSpecials();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $product_total,
 			'page'  => $page,
@@ -246,19 +241,19 @@ class Special extends \Opencart\System\Engine\Controller {
 
 		$data['results'] = sprintf($this->language->get('text_pagination'), ($product_total) ? (($page - 1) * $limit) + 1 : 0, ((($page - 1) * $limit) > ($product_total - $limit)) ? $product_total : ((($page - 1) * $limit) + $limit), $product_total, ceil($product_total / $limit));
 
-		// https://developers.google.com/search/blog/2011/09/pagination-with-relnext-and-relprev
+		// http://googlewebmastercentral.blogspot.com/2011/09/pagination-with-relnext-and-relprev.html
 		if ($page == 1) {
-			$this->document->addLink($this->url->link('product/special', 'language=' . $this->config->get('config_language')), 'canonical');
+		    $this->document->addLink($this->url->link('product/special', 'language=' . $this->config->get('config_language')), 'canonical');
 		} else {
-			$this->document->addLink($this->url->link('product/special', 'language=' . $this->config->get('config_language') . '&page=' . $page), 'canonical');
+		    $this->document->addLink($this->url->link('product/special', 'language=' . $this->config->get('config_language') . '&page='. $page), 'canonical');
 		}
 
 		if ($page > 1) {
-			$this->document->addLink($this->url->link('product/special', 'language=' . $this->config->get('config_language') . (($page - 2) ? '&page=' . ($page - 1) : '')), 'prev');
+			$this->document->addLink($this->url->link('product/special', 'language=' . $this->config->get('config_language') . (($page - 2) ? '&page='. ($page - 1) : '')), 'prev');
 		}
 
 		if ($limit && ceil($product_total / $limit) > $page) {
-			$this->document->addLink($this->url->link('product/special', 'language=' . $this->config->get('config_language') . '&page=' . ($page + 1)), 'next');
+		    $this->document->addLink($this->url->link('product/special', 'language=' . $this->config->get('config_language') . '&page='. ($page + 1)), 'next');
 		}
 
 		$data['sort'] = $sort;

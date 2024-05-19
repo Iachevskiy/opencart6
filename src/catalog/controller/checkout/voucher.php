@@ -37,12 +37,12 @@ class Voucher extends \Opencart\System\Engine\Controller {
 
 		$data['help_amount'] = sprintf($this->language->get('help_amount'), $this->currency->format($this->config->get('config_voucher_min'), $this->session->data['currency']), $this->currency->format($this->config->get('config_voucher_max'), $this->session->data['currency']));
 
-		$this->session->data['voucher_token'] = oc_token(26);
+		$this->session->data['voucher_token'] = substr(bin2hex(openssl_random_pseudo_bytes(26)), 0, 26);
 
 		$data['save'] = $this->url->link('checkout/voucher.add', 'language=' . $this->config->get('config_language') . '&voucher_token=' . $this->session->data['voucher_token']);
 
 		if ($this->customer->isLogged()) {
-			$data['from_name'] = $this->customer->getFirstName() . ' ' . $this->customer->getLastName();
+			$data['from_name'] = $this->customer->getFirstName() . ' '  . $this->customer->getLastName();
 		} else {
 			$data['from_name'] = '';
 		}
@@ -53,7 +53,7 @@ class Voucher extends \Opencart\System\Engine\Controller {
 			$data['from_email'] = '';
 		}
 
-		$data['amount'] = $this->currency->format($this->config->get('config_voucher_min'), $this->config->get('config_currency'), 0.0, false);
+		$data['amount'] = $this->currency->format($this->config->get('config_voucher_min'), $this->config->get('config_currency'), false, false);
 
 		$this->load->model('checkout/voucher_theme');
 
@@ -70,8 +70,6 @@ class Voucher extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Add
-	 *
 	 * @return void
 	 */
 	public function add(): void {
@@ -99,7 +97,7 @@ class Voucher extends \Opencart\System\Engine\Controller {
 			$json['redirect'] = $this->url->link('checkout/voucher', 'language=' . $this->config->get('config_language'), true);
 		}
 
-		if (!oc_validate_length($this->request->post['to_name'], 1, 64)) {
+		if ((oc_strlen($this->request->post['to_name']) < 1) || (oc_strlen($this->request->post['to_name']) > 64)) {
 			$json['error']['to_name'] = $this->language->get('error_to_name');
 		}
 
@@ -107,7 +105,7 @@ class Voucher extends \Opencart\System\Engine\Controller {
 			$json['error']['to_email'] = $this->language->get('error_email');
 		}
 
-		if (!oc_validate_length($this->request->post['from_name'], 1, 64)) {
+		if ((oc_strlen($this->request->post['from_name']) < 1) || (oc_strlen($this->request->post['from_name']) > 64)) {
 			$json['error']['from_name'] = $this->language->get('error_from_name');
 		}
 
@@ -123,7 +121,7 @@ class Voucher extends \Opencart\System\Engine\Controller {
 			$json['error']['amount'] = sprintf($this->language->get('error_amount'), $this->currency->format($this->config->get('config_voucher_min'), $this->session->data['currency']), $this->currency->format($this->config->get('config_voucher_max'), $this->session->data['currency']));
 		}
 
-		if (empty($this->request->post['agree'])) {
+		if (!isset($this->request->post['agree'])) {
 			$json['error']['warning'] = $this->language->get('error_agree');
 		}
 
@@ -156,8 +154,6 @@ class Voucher extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Remove
-	 *
 	 * @return void
 	 */
 	public function remove(): void {
@@ -195,8 +191,6 @@ class Voucher extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Success
-	 *
 	 * @return void
 	 */
 	public function success(): void {

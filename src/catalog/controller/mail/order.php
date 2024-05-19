@@ -7,12 +7,8 @@ namespace Opencart\Catalog\Controller\Mail;
  */
 class Order extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
-	 * Trigger catalog/model/checkout/order/addHistory/before
-	 *
-	 * @param string            $route
-	 * @param array<int, mixed> $args
+	 * @param string $route
+	 * @param array  $args
 	 *
 	 * @return void
 	 */
@@ -52,22 +48,19 @@ class Order extends \Opencart\System\Engine\Controller {
 
 			// If the order status does not return 0, we send the update as a text email
 			if ($order_info['order_status_id'] && $order_status_id && $notify) {
-				$this->history($order_info, $order_status_id, $comment, $notify);
+				$this->edit($order_info, $order_status_id, $comment, $notify);
 			}
 		}
 	}
 
 	/**
-	 * Add
-	 *
-	 * @param array<string, mixed> $order_info
-	 * @param int                  $order_status_id
-	 * @param string               $comment
-	 * @param bool                 $notify
-	 *
-	 * @throws \Exception
+	 * @param array  $order_info
+	 * @param int    $order_status_id
+	 * @param string $comment
+	 * @param bool   $notify
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	public function add(array $order_info, int $order_status_id, string $comment, bool $notify): void {
 		// Check for any downloadable products
@@ -154,8 +147,8 @@ class Order extends \Opencart\System\Engine\Controller {
 
 		$data['order_id'] = $order_info['order_id'];
 		$data['date_added'] = date($this->language->get('date_format_short'), strtotime($order_info['date_added']));
-		$data['payment_method'] = $order_info['payment_method']['name'] ?? '';
-		$data['shipping_method'] = $order_info['shipping_method']['name'] ?? '';
+		$data['payment_method'] = $order_info['payment_method']['name'];
+		$data['shipping_method'] = $order_info['shipping_method']['name'];
 		$data['email'] = $order_info['email'];
 		$data['telephone'] = $order_info['telephone'];
 		$data['ip'] = $order_info['ip'];
@@ -168,7 +161,11 @@ class Order extends \Opencart\System\Engine\Controller {
 			$data['order_status'] = '';
 		}
 
-		$data['comment'] = nl2br($order_info['comment']);
+		if ($comment) {
+			$data['comment'] = nl2br($comment);
+		} else {
+			$data['comment'] = '';
+		}
 
 		// Payment Address
 		if ($order_info['payment_address_format']) {
@@ -203,19 +200,7 @@ class Order extends \Opencart\System\Engine\Controller {
 			'country'   => $order_info['payment_country']
 		];
 
-		$pattern_1 = [
-			"\r\n",
-			"\r",
-			"\n"
-		];
-
-		$pattern_2 = [
-			"/\\s\\s+/",
-			"/\r\r+/",
-			"/\n\n+/"
-		];
-
-		$data['payment_address'] = str_replace($pattern_1, '<br/>', preg_replace($pattern_2, '<br/>', trim(str_replace($find, $replace, $format))));
+		$data['payment_address'] = str_replace(["\r\n", "\r", "\n"], '<br/>', preg_replace(["/\s\s+/", "/\r\r+/", "/\n\n+/"], '<br/>', trim(str_replace($find, $replace, $format))));
 
 		// Shipping Address
 		if ($order_info['shipping_address_format']) {
@@ -250,7 +235,7 @@ class Order extends \Opencart\System\Engine\Controller {
 			'country'   => $order_info['shipping_country']
 		];
 
-		$data['shipping_address'] = str_replace($pattern_1, '<br/>', preg_replace($pattern_2, '<br/>', trim(str_replace($find, $replace, $format))));
+		$data['shipping_address'] = str_replace(["\r\n", "\r", "\n"], '<br/>', preg_replace(["/\s\s+/", "/\r\r+/", "/\n\n+/"], '<br/>', trim(str_replace($find, $replace, $format))));
 
 		$this->load->model('tool/upload');
 
@@ -368,26 +353,21 @@ class Order extends \Opencart\System\Engine\Controller {
 			$mail->setFrom($from);
 			$mail->setSender($store_name);
 			$mail->setSubject($subject);
-			$mail->setHtml($this->load->view('mail/order_add', $data));
+			$mail->setHtml($this->load->view('mail/order_invoice', $data));
 			$mail->send();
 		}
 	}
 
 	/**
-	 * History
-	 *
-	 * catalog/model/checkout/order/addHistory/before
-	 *
-	 * @param array<string, mixed> $order_info
-	 * @param int                  $order_status_id
-	 * @param string               $comment
-	 * @param bool                 $notify
-	 *
-	 * @throws \Exception
+	 * @param array  $order_info
+	 * @param int    $order_status_id
+	 * @param string $comment
+	 * @param bool   $notify
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
-	public function history(array $order_info, int $order_status_id, string $comment, bool $notify): void {
+	public function edit(array $order_info, int $order_status_id, string $comment, bool $notify): void {
 		$store_name = html_entity_decode($this->config->get('config_name'), ENT_QUOTES, 'UTF-8');
 
 		if (!defined('HTTP_CATALOG')) {
@@ -478,17 +458,14 @@ class Order extends \Opencart\System\Engine\Controller {
 		}
 	}
 
+	// catalog/model/checkout/order/addHistory/before
+
 	/**
-	 * Alert
-	 *
-	 * @param string            $route
-	 * @param array<int, mixed> $args
-	 *
-	 * Event called catalog/model/checkout/order/addHistory/before
-	 *
-	 * @throws \Exception
+	 * @param string $route
+	 * @param array  $args
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	public function alert(string &$route, array &$args): void {
 		if (isset($args[0])) {
@@ -564,6 +541,8 @@ class Order extends \Opencart\System\Engine\Controller {
 				}
 
 				$description = '';
+
+				$this->load->model('checkout/subscription');
 
 				$subscription_info = $this->model_checkout_order->getSubscription($order_info['order_id'], $order_product['order_product_id']);
 
@@ -645,7 +624,7 @@ class Order extends \Opencart\System\Engine\Controller {
 				$mail->send();
 
 				// Send to additional alert emails
-				$emails = explode(',', (string)$this->config->get('config_mail_alert_email'));
+				$emails = explode(',', $this->config->get('config_mail_alert_email'));
 
 				foreach ($emails as $email) {
 					if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {

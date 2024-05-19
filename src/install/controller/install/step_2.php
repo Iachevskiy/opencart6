@@ -7,7 +7,7 @@ namespace Opencart\Install\Controller\Install;
  */
 class Step2 extends \Opencart\System\Engine\Controller {
 	/**
-	 * @var array<string, string>
+	 * @var array
 	 */
 	private array $error = [];
 
@@ -66,8 +66,14 @@ class Step2 extends \Opencart\System\Engine\Controller {
 
 		$data['action'] = $this->url->link('install/step_2', 'language=' . $this->config->get('language_code'));
 
-		$data['php_version'] = PHP_VERSION;
-		$data['version'] = version_compare(PHP_VERSION, '7.4', '>=');
+		$data['php_version'] = phpversion();
+
+		if (version_compare(phpversion(), '8.0.0', '<')) {
+			$data['version'] = false;
+		} else {
+			$data['version'] = true;
+		}
+
 		$data['register_globals'] = ini_get('register_globals');
 		$data['magic_quotes_gpc'] = ini_get('magic_quotes_gpc');
 		$data['file_uploads'] = ini_get('file_uploads');
@@ -130,7 +136,7 @@ class Step2 extends \Opencart\System\Engine\Controller {
 	 * @return bool
 	 */
 	private function validate(): bool {
-		if (version_compare(PHP_VERSION, '7.4', '<')) {
+		if (version_compare(phpversion(), '8.0.0', '<')) {
 			$this->error['warning'] = $this->language->get('error_version');
 		}
 

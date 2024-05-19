@@ -7,11 +7,9 @@ namespace Opencart\Admin\Controller\Startup;
  */
 class Authorize extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
-	 * @return \Opencart\System\Engine\Action|null
+	 * @return object|\Opencart\System\Engine\Action|null
 	 */
-	public function index(): ?\Opencart\System\Engine\Action {
+	public function index(): object|null {
 		if (isset($this->request->get['route'])) {
 			$route = (string)$this->request->get['route'];
 		} else {
@@ -38,7 +36,7 @@ class Authorize extends \Opencart\System\Engine\Controller {
 			'common/authorize'
 		];
 
-		if ($this->config->get('config_user_2fa') && !in_array($route, $ignore)) {
+		if ($this->config->get('config_security') && !in_array($route, $ignore)) {
 			$this->load->model('user/user');
 
 			$token_info = $this->model_user_user->getAuthorizeByToken($this->user->getId(), $token);

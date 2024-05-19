@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Catalog;
  */
 class Review extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -97,12 +95,6 @@ class Review extends \Opencart\System\Engine\Controller {
 
 		$data['list'] = $this->getList();
 
-		$data['filter_product'] = $filter_product;
-		$data['filter_author'] = $filter_author;
-		$data['filter_status'] = $filter_status;
-		$data['filter_date_from'] = $filter_date_from;
-		$data['filter_date_to'] = $filter_date_to;
-
 		$data['user_token'] = $this->session->data['user_token'];
 
 		$data['header'] = $this->load->controller('common/header');
@@ -113,8 +105,6 @@ class Review extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
@@ -124,8 +114,6 @@ class Review extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -229,6 +217,8 @@ class Review extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('catalog/review');
 
+		$review_total = $this->model_catalog_review->getTotalReviews($filter_data);
+
 		$results = $this->model_catalog_review->getReviews($filter_data);
 
 		foreach ($results as $result) {
@@ -306,8 +296,6 @@ class Review extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$review_total = $this->model_catalog_review->getTotalReviews($filter_data);
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $review_total,
 			'page'  => $page,
@@ -330,8 +318,6 @@ class Review extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -454,8 +440,6 @@ class Review extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -467,7 +451,7 @@ class Review extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!oc_validate_length($this->request->post['author'], 3, 64)) {
+		if ((oc_strlen($this->request->post['author']) < 3) || (oc_strlen($this->request->post['author']) > 64)) {
 			$json['error']['author'] = $this->language->get('error_author');
 		}
 
@@ -504,8 +488,6 @@ class Review extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {
@@ -538,8 +520,6 @@ class Review extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Sync
-	 *
 	 * @return void
 	 */
 	public function sync(): void {
@@ -561,7 +541,11 @@ class Review extends \Opencart\System\Engine\Controller {
 			$this->load->model('catalog/product');
 			$this->load->model('catalog/review');
 
+			$total = $this->model_catalog_product->getTotalProducts();
 			$limit = 10;
+
+			$start = ($page - 1) * $limit;
+			$end = $start > ($total - $limit) ? $total : ($start + $limit);
 
 			$product_data = [
 				'start' => ($page - 1) * $limit,
@@ -574,17 +558,12 @@ class Review extends \Opencart\System\Engine\Controller {
 				$this->model_catalog_product->editRating($result['product_id'], $this->model_catalog_review->getRating($result['product_id']));
 			}
 
-			$product_total = $this->model_catalog_product->getTotalProducts();
-
-			$start = ($page - 1) * $limit;
-			$end = $start > ($product_total - $limit) ? $product_total : ($start + $limit);
-
-			if ($end < $product_total) {
-				$json['text'] = sprintf($this->language->get('text_next'), $start, $end, $product_total);
+			if ($total && $end < $total) {
+				$json['text'] = sprintf($this->language->get('text_next'), $end, $total);
 
 				$json['next'] = $this->url->link('catalog/review.sync', 'user_token=' . $this->session->data['user_token'] . '&page=' . ($page + 1), true);
 			} else {
-				$json['success'] = $this->language->get('text_success');
+				$json['success'] = sprintf($this->language->get('text_next'), $end, $total);
 
 				$json['next'] = '';
 			}

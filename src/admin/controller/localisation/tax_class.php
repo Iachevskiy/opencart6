@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Localisation;
  */
 class TaxClass extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -57,19 +55,15 @@ class TaxClass extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * List
-	 *
 	 * @return void
 	 */
 	public function list(): void {
 		$this->load->language('localisation/tax_class');
-
+		
 		$this->response->setOutput($this->getList());
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	protected function getList(): string {
@@ -118,6 +112,8 @@ class TaxClass extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('localisation/tax_class');
 
+		$tax_class_total = $this->model_localisation_tax_class->getTotalTaxClasses();
+
 		$results = $this->model_localisation_tax_class->getTaxClasses($filter_data);
 
 		foreach ($results as $result) {
@@ -148,8 +144,6 @@ class TaxClass extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$tax_class_total = $this->model_localisation_tax_class->getTotalTaxClasses();
-
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $tax_class_total,
 			'page'  => $page,
@@ -166,8 +160,6 @@ class TaxClass extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Form
-	 *
 	 * @return void
 	 */
 	public function form(): void {
@@ -248,8 +240,6 @@ class TaxClass extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -261,11 +251,11 @@ class TaxClass extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!oc_validate_length($this->request->post['title'], 3, 32)) {
+		if ((oc_strlen($this->request->post['title']) < 3) || (oc_strlen($this->request->post['title']) > 32)) {
 			$json['error']['title'] = $this->language->get('error_title');
 		}
 
-		if (!oc_validate_length($this->request->post['description'], 3, 255)) {
+		if ((oc_strlen($this->request->post['description']) < 3) || (oc_strlen($this->request->post['description']) > 255)) {
 			$json['error']['description'] = $this->language->get('error_description');
 		}
 
@@ -286,8 +276,6 @@ class TaxClass extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Delete
-	 *
 	 * @return void
 	 */
 	public function delete(): void {

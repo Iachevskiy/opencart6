@@ -1,35 +1,29 @@
 <?php
 /**
  * @package        OpenCart
- *
  * @author         Daniel Kerr
  * @copyright      Copyright (c) 2005 - 2022, OpenCart, Ltd. (https://www.opencart.com/)
  * @license        https://opensource.org/licenses/GPL-3.0
- *
- * @see           https://www.opencart.com
+ * @link           https://www.opencart.com
  */
 namespace Opencart\System\Engine;
 /**
  * Class Proxy
- *
- * @template TWraps of \Opencart\System\Engine\Model
- *
- * @mixin TWraps
  */
 class Proxy {
 	/**
-	 * @var array<string, object>
+	 * @var array
 	 */
-	protected array $data = [];
+	protected $data = [];
 
 	/**
 	 * __get
 	 *
 	 * @param string $key
 	 *
-	 * @return mixed
+	 * @return object|null
 	 */
-	public function &__get(string $key) {
+	public function &__get(string $key): object|null {
 		if (isset($this->data[$key])) {
 			return $this->data[$key];
 		} else {
@@ -41,7 +35,7 @@ class Proxy {
 	 * __set
 	 *
 	 * @param string $key
-	 * @param object $value
+	 * @param string $value
 	 *
 	 * @return void
 	 */
@@ -54,9 +48,9 @@ class Proxy {
 	 *
 	 * @param string $key
 	 *
-	 * @return bool
+	 * @return void
 	 */
-	public function __isset(string $key): bool {
+	public function __isset(string $key) {
 		return isset($this->data[$key]);
 	}
 
@@ -67,24 +61,24 @@ class Proxy {
 	 *
 	 * @return void
 	 */
-	public function __unset(string $key): void {
+	public function __unset(string $key) {
 		unset($this->data[$key]);
 	}
 
 	/**
 	 * __call
 	 *
-	 * @param string               $method
-	 * @param array<string, mixed> $args
+	 * @param string $method
+	 * @param array  $args
 	 *
 	 * @return mixed
 	 */
-	public function __call(string $method, array $args) {
+	public function __call(string $method, array $args): mixed {
 		// Hack for pass-by-reference
-		foreach ($args as $key => &$value);
+		foreach ($args as $key => &$value) ;
 
 		if (isset($this->data[$method])) {
-			return ($this->data[$method])(...$args);
+			return call_user_func_array($this->data[$method], $args);
 		} else {
 			$trace = debug_backtrace();
 

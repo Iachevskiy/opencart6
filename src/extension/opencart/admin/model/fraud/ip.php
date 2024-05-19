@@ -7,8 +7,6 @@ namespace Opencart\Admin\Model\Extension\Opencart\Fraud;
  */
 class Ip extends \Opencart\System\Engine\Model {
 	/**
-	 * Install
-	 *
 	 * @return void
 	 */
 	public function install(): void {
@@ -16,12 +14,10 @@ class Ip extends \Opencart\System\Engine\Model {
 		  `ip` varchar(40) NOT NULL,
 		  `date_added` datetime NOT NULL,
 		  PRIMARY KEY (`ip`)
-		) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci");
 	}
 
 	/**
-	 * Uninstall
-	 *
 	 * @return void
 	 */
 	public function uninstall(): void {
@@ -29,8 +25,6 @@ class Ip extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Add Ip
-	 *
 	 * @param string $ip
 	 *
 	 * @return void
@@ -40,8 +34,6 @@ class Ip extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Remove Ip
-	 *
 	 * @param string $ip
 	 *
 	 * @return void
@@ -51,12 +43,10 @@ class Ip extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Ips
-	 *
 	 * @param int $start
 	 * @param int $limit
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getIps(int $start = 0, int $limit = 10): array {
 		if ($start < 0) {
@@ -73,8 +63,6 @@ class Ip extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Ips
-	 *
 	 * @return int
 	 */
 	public function getTotalIps(): int {
@@ -84,8 +72,6 @@ class Ip extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Ips By Ip
-	 *
 	 * @param string $ip
 	 *
 	 * @return int

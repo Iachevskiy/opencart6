@@ -3,7 +3,7 @@
 $_['text_name']       = 'English (United Kingdom)';
 $_['text_loading']    = 'Loading...';
 
-// Buttons
+// Button
 $_['button_continue'] = 'Continue';
 $_['button_back']     = 'Back';
 

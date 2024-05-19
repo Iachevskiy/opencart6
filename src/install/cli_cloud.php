@@ -21,7 +21,7 @@ error_reporting(E_ALL);
 define('APPLICATION', 'Install');
 
 // DIR
-define('DIR_OPENCART', str_replace('\\', '/', realpath(__DIR__ . '/../')) . '/');
+define('DIR_OPENCART', str_replace('\\', '/', realpath(dirname(__FILE__) . '/../')) . '/');
 define('DIR_SYSTEM', DIR_OPENCART . 'system/');
 
 // Startup
@@ -52,15 +52,15 @@ $response->addHeader('Content-Type: text/plain; charset=utf-8');
 $registry->set('response', $response);
 
 set_error_handler(/**
- * @param int    $code
- * @param string $message
- * @param string $file
- * @param int    $line
- *
- * @throws \ErrorException
+ * @param       $code
+ * @param       $message
+ * @param       $file
+ * @param       $line
+ * @param array $errcontext
  *
  * @return false
- */ function(int $code, string $message, string $file, int $line): bool {
+ * @throws \ErrorException
+ */ function($code, $message, $file, $line, array $errcontext) {
 	// error was suppressed with the @-operator
 	if (error_reporting() === 0) {
 		return false;
@@ -70,7 +70,7 @@ set_error_handler(/**
 });
 
 /**
- * CliCloud
+ *
  */
 class CliCloud extends \Opencart\System\Engine\Controller {
 	/**
@@ -95,7 +95,7 @@ class CliCloud extends \Opencart\System\Engine\Controller {
 				break;
 			case 'usage':
 			default:
-				$output = $this->usage();
+				$output = $this->usage($argv);
 				break;
 		}
 
@@ -103,11 +103,11 @@ class CliCloud extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * @param array<int, string> $argv
+	 * @param $argv
 	 *
 	 * @return string
 	 */
-	public function install(array $argv): string {
+	public function install($argv): string {
 		// Options
 		$option = [];
 
@@ -145,13 +145,13 @@ class CliCloud extends \Opencart\System\Engine\Controller {
 		}
 
 		if (count($missing)) {
-			return 'ERROR: Following inputs were missing or invalid: ' . implode(', ', $missing) . "\n";
+			return 'ERROR: Following inputs were missing or invalid: ' . implode(', ', $missing)  . "\n";
 		}
 
 		// Pre-installation check
 		$error = '';
 
-		if (!oc_validate_length($option['username'], 3, 20)) {
+		if ((oc_strlen($option['username']) < 3) || (oc_strlen($option['username']) > 20)) {
 			$error .= 'ERROR: Username must be between 3 and 20 characters!' . "\n";
 		}
 
@@ -185,13 +185,9 @@ class CliCloud extends \Opencart\System\Engine\Controller {
 		$db_port     = getenv('DB_PORT', true);
 		$db_prefix   = getenv('DB_PREFIX', true);
 
-		$db_ssl_key  = getenv('DB_SSL_KEY', true);
-		$db_ssl_cert = getenv('DB_SSL_CERT', true);
-		$db_ssl_ca   = getenv('DB_SSL_CA', true);
-
 		try {
 			// Database
-			$db = new \Opencart\System\Library\DB($db_driver, $db_hostname, $db_username, $db_password, $db_database, $db_port, $db_ssl_key, $db_ssl_cert, $db_ssl_ca);
+			$db = new \Opencart\System\Library\DB($db_driver, $db_hostname, $db_username, $db_password, $db_database, $db_port);
 		} catch (\Exception $e) {
 			return 'ERROR: Could not make a database link using ' . $db_username . '@' . $db_hostname . '!' . "\n";
 		}
@@ -293,7 +289,9 @@ class CliCloud extends \Opencart\System\Engine\Controller {
 		}
 
 		// Return success message
-		return 'SUCCESS! OpenCart successfully installed on your server' . "\n";
+		$output = 'SUCCESS! OpenCart successfully installed on your server' . "\n";
+
+		return $output;
 	}
 
 	/**

@@ -7,17 +7,14 @@ namespace Opencart\Catalog\Controller\Mail;
  */
 class Affiliate extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
-	 * @param string            $route
-	 * @param array<int, mixed> $args
-	 * @param mixed             $output
-	 *
-	 * @throws \Exception
+	 * @param string $route
+	 * @param array  $args
+	 * @param mixed  $output
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
-	public function index(string &$route, array &$args, &$output): void {
+	public function index(string &$route, array &$args, mixed &$output): void {
 		$this->load->language('mail/affiliate');
 
 		$store_name = html_entity_decode($this->config->get('config_name'), ENT_QUOTES, 'UTF-8');
@@ -74,17 +71,14 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Alert
-	 *
-	 * @param string            $route
-	 * @param array<int, mixed> $args
-	 * @param mixed             $output
-	 *
-	 * @throws \Exception
+	 * @param string $route
+	 * @param array  $args
+	 * @param mixed  $output
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
-	public function alert(string &$route, array &$args, &$output): void {
+	public function alert(string &$route, array &$args, mixed &$output): void {
 		// Send to main admin email if new affiliate email is enabled
 		if (in_array('affiliate', (array)$this->config->get('config_mail_alert'))) {
 			$this->load->language('mail/affiliate');
@@ -144,7 +138,7 @@ class Affiliate extends \Opencart\System\Engine\Controller {
 				$mail->send();
 
 				// Send to additional alert emails if new affiliate email is enabled
-				$emails = explode(',', (string)$this->config->get('config_mail_alert_email'));
+				$emails = explode(',', $this->config->get('config_mail_alert_email'));
 
 				foreach ($emails as $email) {
 					if (oc_strlen($email) > 0 && filter_var($email, FILTER_VALIDATE_EMAIL)) {

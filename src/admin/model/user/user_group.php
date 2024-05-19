@@ -7,23 +7,19 @@ namespace Opencart\Admin\Model\User;
  */
 class UserGroup extends \Opencart\System\Engine\Model {
 	/**
-	 * Add User Group
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
 	public function addUserGroup(array $data): int {
 		$this->db->query("INSERT INTO `" . DB_PREFIX . "user_group` SET `name` = '" . $this->db->escape((string)$data['name']) . "', `permission` = '" . (isset($data['permission']) ? $this->db->escape(json_encode($data['permission'])) : '') . "'");
-
+	
 		return $this->db->getLastId();
 	}
 
 	/**
-	 * Edit User Group
-	 *
-	 * @param int                  $user_group_id
-	 * @param array<string, mixed> $data
+	 * @param int   $user_group_id
+	 * @param array $data
 	 *
 	 * @return void
 	 */
@@ -32,8 +28,6 @@ class UserGroup extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Delete User Group
-	 *
 	 * @param int $user_group_id
 	 *
 	 * @return void
@@ -43,27 +37,25 @@ class UserGroup extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get User Group
-	 *
 	 * @param int $user_group_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getUserGroup(int $user_group_id): array {
 		$query = $this->db->query("SELECT DISTINCT * FROM `" . DB_PREFIX . "user_group` WHERE `user_group_id` = '" . (int)$user_group_id . "'");
 
-		return [
+		$user_group = [
 			'name'       => $query->row['name'],
 			'permission' => json_decode($query->row['permission'], true)
 		];
+
+		return $user_group;
 	}
 
 	/**
-	 * Get User Groups
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getUserGroups(array $data = []): array {
 		$sql = "SELECT * FROM `" . DB_PREFIX . "user_group` ORDER BY `name`";
@@ -92,8 +84,6 @@ class UserGroup extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total User Groups
-	 *
 	 * @return int
 	 */
 	public function getTotalUserGroups(): int {
@@ -103,8 +93,6 @@ class UserGroup extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Add Permission
-	 *
 	 * @param int    $user_group_id
 	 * @param string $type
 	 * @param string $route
@@ -124,8 +112,6 @@ class UserGroup extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Remove Permission
-	 *
 	 * @param int    $user_group_id
 	 * @param string $type
 	 * @param string $route

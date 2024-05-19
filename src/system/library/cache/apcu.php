@@ -3,9 +3,9 @@ namespace Opencart\System\Library\Cache;
 /**
  * Class APCU
  *
- * @package Opencart\System\Library\Cache
+ * @package
  */
-class Apcu {
+class APCU {
 	/**
 	 * @var int
 	 */
@@ -18,7 +18,7 @@ class Apcu {
 	/**
 	 * Constructor
 	 *
-	 * @param int $expire
+	 * @param    int  $expire
 	 */
 	public function __construct(int $expire = 3600) {
 		$this->expire = $expire;
@@ -26,26 +26,25 @@ class Apcu {
 	}
 
 	/**
-	 * Get
-	 *
-	 * @param string $key
-	 *
-	 * @return mixed
-	 */
-	public function get(string $key) {
+     * Get
+     *
+     * @param	 string	 $key
+	 * 
+	 * @return	 array|string|null
+     */
+	public function get(string $key): array|string|null {
 		return $this->active ? apcu_fetch(CACHE_PREFIX . $key) : [];
 	}
 
 	/**
-	 * Set
-	 *
-	 * @param string $key
-	 * @param mixed  $value
-	 * @param int    $expire
-	 *
-	 * @return void
-	 */
-	public function set(string $key, $value, int $expire = 0): void {
+     * Set
+     *
+     * @param	 string	 $key
+	 * @param	 array|string|null  $key
+	 * 
+	 * @return	 void
+     */
+	public function set(string $key, array|string|null $value, int $expire = 0): void {
 		if (!$expire) {
 			$expire = $this->expire;
 		}
@@ -56,12 +55,12 @@ class Apcu {
 	}
 
 	/**
-	 * Delete
-	 *
-	 * @param string $key
-	 *
-	 * @return void
-	 */
+     * Delete
+     *
+     * @param	 string	 $key
+	 * 
+	 * @return	 void
+     */
 	public function delete(string $key): void {
 		if ($this->active) {
 			$cache_info = apcu_cache_info();
@@ -77,10 +76,12 @@ class Apcu {
 	}
 
 	/**
-	 * Delete all cache
-	 *
-	 * @return bool
-	 */
+     * Delete all cache
+     *
+     * @param	 null
+	 * 
+	 * @return	 bool
+     */
 	public function flush(): bool {
 		$status = false;
 

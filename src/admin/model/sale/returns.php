@@ -7,9 +7,7 @@ namespace Opencart\Admin\Model\Sale;
  */
 class Returns extends \Opencart\System\Engine\Model {
 	/**
-	 * Add Return
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
@@ -20,10 +18,8 @@ class Returns extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Edit Return
-	 *
-	 * @param int                  $return_id
-	 * @param array<string, mixed> $data
+	 * @param int   $return_id
+	 * @param array $data
 	 *
 	 * @return void
 	 */
@@ -32,85 +28,66 @@ class Returns extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Edit Return Status ID
-	 *
-	 * @param int $return_id
-	 * @param int $return_status_id
-	 *
-	 * @return void
-	 */
-	public function editReturnStatusId(int $return_id, int $return_status_id): void {
-		$this->db->query("UPDATE `" . DB_PREFIX . "return` SET `return_status_id` = '" . (int)$return_status_id . "', `date_modified` = NOW() WHERE `return_id` = '" . (int)$return_id . "'");
-	}
-
-	/**
-	 * Delete Return
-	 *
 	 * @param int $return_id
 	 *
 	 * @return void
 	 */
 	public function deleteReturn(int $return_id): void {
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "return` WHERE `return_id` = '" . (int)$return_id . "'");
-
-		$this->deleteHistories($return_id);
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "return_history` WHERE `return_id` = '" . (int)$return_id . "'");
 	}
 
 	/**
-	 * Get Return
-	 *
 	 * @param int $return_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getReturn(int $return_id): array {
-		$query = $this->db->query("SELECT DISTINCT *, (SELECT CONCAT(`c`.`firstname`, ' ', `c`.`lastname`) FROM `" . DB_PREFIX . "customer` `c` WHERE `c`.`customer_id` = `r`.`customer_id`) AS `customer`, (SELECT `c`.`language_id` FROM `" . DB_PREFIX . "customer` `c` WHERE `c`.`customer_id` = `r`.`customer_id`) AS `language_id`, (SELECT `rs`.`name` FROM `" . DB_PREFIX . "return_status` `rs` WHERE `rs`.`return_status_id` = `r`.`return_status_id` AND `rs`.`language_id` = '" . (int)$this->config->get('config_language_id') . "') AS `return_status` FROM `" . DB_PREFIX . "return` `r` WHERE `r`.`return_id` = '" . (int)$return_id . "'");
+		$query = $this->db->query("SELECT DISTINCT *, (SELECT CONCAT(c.`firstname`, ' ', c.`lastname`) FROM `" . DB_PREFIX . "customer` c WHERE c.`customer_id` = r.`customer_id`) AS customer, (SELECT c.`language_id` FROM `" . DB_PREFIX . "customer` c WHERE c.`customer_id` = r.`customer_id`) AS language_id, (SELECT rs.`name` FROM `" . DB_PREFIX . "return_status` rs WHERE rs.`return_status_id` = r.`return_status_id` AND rs.`language_id` = '" . (int)$this->config->get('config_language_id') . "') AS return_status FROM `" . DB_PREFIX . "return` r WHERE r.`return_id` = '" . (int)$return_id . "'");
 
 		return $query->row;
 	}
 
 	/**
-	 * Get Returns
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getReturns(array $data = []): array {
-		$sql = "SELECT *, CONCAT(`r`.`firstname`, ' ', `r`.`lastname`) AS `customer`, (SELECT `rs`.`name` FROM `" . DB_PREFIX . "return_status` `rs` WHERE `rs`.`return_status_id` = `r`.`return_status_id` AND `rs`.`language_id` = '" . (int)$this->config->get('config_language_id') . "') AS `return_status` FROM `" . DB_PREFIX . "return` `r`";
+		$sql = "SELECT *, CONCAT(r.`firstname`, ' ', r.`lastname`) AS customer, (SELECT rs.`name` FROM `" . DB_PREFIX . "return_status` rs WHERE rs.`return_status_id` = r.`return_status_id` AND rs.`language_id` = '" . (int)$this->config->get('config_language_id') . "') AS return_status FROM `" . DB_PREFIX . "return` r";
 
 		$implode = [];
 
 		if (!empty($data['filter_return_id'])) {
-			$implode[] = "`r`.`return_id` = '" . (int)$data['filter_return_id'] . "'";
+			$implode[] = "r.`return_id` = '" . (int)$data['filter_return_id'] . "'";
 		}
 
 		if (!empty($data['filter_order_id'])) {
-			$implode[] = "`r`.`order_id` = '" . (int)$data['filter_order_id'] . "'";
+			$implode[] = "r.`order_id` = '" . (int)$data['filter_order_id'] . "'";
 		}
 
 		if (!empty($data['filter_customer'])) {
-			$implode[] = "LCASE(CONCAT(`r`.`firstname`, ' ', `r`.`lastname`)) LIKE '" . $this->db->escape(oc_strtolower($data['filter_customer']) . '%') . "'";
+			$implode[] = "CONCAT(r.`firstname`, ' ', r.`lastname`) LIKE '" . $this->db->escape((string)$data['filter_customer'] . '%') . "'";
 		}
 
 		if (!empty($data['filter_product'])) {
-			$implode[] = "LCASE(`r`.`product` = '" . $this->db->escape(oc_strtolower($data['filter_product'])) . "'";
+			$implode[] = "r.`product` = '" . $this->db->escape((string)$data['filter_product']) . "'";
 		}
 
 		if (!empty($data['filter_model'])) {
-			$implode[] = "LCASE(`r`.`model` = '" . $this->db->escape(oc_strtolower($data['filter_model'])) . "'";
+			$implode[] = "r.`model` = '" . $this->db->escape((string)$data['filter_model']) . "'";
 		}
 
 		if (!empty($data['filter_return_status_id'])) {
-			$implode[] = "`r`.`return_status_id` = '" . (int)$data['filter_return_status_id'] . "'";
+			$implode[] = "r.`return_status_id` = '" . (int)$data['filter_return_status_id'] . "'";
 		}
 
 		if (!empty($data['filter_date_from'])) {
-			$implode[] = "DATE(`r`.`date_added`) >= DATE('" . $this->db->escape((string)$data['filter_date_from']) . "')";
+			$implode[] = "DATE(r.`date_added`) >= DATE('" . $this->db->escape((string)$data['filter_date_from']) . "')";
 		}
 
 		if (!empty($data['filter_date_to'])) {
-			$implode[] = "DATE(`r`.`date_added`) <= DATE('" . $this->db->escape((string)$data['filter_date_to']) . "')";
+			$implode[] = "DATE(r.`date_added`) <= DATE('" . $this->db->escape((string)$data['filter_date_to']) . "')";
 		}
 
 		if ($implode) {
@@ -131,7 +108,7 @@ class Returns extends \Opencart\System\Engine\Model {
 		if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
 			$sql .= " ORDER BY " . $data['sort'];
 		} else {
-			$sql .= " ORDER BY `r`.`return_id`";
+			$sql .= " ORDER BY r.`return_id`";
 		}
 
 		if (isset($data['order']) && ($data['order'] == 'DESC')) {
@@ -158,47 +135,45 @@ class Returns extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Returns
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
 	public function getTotalReturns(array $data = []): int {
-		$sql = "SELECT COUNT(*) AS `total` FROM `" . DB_PREFIX . "return` `r`";
+		$sql = "SELECT COUNT(*) AS `total` FROM `" . DB_PREFIX . "return` r";
 
 		$implode = [];
 
 		if (!empty($data['filter_return_id'])) {
-			$implode[] = "`r`.`return_id` = '" . (int)$data['filter_return_id'] . "'";
+			$implode[] = "r.`return_id` = '" . (int)$data['filter_return_id'] . "'";
 		}
 
 		if (!empty($data['filter_customer'])) {
-			$implode[] = "LCASE(CONCAT(`r`.`firstname`, ' ', `r`.`lastname`)) LIKE '" . $this->db->escape(oc_strtolower($data['filter_customer']) . '%') . "'";
+			$implode[] = "CONCAT(r.`firstname`, ' ', r.`lastname`) LIKE '" . $this->db->escape((string)$data['filter_customer'] . '%') . "'";
 		}
 
 		if (!empty($data['filter_order_id'])) {
-			$implode[] = "`r`.`order_id` = '" . $this->db->escape((string)$data['filter_order_id']) . "'";
+			$implode[] = "r.`order_id` = '" . $this->db->escape((string)$data['filter_order_id']) . "'";
 		}
 
 		if (!empty($data['filter_product'])) {
-			$implode[] = "`r`.`product` = '" . $this->db->escape((string)$data['filter_product']) . "'";
+			$implode[] = "r.`product` = '" . $this->db->escape((string)$data['filter_product']) . "'";
 		}
 
 		if (!empty($data['filter_model'])) {
-			$implode[] = "`r`.`model` = '" . $this->db->escape((string)$data['filter_model']) . "'";
+			$implode[] = "r.`model` = '" . $this->db->escape((string)$data['filter_model']) . "'";
 		}
 
 		if (!empty($data['filter_return_status_id'])) {
-			$implode[] = "`r`.`return_status_id` = '" . (int)$data['filter_return_status_id'] . "'";
+			$implode[] = "r.`return_status_id` = '" . (int)$data['filter_return_status_id'] . "'";
 		}
 
 		if (!empty($data['filter_date_from'])) {
-			$implode[] = "DATE(`r`.`date_added`) >= DATE('" . $this->db->escape((string)$data['filter_date_from']) . "')";
+			$implode[] = "DATE(r.`date_added`) >= DATE('" . $this->db->escape((string)$data['filter_date_from']) . "')";
 		}
 
 		if (!empty($data['filter_date_to'])) {
-			$implode[] = "DATE(`r`.`date_added`) <= DATE('" . $this->db->escape((string)$data['filter_date_to']) . "')";
+			$implode[] = "DATE(r.`date_added`) <= DATE('" . $this->db->escape((string)$data['filter_date_to']) . "')";
 		}
 
 		if ($implode) {
@@ -211,8 +186,6 @@ class Returns extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Returns By Return Status ID
-	 *
 	 * @param int $return_status_id
 	 *
 	 * @return int
@@ -224,8 +197,6 @@ class Returns extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Returns By Return Reason ID
-	 *
 	 * @param int $return_reason_id
 	 *
 	 * @return int
@@ -237,8 +208,6 @@ class Returns extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Returns By Return Action ID
-	 *
 	 * @param int $return_action_id
 	 *
 	 * @return int
@@ -250,8 +219,6 @@ class Returns extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Add History
-	 *
 	 * @param int    $return_id
 	 * @param int    $return_status_id
 	 * @param string $comment
@@ -260,30 +227,16 @@ class Returns extends \Opencart\System\Engine\Model {
 	 * @return void
 	 */
 	public function addHistory(int $return_id, int $return_status_id, string $comment, bool $notify): void {
-		$this->editReturnStatusId($return_id, $return_status_id);
-
+		$this->db->query("UPDATE `" . DB_PREFIX . "return` SET `return_status_id` = '" . (int)$return_status_id . "', `date_modified` = NOW() WHERE `return_id` = '" . (int)$return_id . "'");
 		$this->db->query("INSERT INTO `" . DB_PREFIX . "return_history` SET `return_id` = '" . (int)$return_id . "', `return_status_id` = '" . (int)$return_status_id . "', `notify` = '" . (int)$notify . "', `comment` = '" . $this->db->escape(strip_tags($comment)) . "', `date_added` = NOW()");
 	}
 
 	/**
-	 * Delete Return Histories
-	 *
-	 * @param int $return_id
-	 *
-	 * @return void
-	 */
-	public function deleteHistories(int $return_id): void {
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "return_history` WHERE `return_id` = '" . (int)$return_id . "'");
-	}
-
-	/**
-	 * Get Histories
-	 *
 	 * @param int $return_id
 	 * @param int $start
 	 * @param int $limit
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getHistories(int $return_id, int $start = 0, int $limit = 10): array {
 		if ($start < 0) {
@@ -294,14 +247,12 @@ class Returns extends \Opencart\System\Engine\Model {
 			$limit = 10;
 		}
 
-		$query = $this->db->query("SELECT `rh`.`date_added`, `rs`.`name` AS `status`, `rh`.`comment`, `rh`.`notify` FROM `" . DB_PREFIX . "return_history` `rh` LEFT JOIN `" . DB_PREFIX . "return_status` `rs` ON `rh`.`return_status_id` = `rs`.`return_status_id` WHERE `rh`.`return_id` = '" . (int)$return_id . "' AND `rs`.`language_id` = '" . (int)$this->config->get('config_language_id') . "' ORDER BY `rh`.`date_added` DESC LIMIT " . (int)$start . "," . (int)$limit);
+		$query = $this->db->query("SELECT rh.`date_added`, rs.`name` AS status, rh.`comment`, rh.`notify` FROM `" . DB_PREFIX . "return_history` rh LEFT JOIN `" . DB_PREFIX . "return_status` rs ON rh.`return_status_id` = rs.`return_status_id` WHERE rh.`return_id` = '" . (int)$return_id . "' AND rs.`language_id` = '" . (int)$this->config->get('config_language_id') . "' ORDER BY rh.`date_added` DESC LIMIT " . (int)$start . "," . (int)$limit);
 
 		return $query->rows;
 	}
 
 	/**
-	 * Get Total Histories
-	 *
 	 * @param int $return_id
 	 *
 	 * @return int
@@ -313,8 +264,6 @@ class Returns extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Histories By Return Status ID
-	 *
 	 * @param int $return_status_id
 	 *
 	 * @return int

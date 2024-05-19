@@ -7,11 +7,9 @@ namespace Opencart\Catalog\Model\Setting;
  */
 class Store extends \Opencart\System\Engine\Model {
 	/**
-	 * Get Store
-	 *
 	 * @param int $store_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getStore(int $store_id): array {
 		$query = $this->db->query("SELECT DISTINCT * FROM `" . DB_PREFIX . "store` WHERE `store_id` = '" . (int)$store_id . "'");
@@ -20,11 +18,9 @@ class Store extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Store By Hostname
-	 *
 	 * @param string $url
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getStoreByHostname(string $url): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "store` WHERE REPLACE(`url`, 'www.', '') = '" . $this->db->escape($url) . "'");
@@ -33,40 +29,33 @@ class Store extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Stores
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getStores(): array {
 		$sql = "SELECT * FROM `" . DB_PREFIX . "store` ORDER BY `url`";
 
-		$key = md5($sql);
-
-		$store_data = $this->cache->get('store.' . $key);
+		$store_data = $this->cache->get('store.' . md5($sql));
 
 		if (!$store_data) {
 			$query = $this->db->query($sql);
 
 			$store_data = $query->rows;
 
-			$this->cache->set('store.' . $key, $store_data);
+			$this->cache->set('store.' . md5($sql), $store_data);
 		}
 
 		return $store_data;
 	}
 
 	/**
-	 * Create Store Instance
-	 *
 	 * @param int    $store_id
 	 * @param string $language
 	 * @param string $session_id
 	 *
-	 * @throws \Exception
-	 *
 	 * @return \Opencart\System\Engine\Registry
+	 * @throws \Exception
 	 */
-	public function createStoreInstance(string $session_id = ''): \Opencart\System\Engine\Registry {
+	public function createStoreInstance(int $store_id = 0, string $language = '', string $session_id = ''): object {
 		// Autoloader
 		$this->autoloader->register('Opencart\Catalog', DIR_CATALOG);
 

@@ -3,13 +3,11 @@ namespace Opencart\Catalog\Controller\Extension\Opencart\Module;
 /**
  * Class Featured
  *
- * @package Opencart\Catalog\Controller\Extension\Opencart\Module
+ * @package
  */
 class Featured extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
-	 * @param array<string, mixed> $setting
+	 * @param array $setting
 	 *
 	 * @return string
 	 */

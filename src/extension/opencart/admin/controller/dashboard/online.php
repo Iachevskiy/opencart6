@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Extension\Opencart\Dashboard;
  */
 class Online extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -55,8 +53,6 @@ class Online extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -65,7 +61,7 @@ class Online extends \Opencart\System\Engine\Controller {
 		$json = [];
 
 		if (!$this->user->hasPermission('modify', 'extension/opencart/dashboard/online')) {
-			$json['error'] = $this->language->get('error_permission');
+			$json['error']  = $this->language->get('error_permission');
 		}
 
 		if (!$json) {
@@ -81,8 +77,6 @@ class Online extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Dashboard
-	 *
 	 * @return string
 	 */
 	public function dashboard(): string {

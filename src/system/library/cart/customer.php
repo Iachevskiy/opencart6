@@ -3,66 +3,58 @@ namespace Opencart\System\Library\Cart;
 /**
  * Class Customer
  *
- * @package Opencart\System\Library\Cart
+ * @package
  */
 class Customer {
 	/**
-	 * @var object
+	 * @var object|mixed|null
 	 */
 	private object $db;
 	/**
-	 * @var object
+	 * @var object|mixed|null
 	 */
 	private object $config;
 	/**
-	 * @var object
+	 * @var object|mixed|null
 	 */
-	private object $request; // Do not add namespace as it stops devs being able to extend classes
+	private object $request;
 	/**
-	 * @var object
+	 * @var object|mixed|null
 	 */
 	private object $session;
 	/**
-	 * @var int
+	 * @var int|mixed
 	 */
 	private int $customer_id = 0;
 	/**
-	 * @var string
+	 * @var string|mixed
 	 */
 	private string $firstname = '';
 	/**
-	 * @var string
+	 * @var string|mixed
 	 */
 	private string $lastname = '';
 	/**
-	 * @var int
+	 * @var int|mixed
 	 */
 	private int $customer_group_id = 0;
 	/**
-	 * @var string
+	 * @var string|mixed
 	 */
 	private string $email = '';
 	/**
-	 * @var string
+	 * @var string|mixed
 	 */
 	private string $telephone = '';
 	/**
-	 * @var bool
+	 * @var bool|mixed
 	 */
 	private bool $newsletter = false;
-	/**
-	 * @var bool
-	 */
-	private bool $safe = false;
-	/**
-	 * @var bool
-	 */
-	private bool $commenter = false;
 
 	/**
 	 * Constructor
 	 *
-	 * @param \Opencart\System\Engine\Registry $registry
+	 * @param    object  $registry
 	 */
 	public function __construct(\Opencart\System\Engine\Registry $registry) {
 		$this->db = $registry->get('db');
@@ -81,8 +73,6 @@ class Customer {
 				$this->email = $customer_query->row['email'];
 				$this->telephone = $customer_query->row['telephone'];
 				$this->newsletter = $customer_query->row['newsletter'];
-				$this->safe = (bool)$customer_query->row['safe'];
-				$this->commenter = (bool)$customer_query->row['commenter'];
 
 				$this->db->query("UPDATE `" . DB_PREFIX . "customer` SET `language_id` = '" . (int)$this->config->get('config_language_id') . "', `ip` = '" . $this->db->escape($this->request->server['REMOTE_ADDR']) . "' WHERE `customer_id` = '" . (int)$this->customer_id . "'");
 			} else {
@@ -94,11 +84,11 @@ class Customer {
 	/**
 	 * Login
 	 *
-	 * @param string $email
-	 * @param string $password
-	 * @param bool   $override
+	 * @param    string  $email
+	 * @param    string  $password
+	 * @param    bool  $override
 	 *
-	 * @return bool
+	 * @return   bool
 	 */
 	public function login(string $email, string $password, bool $override = false): bool {
 		$customer_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "customer` WHERE LCASE(`email`) = '" . $this->db->escape(oc_strtolower($email)) . "' AND `status` = '1'");
@@ -129,8 +119,6 @@ class Customer {
 			$this->email = $customer_query->row['email'];
 			$this->telephone = $customer_query->row['telephone'];
 			$this->newsletter = $customer_query->row['newsletter'];
-			$this->safe = (bool)$customer_query->row['safe'];
-			$this->commenter = (bool)$customer_query->row['commenter'];
 
 			$this->db->query("UPDATE `" . DB_PREFIX . "customer` SET `language_id` = '" . (int)$this->config->get('config_language_id') . "', `ip` = '" . $this->db->escape($this->request->server['REMOTE_ADDR']) . "' WHERE `customer_id` = '" . (int)$this->customer_id . "'");
 
@@ -139,11 +127,11 @@ class Customer {
 			return false;
 		}
 	}
-
+	
 	/**
 	 * Logout
 	 *
-	 * @return void
+	 * @return   void
 	 */
 	public function logout(): void {
 		unset($this->session->data['customer_id']);
@@ -155,14 +143,12 @@ class Customer {
 		$this->email = '';
 		$this->telephone = '';
 		$this->newsletter = false;
-		$this->safe = false;
-		$this->commenter = false;
 	}
 
 	/**
 	 * isLogged
 	 *
-	 * @return bool
+	 * @return   bool
 	 */
 	public function isLogged(): bool {
 		return $this->customer_id ? true : false;
@@ -171,16 +157,16 @@ class Customer {
 	/**
 	 * getId
 	 *
-	 * @return int
+	 * @return   int
 	 */
 	public function getId(): int {
 		return $this->customer_id;
 	}
-
+	
 	/**
 	 * getFirstName
 	 *
-	 * @return string
+	 * @return   string
 	 */
 	public function getFirstName(): string {
 		return $this->firstname;
@@ -189,25 +175,25 @@ class Customer {
 	/**
 	 * getLastName
 	 *
-	 * @return string
+	 * @return   string
 	 */
 	public function getLastName(): string {
 		return $this->lastname;
 	}
-
+	
 	/**
 	 * getGroupId
 	 *
-	 * @return int
+	 * @return   int
 	 */
 	public function getGroupId(): int {
 		return $this->customer_group_id;
 	}
-
+	
 	/**
 	 * getEmail
 	 *
-	 * @return string
+	 * @return   string
 	 */
 	public function getEmail(): string {
 		return $this->email;
@@ -216,7 +202,7 @@ class Customer {
 	/**
 	 * getTelephone
 	 *
-	 * @return string
+	 * @return   string
 	 */
 	public function getTelephone(): string {
 		return $this->telephone;
@@ -225,34 +211,16 @@ class Customer {
 	/**
 	 * getNewsletter
 	 *
-	 * @return bool
+	 * @return   bool
 	 */
 	public function getNewsletter(): bool {
 		return $this->newsletter;
 	}
 
 	/**
-	 * isSafe
-	 *
-	 * @return bool
-	 */
-	public function isSafe(): bool {
-		return $this->safe;
-	}
-
-	/**
-	 * isCommenter
-	 *
-	 * @return bool
-	 */
-	public function isCommenter(): bool {
-		return $this->commenter;
-	}
-
-	/**
 	 * getAddressId
 	 *
-	 * @return int
+	 * @return   int
 	 */
 	public function getAddressId(): int {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "address` WHERE `customer_id` = '" . (int)$this->customer_id . "' AND `default` = '1'");
@@ -263,11 +231,11 @@ class Customer {
 			return 0;
 		}
 	}
-
+	
 	/**
-	 * Get Balance
+	 * getBalance
 	 *
-	 * @return float
+	 * @return   float
 	 */
 	public function getBalance(): float {
 		$query = $this->db->query("SELECT SUM(`amount`) AS `total` FROM `" . DB_PREFIX . "customer_transaction` WHERE `customer_id` = '" . (int)$this->customer_id . "'");
@@ -276,9 +244,9 @@ class Customer {
 	}
 
 	/**
-	 * Get Reward Points
+	 * getRewardPoints
 	 *
-	 * @return float
+	 * @return   float
 	 */
 	public function getRewardPoints(): float {
 		$query = $this->db->query("SELECT SUM(`points`) AS `total` FROM `" . DB_PREFIX . "customer_reward` WHERE `customer_id` = '" . (int)$this->customer_id . "'");

@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Extension\Opencart\Dashboard;
  */
 class Recent extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -39,7 +37,7 @@ class Recent extends \Opencart\System\Engine\Controller {
 		$data['dashboard_recent_width'] = $this->config->get('dashboard_recent_width');
 
 		$data['columns'] = [];
-
+		
 		for ($i = 3; $i <= 12; $i++) {
 			$data['columns'][] = $i;
 		}
@@ -55,8 +53,6 @@ class Recent extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Save
-	 *
 	 * @return void
 	 */
 	public function save(): void {
@@ -81,8 +77,6 @@ class Recent extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Dashboard
-	 *
 	 * @return string
 	 */
 	public function dashboard(): string {
@@ -99,7 +93,7 @@ class Recent extends \Opencart\System\Engine\Controller {
 		];
 
 		$this->load->model('sale/order');
-
+		
 		$results = $this->model_sale_order->getOrders($filter_data);
 
 		foreach ($results as $result) {

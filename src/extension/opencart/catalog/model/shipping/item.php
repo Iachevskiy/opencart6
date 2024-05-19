@@ -3,26 +3,22 @@ namespace Opencart\Catalog\Model\Extension\Opencart\Shipping;
 /**
  * Class Item
  *
- * @package Opencart\Catalog\Model\Extension\Opencart\Shipping
+ * @package
  */
 class Item extends \Opencart\System\Engine\Model {
 	/**
-	 * Get Quote
+	 * @param array $address
 	 *
-	 * @param array<string, mixed> $address
-	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
-	public function getQuote(array $address): array {
+	function getQuote(array $address): array {
 		$this->load->language('extension/opencart/shipping/item');
 
-		$this->load->model('localisation/geo_zone');
-
-		$results = $this->model_localisation_geo_zone->getGeoZone((int)$this->config->get('shipping_item_geo_zone_id'), (int)$address['country_id'], (int)$address['zone_id']);
+		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone_to_geo_zone` WHERE `geo_zone_id` = '" . (int)$this->config->get('shipping_item_geo_zone_id') . "' AND `country_id` = '" . (int)$address['country_id'] . "' AND (`zone_id` = '" . (int)$address['zone_id'] . "' OR `zone_id` = '0')");
 
 		if (!$this->config->get('shipping_item_geo_zone_id')) {
 			$status = true;
-		} elseif ($results) {
+		} elseif ($query->num_rows) {
 			$status = true;
 		} else {
 			$status = false;

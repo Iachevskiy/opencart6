@@ -7,9 +7,9 @@ namespace Opencart\Catalog\Controller\Startup;
  */
 class Maintenance extends \Opencart\System\Engine\Controller {
 	/**
-	 * @return \Opencart\System\Engine\Action|null
+	 * @return object|\Opencart\System\Engine\Action|null
 	 */
-	public function index(): ?\Opencart\System\Engine\Action {
+	public function index(): object|null {
 		if ($this->config->get('config_maintenance')) {
 			// Route
 			if (isset($this->request->get['route'])) {

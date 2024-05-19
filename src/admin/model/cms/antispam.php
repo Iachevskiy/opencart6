@@ -7,9 +7,7 @@ namespace Opencart\Admin\Model\Cms;
  */
 class Antispam extends \Opencart\System\Engine\Model {
 	/**
-	 * Add Antispam
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
@@ -20,20 +18,15 @@ class Antispam extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Edit Antispam
+	 * @param array $data
 	 *
-	 * @param int                  $antispam_id
-	 * @param array<string, mixed> $data
-	 *
-	 * @return void
+	 * @return int
 	 */
 	public function editAntispam(int $antispam_id, array $data = []): void {
 		$this->db->query("UPDATE `" . DB_PREFIX . "antispam` SET `keyword` = '" . $this->db->escape((string)$data['keyword']) . "' WHERE `antispam_id` = '" . (int)$antispam_id . "'");
 	}
 
 	/**
-	 * Delete Antispam
-	 *
 	 * @param int $antispam_id
 	 *
 	 * @return void
@@ -43,11 +36,9 @@ class Antispam extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Antispam
-	 *
 	 * @param int $antispam_id
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function getAntispam(int $antispam_id): array {
 		$query = $this->db->query("SELECT DISTINCT * FROM `" . DB_PREFIX . "antispam` WHERE `antispam_id` = '" . (int)$antispam_id . "'");
@@ -56,11 +47,9 @@ class Antispam extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Antispam(s)
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getAntispams(array $data = []): array {
 		$sql = "SELECT * FROM `" . DB_PREFIX . "antispam`";
@@ -68,7 +57,7 @@ class Antispam extends \Opencart\System\Engine\Model {
 		$implode = [];
 
 		if (!empty($data['filter_keyword'])) {
-			$implode[] = "LCASE(`keyword`) LIKE '" . $this->db->escape(oc_strtolower($data['filter_keyword'])) . "'";
+			$implode[] = "`keyword` LIKE '" . $this->db->escape((string)$data['filter_keyword']) . "'";
 		}
 
 		if ($implode) {
@@ -107,9 +96,7 @@ class Antispam extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Antispam(s)
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
@@ -119,7 +106,7 @@ class Antispam extends \Opencart\System\Engine\Model {
 		$implode = [];
 
 		if (!empty($data['filter_keyword'])) {
-			$implode[] = "LCASE(`keyword`) LIKE '" . $this->db->escape(oc_strtolower($data['filter_keyword'])) . "'";
+			$implode[] = "`keyword` LIKE '" . $this->db->escape((string)$data['filter_keyword']) . "'";
 		}
 
 		if ($implode) {

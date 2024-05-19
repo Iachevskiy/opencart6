@@ -241,7 +241,8 @@
                       {% endfor %}
                     {% endif %}
                     <br/>
-                    <small> - {{ text_subscription }}: {{ description }}</small></td>
+                    <small> - {{ text_subscription }}: {{ description }}</small>
+                  </td>
                   <td>{{ quantity }}</td>
                 </tr>
               </tbody>
@@ -286,8 +287,7 @@
                   <label class="col-sm-2 col-form-label">{{ entry_override }}</label>
                   <div class="col-sm-10">
                     <div class="form-check form-switch form-switch-lg">
-                      <input type="hidden" name="override" value="0"/>
-                      <input type="checkbox" name="override" value="1" id="input-override" class="form-check-input"/>
+                      <input type="hidden" name="override" value="0"/> <input type="checkbox" name="override" value="1" id="input-override" class="form-check-input">
                     </div>
                     <div class="form-text">{{ help_override }}</div>
                   </div>
@@ -296,8 +296,7 @@
                   <label class="col-sm-2 col-form-label">{{ entry_notify }}</label>
                   <div class="col-sm-10">
                     <div class="form-check form-switch form-switch-lg">
-                      <input type="hidden" name="notify" value="0"/>
-                      <input type="checkbox" name="notify" value="1" id="input-notify" class="form-check-input"/>
+                      <input type="hidden" name="notify" value="0"/> <input type="checkbox" name="notify" value="1" id="input-notify" class="form-check-input"/>
                     </div>
                   </div>
                 </div>
@@ -437,7 +436,10 @@
           <fieldset>
             <legend>{{ text_date_next }}</legend>
             <div class="mb-3">
-              <input type="date" name="date_next" value="{{ date_next }}" placeholder="{{ entry_date_next }}" id="input-date-next" class="form-control"/>
+              <div class="input-group">
+                <input type="text" name="date_next" value="{{ date_next }}" placeholder="{{ entry_date_next }}" id="input-date-next" class="form-control date"/>
+                <div class="input-group-text"><i class="fa-regular fa-calendar"></i></div>
+              </div>
               <div class="form-text">{{ help_date_next }}</div>
               <div id="error-date-next" class="invalid-feedback"></div>
             </div>

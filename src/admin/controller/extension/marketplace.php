@@ -7,8 +7,6 @@ namespace Opencart\Admin\Controller\Extension;
  */
 class Marketplace extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
 	 * @return void
 	 */
 	public function index(): void {
@@ -16,8 +14,6 @@ class Marketplace extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Get List
-	 *
 	 * @return string
 	 */
 	public function getList(): string {
@@ -25,10 +21,10 @@ class Marketplace extends \Opencart\System\Engine\Controller {
 
 		$available = [];
 
-		$results = glob(DIR_EXTENSION . '*/admin/controller/marketplace/*.php');
+		$results = $this->model_setting_extension->getPaths('%/admin/controller/marketplace/%.php');
 
 		foreach ($results as $result) {
-			$available[] = basename($result, '.php');
+			$available[] = basename($result['path'], '.php');
 		}
 
 		$installed = [];
@@ -49,11 +45,9 @@ class Marketplace extends \Opencart\System\Engine\Controller {
 
 		if ($results) {
 			foreach ($results as $result) {
-				$path = substr($result, strlen(DIR_EXTENSION));
+				$extension = substr($result['path'], 0, strpos($result['path'], '/'));
 
-				$extension = substr($path, 0, strpos($path, '/'));
-
-				$code = basename($result, '.php');
+				$code = basename($result['path'], '.php');
 
 				$this->load->language('extension/' . $extension . '/marketplace/' . $code, $code);
 
@@ -74,8 +68,6 @@ class Marketplace extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Install
-	 *
 	 * @return void
 	 */
 	public function install(): void {
@@ -140,8 +132,6 @@ class Marketplace extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
-	 * Uninstall
-	 *
 	 * @return void
 	 */
 	public function uninstall(): void {

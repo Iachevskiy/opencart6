@@ -7,11 +7,9 @@ namespace Opencart\Admin\Model\Extension\Opencart\Report;
  */
 class Marketing extends \Opencart\System\Engine\Model {
 	/**
-	 * Get Marketing
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getMarketing(array $data = []): array {
 		$sql = "SELECT m.`marketing_id`, m.`name` AS campaign, m.`code`, m.`clicks` AS clicks, (SELECT COUNT(DISTINCT `order_id`) FROM `" . DB_PREFIX . "order` o1 WHERE o1.`marketing_id` = m.`marketing_id`";
@@ -66,9 +64,7 @@ class Marketing extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Marketing
-	 *
-	 * @param array<mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */

@@ -7,11 +7,9 @@ namespace Opencart\Admin\Model\Report;
  */
 class Online extends \Opencart\System\Engine\Model {
 	/**
-	 * Get Online
+	 * @param array $data
 	 *
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function getOnline(array $data = []): array {
 		$sql = "SELECT `co`.`ip`, `co`.`customer_id`, `co`.`url`, `co`.`referer`, `co`.`date_added` FROM `" . DB_PREFIX . "customer_online` `co` LEFT JOIN `" . DB_PREFIX . "customer` `c` ON (`co`.`customer_id` = `c`.`customer_id`)";
@@ -23,7 +21,7 @@ class Online extends \Opencart\System\Engine\Model {
 		}
 
 		if (!empty($data['filter_customer'])) {
-			$implode[] = "`co`.`customer_id` > '0' AND LCASE(CONCAT(`c`.`firstname`, ' ', `c`.`lastname`)) LIKE '" . $this->db->escape(oc_strtolower($data['filter_customer'])) . "'";
+			$implode[] = "`co`.`customer_id` > '0' AND CONCAT(`c`.`firstname`, ' ', `c`.`lastname`) LIKE '" . $this->db->escape((string)$data['filter_customer']) . "'";
 		}
 
 		if ($implode) {
@@ -50,9 +48,7 @@ class Online extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Get Total Online
-	 *
-	 * @param array<string, mixed> $data
+	 * @param array $data
 	 *
 	 * @return int
 	 */
@@ -66,7 +62,7 @@ class Online extends \Opencart\System\Engine\Model {
 		}
 
 		if (!empty($data['filter_customer'])) {
-			$implode[] = "`co`.`customer_id` > '0' AND LCASE(CONCAT(`c`.`firstname`, ' ', `c`.`lastname`)) LIKE '" . $this->db->escape(oc_strtolower($data['filter_customer'])) . "'";
+			$implode[] = "`co`.`customer_id` > '0' AND CONCAT(`c`.`firstname`, ' ', `c`.`lastname`) LIKE '" . $this->db->escape((string)$data['filter_customer']) . "'";
 		}
 
 		if ($implode) {

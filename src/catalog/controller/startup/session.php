@@ -7,11 +7,8 @@ namespace Opencart\Catalog\Controller\Startup;
  */
 class Session extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 * 
-	 * @throws \Exception
-	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	public function index(): void {
 		$session = new \Opencart\System\Library\Session($this->config->get('session_engine'), $this->registry);

@@ -3,15 +3,13 @@ namespace Opencart\Catalog\Model\Extension\Opencart\Total;
 /**
  * Class Coupon
  *
- * @package Opencart\Catalog\Model\Extension\Opencart\Total
+ * @package
  */
 class Coupon extends \Opencart\System\Engine\Model {
 	/**
-	 * Get Total
-	 *
-	 * @param array<int, array<string, mixed>> $totals
-	 * @param array<int, float>                $taxes
-	 * @param float                            $total
+	 * @param array $totals
+	 * @param array $taxes
+	 * @param float $total
 	 *
 	 * @return void
 	 */
@@ -109,41 +107,39 @@ class Coupon extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Confirm
-	 *
-	 * @param array<string, mixed> $order_info
-	 * @param array<string, mixed> $order_total
+	 * @param array $order_info
+	 * @param array $order_total
 	 *
 	 * @return int
 	 */
 	public function confirm(array $order_info, array $order_total): int {
 		$code = '';
 
-		$start = strpos($order_total['title'], '(');
+		$start = strpos($order_total['title'], '(') + 1;
 		$end = strrpos($order_total['title'], ')');
 
-		if ($start !== false && $end !== false) {
-			$code = substr($order_total['title'], $start + 1, $end - ($start + 1));
+		if ($start && $end) {
+			$code = substr($order_total['title'], $start, $end - $start);
 		}
 
 		if ($code) {
-			$this->load->model('marketing/coupon');
-
 			$status = true;
 
-			$coupon_info = $this->model_marketing_coupon->getCouponByCode($code);
+			$coupon_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "coupon` WHERE `code` = '" . $this->db->escape($code) . "' AND `status` = '1'");
 
-			if ($coupon_info) {
-				$coupon_total = $this->model_marketing_coupon->getTotalHistories($coupon_info['coupon_id']);
+			if ($coupon_query->num_rows) {
+				$this->load->model('marketing/coupon');
 
-				if ($coupon_info['uses_total'] > 0 && ($coupon_total >= $coupon_info['uses_total'])) {
+				$coupon_total = $this->model_marketing_coupon->getTotalHistoriesByCoupon($code);
+
+				if ($coupon_query->row['uses_total'] > 0 && ($coupon_total >= $coupon_query->row['uses_total'])) {
 					$status = false;
 				}
 
 				if ($order_info['customer_id']) {
-					$customer_total = $this->model_marketing_coupon->getTotalHistoriesByCustomerId($coupon_info['coupon_id'], $order_info['customer_id']);
+					$customer_total = $this->model_marketing_coupon->getTotalHistoriesByCustomerId($code, $order_info['customer_id']);
 
-					if ($coupon_info['uses_customer'] > 0 && ($customer_total >= $coupon_info['uses_customer'])) {
+					if ($coupon_query->row['uses_customer'] > 0 && ($customer_total >= $coupon_query->row['uses_customer'])) {
 						$status = false;
 					}
 				}
@@ -152,7 +148,7 @@ class Coupon extends \Opencart\System\Engine\Model {
 			}
 
 			if ($status) {
-				$this->model_marketing_coupon->addHistory($coupon_info['coupon_id'], $order_info['order_id'], $order_info['customer_id'], $order_total['value']);
+				$this->db->query("INSERT INTO `" . DB_PREFIX . "coupon_history` SET `coupon_id` = '" . (int)$coupon_query->row['coupon_id'] . "', `order_id` = '" . (int)$order_info['order_id'] . "', `customer_id` = '" . (int)$order_info['customer_id'] . "', `amount` = '" . (float)$order_total['value'] . "', `date_added` = NOW()");
 			} else {
 				return $this->config->get('config_fraud_status_id');
 			}
@@ -162,15 +158,11 @@ class Coupon extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Unconfirm
-	 *
-	 * @param array<string, mixed> $order_info
+	 * @param int $order_id
 	 *
 	 * @return void
 	 */
-	public function unconfirm(array $order_info): void {
-		$this->load->model('marketing/coupon');
-
-		$this->model_marketing_coupon->deleteHistoryByOrderId($order_info['order_id']);
+	public function unconfirm(int $order_id): void {
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "coupon_history` WHERE `order_id` = '" . (int)$order_id . "'");
 	}
 }

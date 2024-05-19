@@ -7,43 +7,40 @@ namespace Opencart\Admin\Controller\Mail;
  */
 class Transaction extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
-	 *
-	 * @param string            $route
-	 * @param array<int, mixed> $args
-	 * @param mixed             $output
-	 *
-	 * @throws \Exception
+	 * @param string $route
+	 * @param array  $args
+	 * @param mixed  $output
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
-	public function index(string &$route, array &$args, &$output): void {
+	public function index(string &$route, array &$args, mixed &$output): void {
 		if (isset($args[0])) {
 			$customer_id = $args[0];
 		} else {
 			$customer_id = 0;
 		}
-
+		
 		if (isset($args[1])) {
 			$description = $args[1];
 		} else {
 			$description = '';
-		}
-
+		}		
+		
 		if (isset($args[2])) {
 			$amount = $args[2];
 		} else {
 			$amount = 0;
 		}
-
+		
 		if (isset($args[3])) {
 			$order_id = $args[3];
 		} else {
 			$order_id = 0;
 		}
-
+			
 		$this->load->model('customer/customer');
-
+						
 		$customer_info = $this->model_customer_customer->getCustomer($customer_id);
 
 		if ($customer_info) {
@@ -101,5 +98,5 @@ class Transaction extends \Opencart\System\Engine\Controller {
 				$mail->send();
 			}
 		}
-	}
-}
+	}		
+}	

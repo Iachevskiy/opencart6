@@ -1,29 +1,31 @@
 name: Deploy to cPanel
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - master
 
 jobs:
   deploy:
+    if: ${{ github.event.pull_request.merged == true }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-#     Setup ssh key
+      # Setup ssh key
       - run: |
-         set -eu
-         mkdir "$HOME/.ssh"
-         echo "${{ secrets.SSH_PRIVATE_KEY }}" > "$HOME/.ssh/key"
-         chmod 600 "$HOME/.ssh/key"
+          set -eu
+          mkdir "$HOME/.ssh"
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > "$HOME/.ssh/key"
+          chmod 600 "$HOME/.ssh/key"
 
-#     Sync filess
+      # Sync files
       - run: |
-          rsync -v -e  \
+          rsync -v -e \
           "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" \
-          --archive --compress --delete  \
+          --archive --compress --delete \
           --exclude 'db.php' \
           --exclude 'env.php' \
           --exclude 'admin/env.php' \
@@ -35,5 +37,3 @@ jobs:
           --exclude 'system/storage/session/' \
           --exclude 'system/storage/upload/' \
           ./src/ vychevs4@test-market.ru:/home/vychevs4/public_html
-
-

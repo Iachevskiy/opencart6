@@ -16,10 +16,10 @@ class NavbarPcFavorites extends \Opencart\System\Engine\Controller {
         ];
 
         $navbarData = [
-           'icon' => $this->load->controller('custom_code/components/fShared/block/icon/icon_template', $iconData),
+           'icon' => $this->load->controller('custom_code/components/shared/block/icon/icon_template', $iconData),
            'badge' => $this->load->controller('custom_code/components/entities/wishlist/badge_counter_wishlist', $count),
            'title'=> 'Избранное'
         ];
-        return $this->load->view('custom_code/components/fShared/block/navbar/navbar_pc_item_template', $navbarData);
+        return $this->load->view('custom_code/components/shared/block/navbar/navbar_pc_item_template', $navbarData);
 	}
 }

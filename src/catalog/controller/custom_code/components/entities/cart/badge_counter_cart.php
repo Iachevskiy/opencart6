@@ -1,5 +1,5 @@
 <?php
-namespace Opencart\Catalog\Controller\CustomCode\Components\eEntities\Cart;
+namespace Opencart\Catalog\Controller\CustomCode\Components\Entities\Cart;
 /**
  * Class Icon
  *

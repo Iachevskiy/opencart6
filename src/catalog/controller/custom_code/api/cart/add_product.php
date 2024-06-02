@@ -50,7 +50,7 @@ class AddProduct extends \Opencart\System\Engine\Controller {
 			unset($this->session->data['payment_methods']);
 
             $countInCart = $this->cart->countProducts() + 1;
-            $data['components'][] = $this->load->controller('custom_code/components/eEntities/cart/badge_counter_cart', $countInCart);
+            $data['components'][] = $this->load->controller('custom_code/components/entities/cart/badge_counter_cart', $countInCart);
 
             $this->response->setOutput($this->load->view('custom_code/api/test_template', $data));
         }

@@ -21,10 +21,10 @@ class NavbarPc extends \Opencart\System\Engine\Controller {
 
         $countInCart = $this->cart->countProducts();
 
-        $data['navbar_pc_cart'] = $this->load->controller('custom_code/components/dFeatures/navbar/navbar_pc_cart', $countInCart);
-        $data['navbar_pc_favorites'] = $this->load->controller('custom_code/components/dFeatures/navbar/navbar_pc_favorites', $favoritesCount);
-        $data['navbar_pc_orders'] = $this->load->controller('custom_code/components/dFeatures/navbar/navbar_pc_orders');
-        $data['navbar_pc_user'] = $this->load->controller('custom_code/components/dFeatures/navbar/navbar_pc_user');
+        $data['navbar_pc_cart'] = $this->load->controller('custom_code/components/features/navbar/navbar_pc_cart', $countInCart);
+        $data['navbar_pc_favorites'] = $this->load->controller('custom_code/components/features/navbar/navbar_pc_favorites', $favoritesCount);
+        $data['navbar_pc_orders'] = $this->load->controller('custom_code/components/features/navbar/navbar_pc_orders');
+        $data['navbar_pc_user'] = $this->load->controller('custom_code/components/features/navbar/navbar_pc_user');
 
         return $this->load->view('custom_code/components/widgets/navbar/navbar_pc', $data);
 	}

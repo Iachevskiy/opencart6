@@ -1,5 +1,5 @@
 <?php
-namespace Opencart\Catalog\Controller\CustomCode\Components\dFeatures\Navbar;
+namespace Opencart\Catalog\Controller\CustomCode\Components\Features\Navbar;
 /**
  * Class Icon
  *

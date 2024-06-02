@@ -1,5 +1,5 @@
 <?php
-namespace Opencart\Catalog\Controller\CustomCode\Components\eEntities\Wishlist;
+namespace Opencart\Catalog\Controller\CustomCode\Components\Entities\Wishlist;
 /**
  * Class Icon
  *

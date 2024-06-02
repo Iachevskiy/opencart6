@@ -1,5 +1,5 @@
 <?php
-namespace Opencart\Catalog\Controller\CustomCode\Components\fShared\Block\BadgeCounter;
+namespace Opencart\Catalog\Controller\CustomCode\Components\Shared\Block\BadgeCounter;
 /**
  * Class Icon
  *
@@ -23,6 +23,6 @@ class DefaultComponent extends \Opencart\System\Engine\Controller {
 			$data['id'] = '';
 		}
 
-		return $this->load->view('custom_code/components/fShared/block/badge_counter/default', $data);
+		return $this->load->view('custom_code/components/shared/block/badge_counter/default', $data);
 	}
 }

@@ -1,5 +1,5 @@
 <?php
-namespace Opencart\Catalog\Controller\CustomCode\Components\eEntities\Wishlist;
+namespace Opencart\Catalog\Controller\CustomCode\Components\Entities\Wishlist;
 /**
  * Class Icon
  *
@@ -15,6 +15,6 @@ public function index(string $count): string {
            'id' => 'badge_counter_wishlist',
         ];
 
-        return $this->load->controller('custom_code/components/fShared/block/badge_counter/default_component', $badgeData);
+        return $this->load->controller('custom_code/components/shared/block/badge_counter/default_component', $badgeData);
 	}
 }

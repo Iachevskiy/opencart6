@@ -1,5 +1,5 @@
 <?php
-namespace Opencart\Catalog\Controller\CustomCode\Components\dFeatures\Navbar;
+namespace Opencart\Catalog\Controller\CustomCode\Components\Features\Navbar;
 /**
  * Class Icon
  *
@@ -15,9 +15,9 @@ class NavbarPcUser extends \Opencart\System\Engine\Controller {
            'name' => 'user',
         ];
         $navbarData = [
-           'icon' => $this->load->controller('custom_code/components/fShared/block/icon/icon_template', $iconData),
+           'icon' => $this->load->controller('custom_code/components/shared/block/icon/icon_template', $iconData),
            'title'=> 'Войти'
         ];
-        return $this->load->view('custom_code/components/fShared/block/navbar/navbar_pc_item_template', $navbarData);
+        return $this->load->view('custom_code/components/shared/block/navbar/navbar_pc_item_template', $navbarData);
 	}
 }

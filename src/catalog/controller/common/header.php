@@ -90,16 +90,8 @@ class Header extends \Opencart\System\Engine\Controller {
 		$data['menu'] = $this->load->controller('common/menu');
 
 		$data['navbar_pc'] = $this->load->controller('custom_code/components/ui/navbar/navbar_pc');
-		// custom_code/components/3_widgets/block/navbar/navbar_pc.php
-// 		custom_code/components/c_widgets/block/navbar/navbar_pc
-// 		custom_code/components/c_widgets/block/navbar/navbar_pc
-// 		custom_code/components/c_widgets/block/navbar/navbar_pc.php
-//$route = preg_replace('/[^a-zA-Z0-9_|\/\.]/', '', str_replace('|', '.', $route));
-// print "print не требует скобок.";
-// $route = 'custom_code/components/1cwidgets/block/navbar/navbar_pc';
-// $route2 = preg_replace('/[^a-zA-Z0-9_|\/\.]/', '', str_replace('|', '.', $route));
-// print $route2;
-		$data['navbar_pc'] = $this->load->controller('custom_code/components/cWidgets/navbar/navbar_pc');
+
+		$data['navbar_pc'] = $this->load->controller('custom_code/components/widgets/navbar/navbar_pc');
 
 		return $this->load->view('common/header', $data);
 	}

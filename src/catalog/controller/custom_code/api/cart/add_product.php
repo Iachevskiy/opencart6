@@ -38,18 +38,16 @@ class AddProduct extends \Opencart\System\Engine\Controller {
         $product_info = $this->model_catalog_product->getProduct($product_id);
 
         if ($product_info) {
-
+            $countProducts = $this->cart->countProducts();
+            $countInCart = $countProducts < 1 ? 1 : $countProducts + 1;
 			$this->cart->add($product_id, $quantity, $option, $subscription_plan_id);
 
-// 			$json['success'] = sprintf($this->language->get('text_success'), $this->url->link('product/product', 'language=' . $this->config->get('config_language') . '&product_id=' . $product_id), $product_info['name'], $this->url->link('checkout/cart', 'language=' . $this->config->get('config_language')));
-
-			// Unset all shipping and payment methods
+            // Unset all shipping and payment methods
 			unset($this->session->data['shipping_method']);
 			unset($this->session->data['shipping_methods']);
 			unset($this->session->data['payment_method']);
 			unset($this->session->data['payment_methods']);
 
-            $countInCart = $this->cart->countProducts() + 1;
             $data['components'][] = $this->load->controller('custom_code/components/entities/cart/badge_counter_cart', $countInCart);
 
             $this->response->setOutput($this->load->view('custom_code/api/test_template', $data));

@@ -1,5 +1,5 @@
 <?php
-namespace Opencart\Catalog\Controller\CustomCode\Components\CWidgets\Navbar;
+namespace Opencart\Catalog\Controller\CustomCode\Components\Widgets\Navbar;
 /**
  * Class Icon
  *
@@ -26,6 +26,6 @@ class NavbarPc extends \Opencart\System\Engine\Controller {
         $data['navbar_pc_orders'] = $this->load->controller('custom_code/components/dFeatures/navbar/navbar_pc_orders');
         $data['navbar_pc_user'] = $this->load->controller('custom_code/components/dFeatures/navbar/navbar_pc_user');
 
-        return $this->load->view('custom_code/components/cWidgets/navbar/navbar_pc', $data);
+        return $this->load->view('custom_code/components/widgets/navbar/navbar_pc', $data);
 	}
 }

@@ -4,6 +4,17 @@
     <div class="description">
       <h4><a href="{{ href }}">{{ name }}</a></h4>
       <p>{{ description }}</p>
+
+        <div
+                hx-post="/?route=custom_code/api/cart/add_product"
+                hx-vals='{ "product_id": {{ product_id }}, "quantity": {{ minimum }} }'
+                hx-swap="none"
+        >
+            Put To Messages
+        </div>
+        <span id="header-cart"/>
+
+        <div id="search-results"></div>
       {% if price %}
         <div class="price">
           {% if not special %}
@@ -34,7 +45,8 @@
         <button type="submit" formaction="{{ add_to_wishlist }}" data-bs-toggle="tooltip" title="{{ button_wishlist }}"><i class="fa-solid fa-heart"></i></button>
         <button type="submit" formaction="{{ add_to_compare }}" data-bs-toggle="tooltip" title="{{ button_compare }}"><i class="fa-solid fa-arrow-right-arrow-left"></i></button>
       </div>
-      <input type="hidden" name="product_id" value="{{ product_id }}"/> <input type="hidden" name="quantity" value="{{ minimum }}"/>
+      <input type="hidden" name="product_id" value="{{ product_id }}"/>
+        <input type="hidden" name="quantity" value="{{ minimum }}"/>
     </form>
   </div>
 </div>

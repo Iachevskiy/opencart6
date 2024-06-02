@@ -1,0 +1,11 @@
+<div id="{{ id }}" hx-swap-oob="true" class="position-absolute top-0 start-100 translate-middle ">
+    {% if count %}
+        <span class="badge rounded-pill bg-danger" style="min-width: 20px">
+            {% if count > 99 %}
+                99+
+            {% else %}
+                {{ count }}
+            {% endif %}
+        </span>
+    {% endif %}
+</div>

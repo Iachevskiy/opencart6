@@ -1,115 +1,62 @@
 <?php
-namespace Opencart\Catalog\Controller\Checkout;
+namespace Opencart\Catalog\Controller\CustomCode\Api\Cart;
 /**
  * Class Cart
  *
  * @package Opencart\Catalog\Controller\Checkout
  */
-class Cart extends \Opencart\System\Engine\Controller {
-	/**
-	 * @return void
-	 */
-	public function index(): void {
-		$this->load->language('checkout/cart');
+class AddProduct extends \Opencart\System\Engine\Controller {
 
-		$this->document->setTitle($this->language->get('heading_title'));
+    public function index(): void {
 
-		$data['breadcrumbs'] = [];
-
-		$data['breadcrumbs'][] = [
-			'text' => $this->language->get('text_home'),
-			'href' => $this->url->link('common/home', 'language=' . $this->config->get('config_language'))
-		];
-
-		$data['breadcrumbs'][] = [
-			'text' => $this->language->get('heading_title'),
-			'href' => $this->url->link('checkout/cart', 'language=' . $this->config->get('config_language'))
-		];
-
-		if ($this->cart->hasProducts() || !empty($this->session->data['vouchers'])) {
-			if (!$this->cart->hasStock() && (!$this->config->get('config_stock_checkout') || $this->config->get('config_stock_warning'))) {
-				$data['error_warning'] = $this->language->get('error_stock');
-			} elseif (isset($this->session->data['error'])) {
-				$data['error_warning'] = $this->session->data['error'];
-
-				unset($this->session->data['error']);
-			} else {
-				$data['error_warning'] = '';
-			}
-
-			if ($this->config->get('config_customer_price') && !$this->customer->isLogged()) {
-				$data['attention'] = sprintf($this->language->get('text_login'), $this->url->link('account/login', 'language=' . $this->config->get('config_language')), $this->url->link('account/register', 'language=' . $this->config->get('config_language')));
-			} else {
-				$data['attention'] = '';
-			}
-
-			if (isset($this->session->data['success'])) {
-				$data['success'] = $this->session->data['success'];
-
-				unset($this->session->data['success']);
-			} else {
-				$data['success'] = '';
-			}
-
-			if ($this->config->get('config_cart_weight')) {
-				$data['weight'] = $this->weight->format($this->cart->getWeight(), $this->config->get('config_weight_class_id'), $this->language->get('decimal_point'), $this->language->get('thousand_point'));
-			} else {
-				$data['weight'] = '';
-			}
-
-			$data['list'] = $this->load->controller('checkout/cart.getList');
-
-			$data['modules'] = [];
-
-			$this->load->model('setting/extension');
-
-			$extensions = $this->model_setting_extension->getExtensionsByType('total');
-
-			foreach ($extensions as $extension) {
-				 $result = $this->load->controller('extension/' . $extension['extension'] . '/total/' . $extension['code']);
-
-				if (!$result instanceof \Exception) {
-					$data['modules'][] = $result;
-				}
-			}
-
-			$data['language'] = $this->config->get('config_language');
-
-			$data['continue'] = $this->url->link('common/home', 'language=' . $this->config->get('config_language'));
-			$data['checkout'] = $this->url->link('checkout/checkout', 'language=' . $this->config->get('config_language'));
-
-			$data['column_left'] = $this->load->controller('common/column_left');
-			$data['column_right'] = $this->load->controller('common/column_right');
-			$data['content_top'] = $this->load->controller('common/content_top');
-			$data['content_bottom'] = $this->load->controller('common/content_bottom');
-			$data['footer'] = $this->load->controller('common/footer');
-			$data['header'] = $this->load->controller('common/header');
-
-			$this->response->setOutput($this->load->view('checkout/cart', $data));
+        if (isset($this->request->post['product_id'])) {
+			$product_id = (int)$this->request->post['product_id'];
 		} else {
-			$data['text_error'] = $this->language->get('text_no_results');
-
-			$data['continue'] = $this->url->link('common/home', 'language=' . $this->config->get('config_language'));
-
-			$data['column_left'] = $this->load->controller('common/column_left');
-			$data['column_right'] = $this->load->controller('common/column_right');
-			$data['content_top'] = $this->load->controller('common/content_top');
-			$data['content_bottom'] = $this->load->controller('common/content_bottom');
-			$data['footer'] = $this->load->controller('common/footer');
-			$data['header'] = $this->load->controller('common/header');
-
-			$this->response->setOutput($this->load->view('error/not_found', $data));
+			$product_id = 0;
 		}
-	}
 
-	/**
-	 * @return void
-	 */
-	public function list(): void {
-		$this->load->language('checkout/cart');
+		if (isset($this->request->post['quantity'])) {
+			$quantity = (int)$this->request->post['quantity'];
+		} else {
+			$quantity = 1;
+		}
 
-		$this->response->setOutput($this->getList());
-	}
+        if (isset($this->request->post['option'])) {
+    			$option = array_filter($this->request->post['option']);
+    		} else {
+    			$option = [];
+    		}
+
+    		if (isset($this->request->post['subscription_plan_id'])) {
+    			$subscription_plan_id = (int)$this->request->post['subscription_plan_id'];
+    		} else {
+    			$subscription_plan_id = 0;
+    		}
+
+		$this->load->model('catalog/product');
+
+        $product_info = $this->model_catalog_product->getProduct($product_id);
+
+        if ($product_info) {
+
+			$this->cart->add($product_id, $quantity, $option, $subscription_plan_id);
+
+// 			$json['success'] = sprintf($this->language->get('text_success'), $this->url->link('product/product', 'language=' . $this->config->get('config_language') . '&product_id=' . $product_id), $product_info['name'], $this->url->link('checkout/cart', 'language=' . $this->config->get('config_language')));
+
+			// Unset all shipping and payment methods
+			unset($this->session->data['shipping_method']);
+			unset($this->session->data['shipping_methods']);
+			unset($this->session->data['payment_method']);
+			unset($this->session->data['payment_methods']);
+
+            $countInCart = $this->cart->countProducts() + 1;
+            $data['components'][] = $this->load->controller('custom_code/components/eEntities/cart/badge_counter_cart', $countInCart);
+
+            $this->response->setOutput($this->load->view('custom_code/api/test_template', $data));
+        }
+
+    }
+
 
 	/**
 	 * @return string
@@ -223,9 +170,58 @@ class Cart extends \Opencart\System\Engine\Controller {
 		return $this->load->view('checkout/cart_list', $data);
 	}
 
+    /* функция возвращения компонента на клиент */
+    /**
+	 * @return void
+	 */
+
     public function add2(): void {
-        $json = [];
-        $this->response->setOutput(json_encode($json));
+
+        if (isset($this->request->post['product_id'])) {
+			$product_id = (int)$this->request->post['product_id'];
+		} else {
+			$product_id = 0;
+		}
+
+		if (isset($this->request->post['quantity'])) {
+			$quantity = (int)$this->request->post['quantity'];
+		} else {
+			$quantity = 1;
+		}
+
+        if (isset($this->request->post['option'])) {
+    			$option = array_filter($this->request->post['option']);
+    		} else {
+    			$option = [];
+    		}
+
+    		if (isset($this->request->post['subscription_plan_id'])) {
+    			$subscription_plan_id = (int)$this->request->post['subscription_plan_id'];
+    		} else {
+    			$subscription_plan_id = 0;
+    		}
+
+		$this->load->model('catalog/product');
+
+        $product_info = $this->model_catalog_product->getProduct($product_id);
+
+        if ($product_info) {
+			$this->cart->add($product_id, $quantity, $option, $subscription_plan_id);
+
+// 			$json['success'] = sprintf($this->language->get('text_success'), $this->url->link('product/product', 'language=' . $this->config->get('config_language') . '&product_id=' . $product_id), $product_info['name'], $this->url->link('checkout/cart', 'language=' . $this->config->get('config_language')));
+
+			// Unset all shipping and payment methods
+			unset($this->session->data['shipping_method']);
+			unset($this->session->data['shipping_methods']);
+			unset($this->session->data['payment_method']);
+			unset($this->session->data['payment_methods']);
+
+
+            $data['cart'] = $this->load->controller('components/header/cart');
+            $this->response->setOutput($this->load->view('custom/cart', $data));
+        }
+
+
     }
 
 	/**

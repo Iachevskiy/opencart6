@@ -13,6 +13,7 @@
     <meta name="keywords" content="{{ keywords }}"/>
   {% endif %}
   <script src="{{ jquery }}" type="text/javascript"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
   <link href="{{ bootstrap }}" type="text/css" rel="stylesheet" media="screen"/>
   <link href="{{ icons }}" type="text/css" rel="stylesheet"/>
   <link href="{{ stylesheet }}" type="text/css" rel="stylesheet"/>
@@ -42,24 +43,12 @@
       <ul class="list-inline">
         <li class="list-inline-item">{{ currency }}</li>
         <li class="list-inline-item">{{ language }}</li>
-        <li class="list-inline-item">
-          <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Toggle right offcanvas</button>
-        </li>
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-          <div class="offcanvas-header">
-            <h5 id="offcanvasRightLabel">Offcanvas right</h5>
-            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-          </div>
-          <div class="offcanvas-body">
-            ...
-          </div>
-        </div>
       </ul>
     </div>
     <div class="nav float-end">
       <ul class="list-inline">
-        <li class="list-inline-item"><a href="{{ contact }}"><i class="fa-solid fa-phone"></i></a> <span class="d-none d-md-inline">{{ telephone }}</span></li>
-        <li class="list-inline-item">
+        <li class="list-inline-item d-none"><a href="{{ contact }}"><i class="fa-solid fa-phone"></i></a> <span class="d-none d-md-inline">{{ telephone }}</span></li>
+        <li class="list-inline-item d-none">
           <div class="dropdown">
             <a href="{{ account }}" class="dropdown-toggle" data-bs-toggle="dropdown"><i class="fa-solid fa-user"></i> <span class="d-none d-md-inline">{{ text_account }}</span> <i class="fa-solid fa-caret-down"></i></a>
             <ul class="dropdown-menu dropdown-menu-right">
@@ -76,29 +65,40 @@
             </ul>
           </div>
         </li>
-        <li class="list-inline-item"><a href="{{ wishlist }}" id="wishlist-total" title="{{ text_wishlist }}"><i class="fa-solid fa-heart"></i> <span class="d-none d-md-inline">{{ text_wishlist }}</span></a></li>
-        <li class="list-inline-item"><a href="{{ shopping_cart }}" title="{{ text_shopping_cart }}"><i class="fa-solid fa-cart-shopping"></i> <span class="d-none d-md-inline">{{ text_shopping_cart }}</span></a></li>
-        <li class="list-inline-item"><a href="{{ checkout }}" title="{{ text_checkout }}"><i class="fa-solid fa-share"></i> <span class="d-none d-md-inline">{{ text_checkout }}</span></a></li>
+        <li class="list-inline-item d-none"><a href="{{ wishlist }}" id="wishlist-total" title="{{ text_wishlist }}"><i class="fa-solid fa-heart"></i> <span class="d-none d-md-inline">{{ text_wishlist }}</span></a></li>
+        <li class="list-inline-item d-none"><a href="{{ shopping_cart }}" title="{{ text_shopping_cart }}"><i class="fa-solid fa-cart-shopping"></i> <span class="d-none d-md-inline">{{ text_shopping_cart }}</span></a></li>
+        <li class="list-inline-item d-none"><a href="{{ checkout }}" title="{{ text_checkout }}"><i class="fa-solid fa-share"></i> <span class="d-none d-md-inline">{{ text_checkout }}</span></a></li>
       </ul>
     </div>
   </div>
 </nav>
-<header>
+<header class="bg-white z-3 pt-3 mb-3 border-bottom">
   <div class="container">
     <div class="row">
       <div class="col-md-3 col-lg-4">
-        <div id="logo">
-          {% if logo %}
-            <a href="{{ home }}"><img src="{{ logo }}" title="{{ name }}" alt="{{ name }}" class="img-fluid"/></a>
-          {% else %}
-            <h1><a href="{{ home }}">{{ name }}</a></h1>
-          {% endif %} logo2
+        <div id="logo" class="text-black d-flex align-items-center gap-4">
+{#          {% if logo %}#}
+{#            <a href="{{ home }}"><img src="{{ logo }}" title="{{ name }}" alt="{{ name }}" class="img-fluid"/></a>#}
+{#          {% else %}#}
+{#            <h1><a href="{{ home }}">{{ name }}</a></h1>#}
+{#          {% endif %}#}
+          <svg xmlns="http://www.w3.org/2000/svg" width="46" height="46" fill="currentColor" class="bi bi-crop" viewBox="0 0 16 16">
+            <path d="M3.5.5A.5.5 0 0 1 4 1v13h13a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2H3.5a.5.5 0 0 1-.5-.5V4H1a.5.5 0 0 1 0-1h2V1a.5.5 0 0 1 .5-.5m2.5 3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4H6.5a.5.5 0 0 1-.5-.5"/>
+          </svg>
+          <div class="d-flex flex-column">
+            <div class="fw-bold fs-1">no-name</div>
+            <div class=" fs-6 h-auto mt-1">металлобаза</div>
+          </div>
         </div>
+
+
       </div>
-      <div class="col-md-5">{{ search }}</div>
-      <div id="header-cart" class="col-md-4 col-lg-3 mb-2">{{ cart }}</div>
+{#      <div class="col-md-5">{{ search }}</div>#}
+
+      {{ navbar_pc }}
+{#      <div id="header-cart" class="col-md-4 col-lg-3 mb-2">{{ cart }}</div>#}
     </div>
   </div>
 </header>
 <main>
-  {{ menu }}
+{#  {{ menu }}#}

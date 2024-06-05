@@ -50,7 +50,8 @@ class AddProduct extends \Opencart\System\Engine\Controller {
 
             $data['components'][] = $this->load->controller('custom_code/components/entities/cart/badge_counter_cart', $countInCart);
 
-            $this->response->setOutput($this->load->view('custom_code/api/test_template', $data));
+            $json = [];
+            $this->response->setOutput(json_encode($json));
         }
 
     }

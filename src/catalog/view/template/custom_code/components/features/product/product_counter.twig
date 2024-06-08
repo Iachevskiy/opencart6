@@ -1,0 +1,24 @@
+<div id="product_counter_wrapper_{{ product_id }}" hx-swap-oob="true">
+
+    {% if quantity < 1 %}
+
+        <button type="button" class="btn btn-primary" onclick="addProductToCart({{ product_id }})">
+            Купить
+        </button>
+
+    {% else %}
+
+        <div class="d-flex justify-content-between align-items-center">
+            <button type="button" class="btn btn-primary" onclick="removeOneProductToCart({{ product_id }}, {{ quantity }})">
+                <i class="fa fa-minus"></i>
+            </button>
+
+            <div>{{ quantity }}</div>
+
+            <button type="button" class="btn btn-primary" onclick="addProductToCart({{ product_id }})">
+                <i class="fa fa-plus"></i>
+            </button>
+        </div>
+    {% endif %}
+
+</div>

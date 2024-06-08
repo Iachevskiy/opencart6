@@ -223,11 +223,6 @@ class Cart extends \Opencart\System\Engine\Controller {
 		return $this->load->view('checkout/cart_list', $data);
 	}
 
-    public function add2(): void {
-        $json = [];
-        $this->response->setOutput(json_encode($json));
-    }
-
 	/**
 	 * @return void
 	 */

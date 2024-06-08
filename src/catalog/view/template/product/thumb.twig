@@ -5,19 +5,8 @@
       <h4><a href="{{ href }}">{{ name }}</a></h4>
       <p>{{ description }}</p>
 
-        <div
-                hx-post="/?route=custom_code/api/cart/add_product"
-                hx-vals='{ "product_id": {{ product_id }}, "quantity": {{ minimum }} }'
-                hx-swap="none"
-                hx-on::after-request="htmx.ajax('GET', '/?route=custom_code/api/cart/update_template', {swap: 'none'});"
-        >
-            Put To Messages
-        </div>
-        <span id="header-cart"/>
+      {{ product_counter }}
 
-      {# htmx.ajax('GET', 'your-url', {target: '#another-target'}); #}
-      {# hx-on::after-request="console.log('Запрос выполнен')" #}
-        <div id="search-results"></div>
       {% if price %}
         <div class="price">
           {% if not special %}

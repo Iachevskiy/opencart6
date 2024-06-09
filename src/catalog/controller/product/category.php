@@ -233,7 +233,7 @@ class Category extends \Opencart\System\Engine\Controller {
 
 			$results = $this->model_catalog_product->getProducts($filter_data);
 
-			foreach ($results as $result) {
+			foreach ($results as $index =>  $result) {
 				if (is_file(DIR_IMAGE . html_entity_decode($result['image'], ENT_QUOTES, 'UTF-8'))) {
 					$image = $this->model_tool_image->resize(html_entity_decode($result['image'], ENT_QUOTES, 'UTF-8'), $this->config->get('config_image_product_width'), $this->config->get('config_image_product_height'));
 				} else {
@@ -259,6 +259,7 @@ class Category extends \Opencart\System\Engine\Controller {
 				}
 
 				$product_data = [
+				    'index'=> $index,
 					'product_id'  => $result['product_id'],
 					'thumb'       => $image,
 					'name'        => $result['name'],

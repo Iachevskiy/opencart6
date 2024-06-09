@@ -61,7 +61,14 @@
       {% if thumb or description %}
         <div class="row">
           {% if thumb %}
-            <div class="col-sm-2"><img src="{{ thumb }}" alt="{{ heading_title }}" title="{{ heading_title }}" class="img-thumbnail"/></div>
+            <div class="col-sm-2">
+              <img
+                      data-src="{{ thumb }}"
+                      alt="{{ heading_title }}"
+                      title="{{ heading_title }}"
+                      class="img-thumbnail lazyload"
+              />
+            </div>
           {% endif %}
           {% if description %}
             <div class="col-sm-10">{{ description }}</div>

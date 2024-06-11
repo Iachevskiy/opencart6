@@ -224,14 +224,7 @@ class Category extends \Opencart\System\Engine\Controller {
 
 			$product_total = $this->model_catalog_product->getTotalProducts($filter_data);
 
-            /* Подгружаем кол-во продуктов в корзине по id */
-			$products_in_cart = [];
-            $products_in_cart_data = $this->cart->getProductsFast();
-            foreach ($products_in_cart_data as $product_in_cart) {
-                 $products_in_cart[$product_in_cart['product_id']] = $product_in_cart['quantity'];
-            }
-
-			$results = $this->model_catalog_product->getProducts($filter_data);
+            $results = $this->model_catalog_product->getProducts($filter_data);
 
 			foreach ($results as $index =>  $result) {
 				if (is_file(DIR_IMAGE . html_entity_decode($result['image'], ENT_QUOTES, 'UTF-8'))) {
@@ -270,14 +263,9 @@ class Category extends \Opencart\System\Engine\Controller {
 					'minimum'     => $result['minimum'] > 0 ? $result['minimum'] : 1,
 					'rating'      => $result['rating'],
 					'href'        => $this->url->link('product/product', 'language=' . $this->config->get('config_language') . '&product_id=' . $result['product_id'] . $url),
-				    'quantity_in_cart'      => 0
 				];
 
-				if(isset($products_in_cart[$result['product_id']])) {
-				    $product_data['quantity_in_cart'] = $products_in_cart[$result['product_id']];
-				}
-
-				$data['products'][] = $this->load->controller('product/thumb', $product_data);
+                $data['products'][] = $this->load->controller('product/thumb', $product_data);
 			}
 
 			$url = '';

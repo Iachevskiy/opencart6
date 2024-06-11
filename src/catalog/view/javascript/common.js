@@ -1,35 +1,3 @@
-const apiRoutes = {
-    addProductToCart: '/?route=custom_code/api/cart/add_one_product',
-    removeOneProductToCart: '/?route=custom_code/api/cart/remove_one_product',
-}
-// handler: (data, status) => {
-//     console.log('addProductToCart', data, status);
-//     htmx.ajax('GET', '/?route=custom_code/api/cart/update_template', {swap: 'none'});
-// }
-
-const addProductToCart = (productId) => {
-    htmx.ajax('POST', apiRoutes.addProductToCart,
-        {
-            swap: 'none',
-            values: {
-                product_id: productId,
-            },
-        }
-    );
-}
-
-const removeOneProductToCart = (productId, quantity) => {
-    htmx.ajax('POST', apiRoutes.removeOneProductToCart,
-        {
-            swap: 'none',
-            values: {
-                product_id: productId,
-                quantity: quantity - 1,
-            }
-        }
-    );
-}
-
 function getURLVar(key) {
     var value = [];
 

@@ -22,12 +22,6 @@ class Thumb extends \Opencart\System\Engine\Controller {
 
 		$data['review_status'] = (int)$this->config->get('config_review_status');
 
-        $dataCounter = [
-           'product_id' => $data['product_id'],
-           'quantity' => $data['quantity_in_cart']
-        ];
-		$data['product_counter'] = $this->load->controller('custom_code/components/features/product/product_counter', $dataCounter);
-
 		return $this->load->view('product/thumb', $data);
 	}
 }

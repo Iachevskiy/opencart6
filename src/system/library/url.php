@@ -53,7 +53,14 @@ class Url {
 	 * @return string
 	 */
 	public function link(string $route, string|array $args = '', bool $js = false): string {
-		$url = $this->url . 'index.php?route=' . $route;
+	    $routes_with_city = array("common/home", "product/category", "product/product");
+
+	    /* Если есть город и его нужно подставить в роут, подставляем его в строку */
+        if(CITY_URL !== '' && in_array($route, $routes_with_city)) {
+            $url = $this->url . CITY_URL . '/' . 'index.php?route=' . $route;
+        } else {
+            $url = $this->url . 'index.php?route=' . $route;
+        }
 
 		if ($args) {
 			if (is_array($args)) {
@@ -62,6 +69,8 @@ class Url {
 				$url .= '&' . trim($args, '&');
 			}
 		}
+
+        /* START: удаляем параметр language из ссылок */
 
         // Разбор URL и получение строки запроса
         $parsedUrl = parse_url($url);
@@ -88,10 +97,14 @@ class Url {
         }
 
         $url = $url_without_language_query;
+        /* END: удаляем параметр language из ссылок */
 
 		foreach ($this->rewrite as $rewrite) {
 			$url = $rewrite->rewrite($url);
 		}
+
+        /* Удаляем последний слеш, если он есть */
+        $url = rtrim($url, '/');
 
 		if (!$js) {
 			return str_replace('&', '&amp;', $url);

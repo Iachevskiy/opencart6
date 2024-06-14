@@ -63,6 +63,32 @@ class Url {
 			}
 		}
 
+        // Разбор URL и получение строки запроса
+        $parsedUrl = parse_url($url);
+        $query = $parsedUrl['query'];
+
+        // Разбор строки запроса в массив
+        parse_str($query, $params);
+
+        // Удаление параметра 'language'
+        unset($params['language']);
+
+        // Сборка новой строки запроса без параметра 'language'
+        $newQuery = http_build_query($params);
+
+        // Декодирование строки запроса
+        $newQuery = urldecode($newQuery);
+
+        // Сборка нового URL
+        $url_without_language_query = $parsedUrl['scheme'] . '://' . $parsedUrl['host'] . $parsedUrl['path'];
+
+        // Добавление строки запроса, если она не пустая
+        if (!empty($newQuery)) {
+           $url_without_language_query .= '?' . $newQuery;
+        }
+
+        $url = $url_without_language_query;
+
 		foreach ($this->rewrite as $rewrite) {
 			$url = $rewrite->rewrite($url);
 		}

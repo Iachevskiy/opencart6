@@ -212,6 +212,47 @@ if (!$action) {
 	}
 }
 
+/* Данные по городам */
+$cities_data = [
+    'oren' => [
+        'config_customer_group_id' => 2,
+    ],
+    'samara' => [
+        'config_customer_group_id' => 3,
+    ]
+];
+
+
+/* START: Получаем город из строки, записываем его в CITY_URL + сохраняем в куку city */
+$city_url = '';
+
+/* Ищем город в строке запроса */
+if(isset($request->server['REDIRECT_URL'])) {
+    // Разделение REDIRECT_URL строки по слешам
+    $parts = explode("/", $request->server['REDIRECT_URL']);
+
+    // Получение первой динамической части
+    if(isset($cities_data[$parts[1]])) {
+        $city_url = $parts[1];
+        setcookie('city', $parts[1]);
+    }
+}
+/* Если не нашли в строке запроса, ищем в куках */
+if($city_url == '' && isset($request->cookie['city']) && isset($cities_data[$request->cookie['city']])) {
+    $city_url = $request->cookie['city'];
+}
+
+/* Если нашли город, фиксируем группу клиентов */
+if($city_url !== '') {
+    $city_data = $cities_data[$city_url];
+    $config->set('config_customer_group_id', $city_data['config_customer_group_id']);
+}
+
+/* Прокидываем  CITY_URL в глобальные значения */
+DEFINE('CITY_URL', $city_url);
+
+/* END: Получаем город из строки, записываем его в CITY_URL + сохраняем в куку city */
+
 // Dispatch
 while ($action) {
 	// Route needs to be updated each time so it can trigger events
